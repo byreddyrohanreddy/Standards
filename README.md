@@ -211,8 +211,9 @@ SIH108/
 │   └── generate_evaluation_pdf.py      # PDF benchmark report generator
 │
 ├── documents/
+│   ├── System_Architecture_Diagram.png # High-resolution system architecture infographic
 │   ├── Evaluation_Benchmark_Report.pdf # Formal SIH evaluation benchmark report
-│   ├── System_Architecture.pdf         # Complete system architecture
+│   ├── System_Architecture.pdf         # Complete system architecture specification
 │   ├── TechStack_Architecture.pdf      # Detailed tech stack specification
 │   └── Workflow_Architecture.pdf       # E-procurement workflow diagram
 │
