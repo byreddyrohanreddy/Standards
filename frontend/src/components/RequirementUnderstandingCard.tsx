@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Cpu, Tag, Layers, Zap, CheckCircle, Compass, Hash } from "lucide-react";
+import { Cpu, Tag, Layers, Zap, CheckCircle, Compass, Shield, Wrench, Thermometer } from "lucide-react";
 import { ExtractedRequirements } from "@/types";
 
 interface Props {
@@ -13,6 +13,9 @@ export const RequirementUnderstandingCard: React.FC<Props> = ({ requirements }) 
   const hasMaterials = (requirements.materials || []).length > 0;
   const hasCompliance = (requirements.compliance_needs || []).length > 0;
   const hasDetectedStds = (requirements.detected_standards || []).length > 0;
+  const hasSafety = (requirements.safety_requirements || []).length > 0;
+  const hasTesting = (requirements.testing_requirements || []).length > 0;
+  const hasPerformance = (requirements.performance_requirements || []).length > 0;
 
   return (
     <div className="bg-white rounded-xl shadow-xs border border-slate-200 p-5 transition-all">
@@ -22,7 +25,7 @@ export const RequirementUnderstandingCard: React.FC<Props> = ({ requirements }) 
           Requirement Understanding & Dynamic NLP Extraction
         </h3>
         <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-          NLP Extractor
+          Generic 16-Field NLP Extractor
         </span>
       </div>
 
@@ -37,7 +40,10 @@ export const RequirementUnderstandingCard: React.FC<Props> = ({ requirements }) 
             {requirements.product || "General Procurement Item"}
           </div>
           <div className="text-xs text-slate-500 mt-0.5">
-            {requirements.category} • <span className="font-medium text-slate-700">{requirements.domain} Domain</span>
+            {requirements.product_type ? `${requirements.product_type} • ` : ""}
+            <span className="font-medium text-slate-700">
+              {requirements.industry_domain || requirements.domain || "General"} Domain
+            </span>
           </div>
         </div>
 
@@ -51,7 +57,7 @@ export const RequirementUnderstandingCard: React.FC<Props> = ({ requirements }) 
             {requirements.application || "General Application"}
           </div>
           <div className="text-xs text-slate-500 mt-0.5">
-            Operating conditions mapped to standard duty cycles
+            {requirements.ip_rating ? `Ingress Protection: ${requirements.ip_rating}` : "Standard operating conditions"}
           </div>
         </div>
 
@@ -79,10 +85,10 @@ export const RequirementUnderstandingCard: React.FC<Props> = ({ requirements }) 
         </div>
       </div>
 
-      {/* Secondary Tags: Materials, Compliance, Detected Standards */}
-      <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+      {/* Secondary Tags: Materials, Performance, Safety, Testing, Citations */}
+      <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-3">
         {hasMaterials && (
-          <div className="flex items-center gap-1 text-xs text-slate-600 mr-3">
+          <div className="flex items-center gap-1 text-xs text-slate-600">
             <span className="text-[11px] font-semibold text-slate-400 uppercase">Materials:</span>
             {requirements.materials.map((m) => (
               <span key={m} className="px-2 py-0.5 bg-slate-100 rounded text-slate-700 font-medium">
@@ -92,12 +98,36 @@ export const RequirementUnderstandingCard: React.FC<Props> = ({ requirements }) 
           </div>
         )}
 
-        {hasCompliance && (
-          <div className="flex items-center gap-1 text-xs text-slate-600 mr-3">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase">Requirements:</span>
-            {requirements.compliance_needs.map((c) => (
-              <span key={c} className="px-2 py-0.5 bg-blue-50 text-blue-800 border border-blue-200 rounded font-medium">
-                {c}
+        {hasSafety && (
+          <div className="flex items-center gap-1 text-xs text-slate-600">
+            <Shield className="w-3 h-3 text-red-600" />
+            <span className="text-[11px] font-semibold text-slate-400 uppercase">Safety:</span>
+            {requirements.safety_requirements.map((s) => (
+              <span key={s} className="px-2 py-0.5 bg-red-50 text-red-800 border border-red-200 rounded font-medium">
+                {s}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {hasTesting && (
+          <div className="flex items-center gap-1 text-xs text-slate-600">
+            <Wrench className="w-3 h-3 text-emerald-600" />
+            <span className="text-[11px] font-semibold text-slate-400 uppercase">Testing:</span>
+            {requirements.testing_requirements.map((t) => (
+              <span key={t} className="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded font-medium">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {hasPerformance && (
+          <div className="flex items-center gap-1 text-xs text-slate-600">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase">Performance:</span>
+            {requirements.performance_requirements.map((p) => (
+              <span key={p} className="px-2 py-0.5 bg-blue-50 text-blue-800 border border-blue-200 rounded font-medium">
+                {p}
               </span>
             ))}
           </div>
@@ -117,3 +147,4 @@ export const RequirementUnderstandingCard: React.FC<Props> = ({ requirements }) 
     </div>
   );
 };
+

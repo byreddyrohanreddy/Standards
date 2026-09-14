@@ -136,14 +136,48 @@ class StandardsGraphService:
             meta = self._convert_to_metadata(item, "Superseding Modern Standard") if item else self._create_placeholder_metadata(num, "Superseding Modern Standard")
             superseded.append(meta)
 
+        # Helper to sort categorized items: items in catalog first, current before superseded, then by year descending
+        def sort_meta_list(meta_list: List[StandardMetadata]) -> List[StandardMetadata]:
+            return sorted(
+                meta_list,
+                key=lambda m: (
+                    0 if m.id in self.standards_by_id else 1,
+                    0 if m.status == "current" else 1,
+                    -m.year
+                )
+            )
+
         return RelatedStandardsCategorized(
-            normative_references=normative,
-            testing_standards=testing,
-            safety_standards=safety,
-            installation_standards=installation,
-            related_products=related,
-            superseded_standards=superseded
+            normative_references=sort_meta_list(normative),
+            testing_standards=sort_meta_list(testing),
+            safety_standards=sort_meta_list(safety),
+            installation_standards=sort_meta_list(installation),
+            related_products=sort_meta_list(related),
+            superseded_standards=sort_meta_list(superseded)
         )
+
+    def get_relationships_for_standard_id(self, standard_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieves metadata and relationship graph for a specific standard ID or IS number."""
+        std = self.standards_by_id.get(standard_id)
+        if not std:
+            # Check by number or slug
+            norm_target = standard_id.lower().replace("_", " ").replace("-", " ")
+            for k, s in self.standards_by_number.items():
+                if s["id"].lower() == standard_id.lower() or k.lower() == standard_id.lower() or k.lower().replace(":", " ") == norm_target:
+                    std = s
+                    break
+        if not std:
+            return None
+        
+        meta = self._convert_to_metadata(std)
+        categorized = self.get_related_standards(meta)
+        graph = self.build_react_flow_graph(meta, categorized)
+        return {
+            "standard": meta,
+            "relationships": categorized,
+            "graph": graph
+        }
+
 
     def build_react_flow_graph(self, primary_std: StandardMetadata, related: RelatedStandardsCategorized) -> GraphData:
         """

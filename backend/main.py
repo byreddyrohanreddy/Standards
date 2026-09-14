@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +11,8 @@ from backend.models.schemas import (
     StandardMetadata,
     GraphData,
     VersionAlert,
-    RelatedStandardsCategorized
+    RelatedStandardsCategorized,
+    LatencyBreakdown
 )
 from backend.services.nlp_extractor import extract_requirements
 from backend.services.retrieval_engine import HybridRetrievalEngine
@@ -47,18 +49,33 @@ with open("data/examples.json", "r", encoding="utf-8") as f:
     EXAMPLES_DATA = json.load(f)
 
 def run_pipeline(query: str, top_k: int = 5) -> AnalysisResponse:
+    t_start = time.perf_counter()
+
     # 1. NLP Requirement Extraction
+    t0 = time.perf_counter()
     req = extract_requirements(query)
+    nlp_ms = round((time.perf_counter() - t0) * 1000.0, 2)
 
     # 2. Version and Supersession Audit
     version_alerts = version_auditor.audit_text_for_versions(query, req.detected_standards)
 
-    # 3. Hybrid Candidate Retrieval (BM25 + Semantic Cosine + Parameter Coverage + Reranking)
+    # 3. Hybrid Candidate Retrieval (BM25 + Dense Semantic Vector Search + Scoring)
+    t1 = time.perf_counter()
     candidates = retrieval_engine.retrieve_candidates(query, req, top_k=top_k)
+    retrieval_ms = round((time.perf_counter() - t1) * 1000.0, 2)
 
+    t2 = time.perf_counter()
     if not candidates:
         empty_graph = GraphData(nodes=[], edges=[])
         empty_rel = RelatedStandardsCategorized()
+        total_ms = round((time.perf_counter() - t_start) * 1000.0, 2)
+        latency = LatencyBreakdown(
+            nlp_extraction_ms=nlp_ms,
+            retrieval_ms=retrieval_ms,
+            reranking_ms=0.0,
+            graph_expansion_ms=0.0,
+            total_ms=total_ms
+        )
         return AnalysisResponse(
             query=query,
             extracted_requirements=req,
@@ -68,24 +85,21 @@ def run_pipeline(query: str, top_k: int = 5) -> AnalysisResponse:
             version_alerts=version_alerts,
             certifications=[],
             graph_data=empty_graph,
-            summary_explanation="No closely matching Indian Standards found for this specification."
+            summary_explanation="No closely matching Indian Standards found for this specification in the prototype catalog.",
+            latency_breakdown=latency
         )
 
     # Primary recommended standard is candidate rank #1
     primary_std = candidates[0]
-
-    # If the user specifically cited a superseded standard, make sure the replacement is surfaced or recommended
-    if primary_std.status == "superseded" and primary_std.superseded_by:
-        rep_std_data = retrieval_engine.get_standard_by_number(primary_std.superseded_by)
-        if rep_std_data:
-            # Check if rep is in candidates, or promote it
-            pass
+    reranking_ms = round((time.perf_counter() - t2) * 1000.0, 2)
 
     # 4. Traversal of Related Standards (Normative, Testing, Safety, Installation, Superseded)
+    t3 = time.perf_counter()
     related_standards = graph_service.get_related_standards(primary_std)
 
     # 5. Build Interactive React Flow Graph
     graph_data = graph_service.build_react_flow_graph(primary_std, related_standards)
+    graph_ms = round((time.perf_counter() - t3) * 1000.0, 2)
 
     # 6. Check applicable certification schemes
     applicable_certs = []
@@ -96,16 +110,27 @@ def run_pipeline(query: str, top_k: int = 5) -> AnalysisResponse:
                 break
 
     # 7. Synthesize Transparent Summary Explanation
+    prod_label = req.product if req.product else "specified item"
+    app_label = f" in {req.application}" if req.application else ""
     summary = (
         f"Selected {primary_std.is_number} as the primary applicable standard with an "
         f"AI relevance score of {primary_std.ai_relevance_score}%. "
-        f"The specification requires a {req.product} in {req.application}. "
+        f"The specification requires a {prod_label}{app_label}. "
         f"Mapped {len(related_standards.normative_references)} normative references, "
         f"{len(related_standards.testing_standards)} testing standards, and "
         f"{len(related_standards.safety_standards)} safety standards."
     )
     if version_alerts:
         summary += f" Detected {len(version_alerts)} obsolete or superseded standard references in the requirement text."
+
+    total_ms = round((time.perf_counter() - t_start) * 1000.0, 2)
+    latency = LatencyBreakdown(
+        nlp_extraction_ms=nlp_ms,
+        retrieval_ms=retrieval_ms,
+        reranking_ms=reranking_ms,
+        graph_expansion_ms=graph_ms,
+        total_ms=total_ms
+    )
 
     return AnalysisResponse(
         query=query,
@@ -116,7 +141,8 @@ def run_pipeline(query: str, top_k: int = 5) -> AnalysisResponse:
         version_alerts=version_alerts,
         certifications=applicable_certs,
         graph_data=graph_data,
-        summary_explanation=summary
+        summary_explanation=summary,
+        latency_breakdown=latency
     )
 
 @app.get("/api/health")
@@ -125,6 +151,7 @@ def health_check():
         "status": "healthy",
         "service": "BIS-SpecAI Engine",
         "standards_indexed": len(retrieval_engine.standards),
+        "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
         "version": "1.0.0"
     }
 
@@ -140,24 +167,18 @@ def get_all_standards():
 
 @app.get("/api/standards/{std_id}")
 def get_standard_detail(std_id: str):
-    std = retrieval_engine.get_standard_by_id(std_id)
-    if not std:
-        # Try matching by number or normalized id
-        for s in retrieval_engine.standards:
-            if s["is_number"].lower() == std_id.lower() or s["id"].lower() == std_id.lower():
-                std = s
-                break
-    if not std:
-        raise HTTPException(status_code=404, detail="Standard not found")
-        
-    meta = graph_service._convert_to_metadata(std, "Catalog Standard")
-    rel = graph_service.get_related_standards(meta)
-    graph = graph_service.build_react_flow_graph(meta, rel)
-    return {
-        "standard": meta,
-        "related": rel,
-        "graph": graph
-    }
+    data = graph_service.get_relationships_for_standard_id(std_id)
+    if not data:
+        raise HTTPException(status_code=404, detail=f"Standard '{std_id}' not found in catalog.")
+    return data
+
+@app.get("/api/standards/{std_id}/relationships")
+def get_standard_relationships(std_id: str):
+    """Explicit endpoint for retrieving relationship DAG and categorized references for any standard."""
+    data = graph_service.get_relationships_for_standard_id(std_id)
+    if not data:
+        raise HTTPException(status_code=404, detail=f"Standard '{std_id}' not found in catalog.")
+    return data
 
 @app.post("/api/analyze", response_model=AnalysisResponse)
 def analyze_requirement(req_input: RequirementAnalysisRequest):
@@ -180,13 +201,18 @@ async def upload_tender_pdf(file: UploadFile = File(...), top_k: int = Form(5)):
         
     try:
         content = await file.read()
+        if not content or len(content) == 0:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
         extracted_text = pdf_service.extract_text_from_pdf_bytes(content)
         if not extracted_text or len(extracted_text.strip()) < 10:
-            raise HTTPException(status_code=400, detail="Could not extract readable text from PDF.")
+            raise HTTPException(status_code=400, detail="Could not extract readable text from PDF. Document may be empty or image-only scanned.")
         return run_pipeline(extracted_text, top_k=top_k)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"PDF parsing error: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Invalid or corrupted PDF file: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=True)
+

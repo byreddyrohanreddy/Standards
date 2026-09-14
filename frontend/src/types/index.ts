@@ -1,12 +1,49 @@
+export interface ScoringBreakdown {
+  semantic_score: number;
+  lexical_score: number;
+  requirement_coverage: number;
+  domain_score: number;
+  version_score: number;
+  final_score: number;
+}
+
+export interface LatencyBreakdown {
+  nlp_extraction_ms: number;
+  retrieval_ms: number;
+  reranking_ms: number;
+  graph_expansion_ms: number;
+  total_ms: number;
+}
+
+export interface EvidenceItem {
+  criterion: string;
+  detail: string;
+  match_status: string;
+}
+
 export interface ExtractedRequirements {
   product?: string;
+  product_type?: string;
+  application?: string;
+  industry_domain?: string;
+  voltage?: string;
+  current?: string;
+  power?: string;
+  frequency?: string;
+  phase?: string;
+  dimensions?: string;
+  materials: string[];
+  temperature?: string;
+  pressure?: string;
+  ip_rating?: string;
+  performance_requirements: string[];
+  safety_requirements: string[];
+  testing_requirements: string[];
+  detected_standards: string[];
+  ratings: Record<string, string>;
+  compliance_needs: string[];
   category?: string;
   domain?: string;
-  ratings: Record<string, string>;
-  materials: string[];
-  compliance_needs: string[];
-  application?: string;
-  detected_standards: string[];
 }
 
 export interface AmendmentInfo {
@@ -35,6 +72,8 @@ export interface StandardMetadata {
   technical_parameters: Record<string, any>;
   keywords: string[];
   ai_relevance_score?: number;
+  scoring_breakdown?: ScoringBreakdown;
+  evidence_items?: EvidenceItem[];
   why_recommended?: string[];
   relationship_to_primary?: string;
 }
@@ -107,6 +146,7 @@ export interface AnalysisResponse {
   certifications: CertificationScheme[];
   graph_data: GraphData;
   summary_explanation: string;
+  latency_breakdown?: LatencyBreakdown;
   dataset_label: string;
 }
 
@@ -118,3 +158,4 @@ export interface ExampleScenario {
   expected_standard: string;
   notes: string;
 }
+

@@ -1,9 +1,9 @@
 {
   "total_queries": 22,
-  "recall_at_1": 95.45,
+  "recall_at_1": 90.91,
   "recall_at_5": 100.0,
-  "mrr": 0.9773,
+  "mrr": 0.9409,
   "version_detection_accuracy": 100.0,
   "normative_discovery_rate": 100.0,
-  "avg_latency_ms": 1.9
+  "avg_latency_ms": 18.2
 }

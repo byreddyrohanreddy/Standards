@@ -5,15 +5,49 @@ class RequirementAnalysisRequest(BaseModel):
     query: str = Field(..., description="Natural language specification or tender text")
     top_k: int = Field(5, description="Number of candidate standards to return")
 
+class ScoringBreakdown(BaseModel):
+    semantic_score: float = Field(..., description="Cosine similarity score from dense sentence embeddings (0-1)")
+    lexical_score: float = Field(..., description="Normalized BM25 keyword relevance score (0-1)")
+    requirement_coverage: float = Field(..., description="Proportion of extracted parameters covered in standard scope (0-1)")
+    domain_score: float = Field(..., description="Domain alignment coefficient (0-1)")
+    version_score: float = Field(..., description="Lifecycle status validity weight (0-1)")
+    final_score: float = Field(..., description="Composite weighted ranking score (0-1)")
+
+class LatencyBreakdown(BaseModel):
+    nlp_extraction_ms: float = Field(..., description="Time taken for dynamic parameter extraction (ms)")
+    retrieval_ms: float = Field(..., description="Time taken for BM25 + dense semantic vector search (ms)")
+    reranking_ms: float = Field(..., description="Time taken for candidate scoring and explainability (ms)")
+    graph_expansion_ms: float = Field(..., description="Time taken for relationship DAG traversal (ms)")
+    total_ms: float = Field(..., description="Total pipeline execution latency (ms)")
+
+class EvidenceItem(BaseModel):
+    criterion: str
+    detail: str
+    match_status: str = "verified"
+
 class ExtractedRequirements(BaseModel):
     product: Optional[str] = None
-    category: Optional[str] = None
-    domain: Optional[str] = None
-    ratings: Dict[str, str] = Field(default_factory=dict)
-    materials: List[str] = Field(default_factory=list)
-    compliance_needs: List[str] = Field(default_factory=list)
+    product_type: Optional[str] = None
     application: Optional[str] = None
+    industry_domain: Optional[str] = None
+    voltage: Optional[str] = None
+    current: Optional[str] = None
+    power: Optional[str] = None
+    frequency: Optional[str] = None
+    phase: Optional[str] = None
+    dimensions: Optional[str] = None
+    materials: List[str] = Field(default_factory=list)
+    temperature: Optional[str] = None
+    pressure: Optional[str] = None
+    ip_rating: Optional[str] = None
+    performance_requirements: List[str] = Field(default_factory=list)
+    safety_requirements: List[str] = Field(default_factory=list)
+    testing_requirements: List[str] = Field(default_factory=list)
     detected_standards: List[str] = Field(default_factory=list)
+    
+    # Generic dictionary of extracted ratings for flexible rendering
+    ratings: Dict[str, str] = Field(default_factory=dict)
+    compliance_needs: List[str] = Field(default_factory=list)
 
 class AmendmentInfo(BaseModel):
     number: str
@@ -40,7 +74,9 @@ class StandardMetadata(BaseModel):
     technical_parameters: Dict[str, Any] = Field(default_factory=dict)
     keywords: List[str] = Field(default_factory=list)
     ai_relevance_score: Optional[float] = None
+    scoring_breakdown: Optional[ScoringBreakdown] = None
     why_recommended: List[str] = Field(default_factory=list)
+    evidence_items: List[EvidenceItem] = Field(default_factory=list)
     relationship_to_primary: Optional[str] = None
 
 class VersionAlert(BaseModel):
@@ -87,4 +123,5 @@ class AnalysisResponse(BaseModel):
     certifications: List[Dict[str, Any]] = Field(default_factory=list)
     graph_data: GraphData
     summary_explanation: str
-    dataset_label: str = "Curated Prototype Dataset (SIH-2026 MVP Demonstration)"
+    latency_breakdown: Optional[LatencyBreakdown] = None
+    dataset_label: str = "Prototype Dataset • Curated Standards for Demonstration"

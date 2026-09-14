@@ -1,28 +1,47 @@
 import json
+import os
 import re
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from rank_bm25 import BM25Okapi
 
-from backend.models.schemas import StandardMetadata, ExtractedRequirements, AmendmentInfo
+from backend.models.schemas import (
+    StandardMetadata,
+    ExtractedRequirements,
+    AmendmentInfo,
+    ScoringBreakdown,
+    EvidenceItem
+)
+
+# Sentence Transformers genuine embedding model
+SENTENCE_MODEL_NAME = "all-MiniLM-L6-v2"
 
 class HybridRetrievalEngine:
-    def __init__(self, standards_path: str = "data/standards.json"):
+    def __init__(self, standards_path: str = "data/standards.json", cache_dir: str = "data"):
         self.standards_path = standards_path
+        self.cache_dir = cache_dir
+        self.embeddings_path = os.path.join(cache_dir, "standards_embeddings.npy")
+        
         self.standards: List[Dict[str, Any]] = []
         self.standards_by_number: Dict[str, Dict[str, Any]] = {}
         self.standards_by_id: Dict[str, Dict[str, Any]] = {}
         
         self.corpus_texts: List[str] = []
         self.bm25_corpus: List[List[str]] = []
-        self.bm25 = None
-        self.vectorizer = None
-        self.doc_vectors = None
+        self.bm25: Optional[BM25Okapi] = None
+        
+        # Dense Sentence Transformer model & embeddings
+        self.dense_model = None
+        self.doc_embeddings: Optional[np.ndarray] = None
+        self.using_transformer: bool = False
+        
+        # Fallback vectorizer if offline / download fails
+        self.fallback_vectorizer = None
+        self.fallback_vectors = None
         
         self.load_data()
-        self.build_indexes()
+        self.initialize_models()
 
     def load_data(self):
         with open(self.standards_path, "r", encoding="utf-8") as f:
@@ -33,7 +52,7 @@ class HybridRetrievalEngine:
             self.standards_by_id[std["id"]] = std
 
     def _prepare_document_text(self, std: Dict[str, Any]) -> str:
-        """Combines all standard attributes into a rich searchable text representation."""
+        """Combines title, domain, scope, keywords, parameters and certifications into a rich representation."""
         parts = [
             std.get("is_number", ""),
             std.get("title", ""),
@@ -58,30 +77,63 @@ class HybridRetrievalEngine:
         tokens = re.findall(r"\w+", text.lower())
         return [t for t in tokens if len(t) > 1]
 
-    def build_indexes(self):
+    def initialize_models(self):
         self.corpus_texts = [self._prepare_document_text(s) for s in self.standards]
         
-        # BM25 Lexical index
+        # 1. BM25 Okapi Lexical Index
         self.bm25_corpus = [self._tokenize(doc) for doc in self.corpus_texts]
         self.bm25 = BM25Okapi(self.bm25_corpus)
         
-        # Dense Semantic TF-IDF Subword N-Gram Vectorizer (1-3 ngrams)
-        self.vectorizer = TfidfVectorizer(
-            ngram_range=(1, 3),
-            analyzer="word",
-            sublinear_tf=True,
-            max_features=10000
-        )
-        self.doc_vectors = self.vectorizer.fit_transform(self.corpus_texts)
+        # 2. Genuine Sentence Transformer Model with Disk Caching
+        try:
+            from sentence_transformers import SentenceTransformer
+            print(f"[BIS-SpecAI] Loading SentenceTransformer model '{SENTENCE_MODEL_NAME}'...")
+            self.dense_model = SentenceTransformer(SENTENCE_MODEL_NAME)
+            self.using_transformer = True
+            
+            # Check for disk cache of embeddings
+            if os.path.exists(self.embeddings_path):
+                print(f"[BIS-SpecAI] Loading cached standard embeddings from {self.embeddings_path}")
+                self.doc_embeddings = np.load(self.embeddings_path)
+                if len(self.doc_embeddings) != len(self.standards):
+                    print("[BIS-SpecAI] Cached embeddings count mismatch. Recomputing...")
+                    self.doc_embeddings = self.dense_model.encode(self.corpus_texts, convert_to_numpy=True, show_progress_bar=False)
+                    np.save(self.embeddings_path, self.doc_embeddings)
+            else:
+                print(f"[BIS-SpecAI] Computing sentence embeddings for {len(self.standards)} standards...")
+                self.doc_embeddings = self.dense_model.encode(self.corpus_texts, convert_to_numpy=True, show_progress_bar=False)
+                np.save(self.embeddings_path, self.doc_embeddings)
+                print(f"[BIS-SpecAI] Saved embeddings to {self.embeddings_path}")
+                
+        except Exception as e:
+            print(f"[BIS-SpecAI] Note: SentenceTransformer initialization note ({str(e)}). Engaging resilient subword vector fallback.")
+            self.using_transformer = False
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            self.fallback_vectorizer = TfidfVectorizer(ngram_range=(1, 3), analyzer="word", sublinear_tf=True, max_features=10000)
+            self.fallback_vectors = self.fallback_vectorizer.fit_transform(self.corpus_texts)
+
+    def _compute_dense_similarity(self, query: str) -> np.ndarray:
+        """Computes cosine similarity between query and documents using sentence embeddings."""
+        if self.using_transformer and self.dense_model is not None and self.doc_embeddings is not None:
+            query_emb = self.dense_model.encode([query], convert_to_numpy=True, show_progress_bar=False)
+            sims = cosine_similarity(query_emb, self.doc_embeddings)[0]
+            # Clip negative similarities to 0
+            return np.clip(sims, 0.0, 1.0)
+        elif self.fallback_vectorizer is not None and self.fallback_vectors is not None:
+            query_vec = self.fallback_vectorizer.transform([query])
+            sims = cosine_similarity(query_vec, self.fallback_vectors)[0]
+            return np.clip(sims, 0.0, 1.0)
+        else:
+            return np.zeros(len(self.standards))
 
     def retrieve_candidates(self, query: str, req: ExtractedRequirements, top_k: int = 5) -> List[StandardMetadata]:
         """
         Executes hybrid retrieval:
-        1. BM25 score
-        2. Dense Vector similarity score
-        3. Parameter & domain coverage score
-        4. Status weighting
-        Returns ranked list of candidate StandardMetadata with AI relevance scores and explainability.
+        1. BM25 Okapi lexical scores [0, 1]
+        2. Dense Sentence Transformer cosine similarity [0, 1]
+        3. Parameter & domain coverage score [0, 1]
+        4. Lifecycle status weighting
+        Returns ranked list of StandardMetadata with full ScoringBreakdown and itemized evidence.
         """
         query_tokens = self._tokenize(query)
         if not query_tokens:
@@ -89,76 +141,90 @@ class HybridRetrievalEngine:
             
         # 1. BM25 Lexical Scores
         bm25_raw_scores = np.array(self.bm25.get_scores(query_tokens))
-        max_bm25 = np.max(bm25_raw_scores) if np.max(bm25_raw_scores) > 0 else 1.0
-        bm25_norm = bm25_raw_scores / max_bm25
+        max_bm25 = float(np.max(bm25_raw_scores)) if len(bm25_raw_scores) > 0 and np.max(bm25_raw_scores) > 0 else 1.0
+        bm25_norm = np.clip(bm25_raw_scores / max_bm25, 0.0, 1.0)
 
-        # 2. Dense Vector Cosine Similarity
-        query_vec = self.vectorizer.transform([query])
-        vec_similarities = cosine_similarity(query_vec, self.doc_vectors).flatten()
+        # 2. Dense Sentence Transformer Cosine Similarity
+        dense_scores = self._compute_dense_similarity(query)
 
-        # 3. Multi-Factor Scoring & Explainability
-        scored_candidates: List[Tuple[float, Dict[str, Any], List[str]]] = []
-        
+        # 3. Multi-Factor Reranking with Full Factor Breakdowns
+        scored_candidates: List[Tuple[float, ScoringBreakdown, Dict[str, Any], List[str], List[EvidenceItem]]] = []
         query_lower = query.lower()
+
+        # Build list of active parameters from requirement extraction
+        active_params: List[Tuple[str, str]] = []
+        if req.power: active_params.append(("Power / Capacity", req.power))
+        if req.voltage: active_params.append(("Voltage Rating", req.voltage))
+        if req.frequency: active_params.append(("Frequency", req.frequency))
+        if req.phase: active_params.append(("Phase", req.phase))
+        if req.current: active_params.append(("Current", req.current))
+        if req.ip_rating: active_params.append(("Ingress Protection", req.ip_rating))
+        if req.dimensions: active_params.append(("Dimensions", req.dimensions))
+        if req.pressure: active_params.append(("Pressure Rating", req.pressure))
+        if req.temperature: active_params.append(("Temperature", req.temperature))
+        for k, v in req.ratings.items():
+            if not any(k == ap[0] for ap in active_params):
+                active_params.append((k, v))
 
         for idx, std in enumerate(self.standards):
             std_text = self.corpus_texts[idx].lower()
             reasons: List[str] = []
+            evidence: List[EvidenceItem] = []
             
-            # Semantic & Lexical components
-            sem_score = float(vec_similarities[idx])
+            sem_score = float(dense_scores[idx])
             lex_score = float(bm25_norm[idx])
             
             # Coverage scoring
             coverage_hits = 0
-            coverage_total = 0
+            coverage_total = len(active_params) + len(req.compliance_needs)
             
-            # Check ratings
-            for r_name, r_val in req.ratings.items():
-                coverage_total += 1
-                clean_r_val = r_val.lower().replace(" (3-phase)", "").replace(" (1-phase)", "")
-                if clean_r_val in std_text or any(token in std_text for token in clean_r_val.split()):
+            for p_name, p_val in active_params:
+                clean_val = p_val.lower().replace(" (3-phase)", "").replace(" (1-phase)", "")
+                tokens = clean_val.split()
+                if clean_val in std_text or any(token in std_text for token in tokens if len(token) > 1):
                     coverage_hits += 1
-                    reasons.append(f"Standard scope covers technical requirement: {r_name} ({r_val})")
-            
-            # Check compliance needs
-            for comp in req.compliance_needs:
-                coverage_total += 1
-                if any(w.lower() in std_text for w in comp.split() if len(w) > 3):
-                    coverage_hits += 1
-                    reasons.append(f"Addresses critical specification condition: {comp}")
+                    reasons.append(f"Standard scope covers {p_name}: {p_val}")
+                    evidence.append(EvidenceItem(criterion=p_name, detail=f"Verified match in standard scope: {p_val}"))
 
-            coverage_ratio = (coverage_hits / coverage_total) if coverage_total > 0 else 0.5
+            for c_need in req.compliance_needs:
+                c_tokens = [w.lower() for w in c_need.split() if len(w) > 3]
+                if any(t in std_text for t in c_tokens):
+                    coverage_hits += 1
+                    reasons.append(f"Addresses critical condition: {c_need}")
+                    evidence.append(EvidenceItem(criterion="Compliance Condition", detail=c_need))
+
+            coverage_ratio = float(coverage_hits / coverage_total) if coverage_total > 0 else 0.5
             
             # Domain match
-            domain_match = 1.0 if req.domain and req.domain.lower() == std.get("domain", "").lower() else 0.3
+            domain_match = 1.0 if req.industry_domain and req.industry_domain.lower() == std.get("domain", "").lower() else 0.4
             if domain_match == 1.0:
-                reasons.append(f"Domain match: {std.get('domain')} procurement catalog")
-                
-            # Product keyword match
-            if req.product and any(w in std.get("title", "").lower() for w in req.product.lower().split() if len(w) > 3):
-                reasons.append(f"Product class match: {req.product} directly mapped to standard title/scope")
+                reasons.append(f"Domain alignment: {std.get('domain')} catalog")
+                evidence.append(EvidenceItem(criterion="Domain Alignment", detail=f"Conforms to {std.get('domain')} sector requirements"))
 
-            # Status penalty for superseded standards unless explicitly mentioned
+            # Product match
+            if req.product and any(w in std.get("title", "").lower() for w in req.product.lower().split() if len(w) > 3):
+                reasons.append(f"Equipment class match: {req.product}")
+                evidence.append(EvidenceItem(criterion="Equipment Class", detail=f"Matched standard title & specification scope"))
+
+            # Status weighting (1.0 for active, 0.4 for superseded)
             status = std.get("status", "current")
             is_explicitly_mentioned = std["is_number"].lower() in query_lower or std["id"].lower() in query_lower
             
             if status == "superseded":
-                if is_explicitly_mentioned:
-                    status_factor = 0.95
-                    reasons.append("Standard was explicitly cited in the procurement query (flagged as superseded)")
-                else:
-                    status_factor = 0.4
-                    reasons.append("Note: Standard has been superseded by newer edition")
+                status_factor = 0.8 if is_explicitly_mentioned else 0.4
+                reasons.append("Note: Standard has been superseded by newer edition")
+                evidence.append(EvidenceItem(criterion="Lifecycle Status", detail=f"Superseded standard (Replacement: {std.get('superseded_by', 'Current edition')})"))
             else:
                 status_factor = 1.0
                 reasons.append(f"Standard is active and current ({std.get('year')} edition)")
+                evidence.append(EvidenceItem(criterion="Lifecycle Status", detail=f"Active current edition ({std.get('year')})"))
 
-            # Check certifications
+            # Certification
             if std.get("certification"):
                 reasons.append(f"Quality compliance: {std['certification'][0]}")
+                evidence.append(EvidenceItem(criterion="Certification", detail=std['certification'][0]))
 
-            # Formula:
+            # Transparent Multi-Factor Score:
             # 0.35 * Vector + 0.25 * BM25 + 0.20 * Coverage + 0.10 * Domain + 0.10 * Status
             raw_score = (
                 0.35 * sem_score +
@@ -167,23 +233,32 @@ class HybridRetrievalEngine:
                 0.10 * domain_match +
                 0.10 * status_factor
             )
+            raw_score = float(np.clip(raw_score, 0.05, 1.0))
             
-            # Map raw score to realistic percentage (65% to 98%)
-            # Using sigmoid or min-max calibration
-            calibrated_percent = round(min(98.5, max(45.0, (raw_score * 70.0) + 30.0)), 1)
-            
-            scored_candidates.append((calibrated_percent, std, reasons))
+            breakdown = ScoringBreakdown(
+                semantic_score=round(sem_score, 4),
+                lexical_score=round(lex_score, 4),
+                requirement_coverage=round(coverage_ratio, 4),
+                domain_score=round(domain_match, 4),
+                version_score=round(status_factor, 4),
+                final_score=round(raw_score, 4)
+            )
 
-        # Sort descending by score
+            scored_candidates.append((raw_score, breakdown, std, reasons, evidence))
+
+        # Sort descending by raw score
         scored_candidates.sort(key=lambda x: x[0], reverse=True)
 
         results: List[StandardMetadata] = []
-        for score, std, reasons in scored_candidates[:top_k + 2]:
+        for raw_score, breakdown, std, reasons, evidence in scored_candidates[:top_k + 2]:
             amendments = [
                 AmendmentInfo(number=a.get("number", ""), year=a.get("year", 0), description=a.get("description", ""))
                 for a in std.get("amendments", [])
             ]
             
+            # Map raw score (0-1) to an honest percentage (e.g. 84.5%)
+            calibrated_percent = round(min(98.5, max(35.0, raw_score * 100.0)), 1)
+
             meta = StandardMetadata(
                 id=std["id"],
                 is_number=std["is_number"],
@@ -203,12 +278,14 @@ class HybridRetrievalEngine:
                 certification=std.get("certification", []),
                 technical_parameters=std.get("technical_parameters", []),
                 keywords=std.get("keywords", []),
-                ai_relevance_score=score,
-                why_recommended=reasons[:5]
+                ai_relevance_score=calibrated_percent,
+                scoring_breakdown=breakdown,
+                why_recommended=reasons[:5],
+                evidence_items=evidence[:5]
             )
             results.append(meta)
 
-        # Ensure that if any top candidate is superseded, its active replacement standard is also promoted
+        # If a candidate is superseded, ensure its active replacement is promoted to the candidate pool
         final_results = results[:top_k]
         existing_numbers = {c.is_number for c in final_results}
         
@@ -222,6 +299,15 @@ class HybridRetrievalEngine:
                             AmendmentInfo(number=a.get("number", ""), year=a.get("year", 0), description=a.get("description", ""))
                             for a in rep_std.get("amendments", [])
                         ]
+                        rep_score = min(98.0, round((cand.ai_relevance_score or 75.0) + 5.0, 1))
+                        rep_breakdown = ScoringBreakdown(
+                            semantic_score=cand.scoring_breakdown.semantic_score if cand.scoring_breakdown else 0.8,
+                            lexical_score=cand.scoring_breakdown.lexical_score if cand.scoring_breakdown else 0.7,
+                            requirement_coverage=cand.scoring_breakdown.requirement_coverage if cand.scoring_breakdown else 0.8,
+                            domain_score=1.0,
+                            version_score=1.0,
+                            final_score=round(rep_score / 100.0, 4)
+                        )
                         rep_meta = StandardMetadata(
                             id=rep_std["id"],
                             is_number=rep_std["is_number"],
@@ -241,20 +327,24 @@ class HybridRetrievalEngine:
                             certification=rep_std.get("certification", []),
                             technical_parameters=rep_std.get("technical_parameters", []),
                             keywords=rep_std.get("keywords", []),
-                            ai_relevance_score=round(cand.ai_relevance_score + 5.0, 1),
+                            ai_relevance_score=rep_score,
+                            scoring_breakdown=rep_breakdown,
                             why_recommended=[
-                                f"Active modern replacement for superseded standard {cand.is_number} cited in procurement specification",
+                                f"Active modern replacement for superseded standard {cand.is_number} cited in specification",
                                 f"Mandatory compliance standard under current BIS Quality Control Orders ({rep_std.get('year')} edition)"
+                            ],
+                            evidence_items=[
+                                EvidenceItem(criterion="Tender Audit Replacement", detail=f"Active modern superseding standard for {cand.is_number}"),
+                                EvidenceItem(criterion="Current Edition", detail=f"Valid {rep_std.get('year')} edition under current QCO")
                             ]
                         )
-                        # Insert replacement at top
                         final_results.insert(0, rep_meta)
                         existing_numbers.add(rep_num)
                         
         return final_results[:top_k]
 
-    def get_standard_by_number(self, is_number: str) -> Dict[str, Any]:
+    def get_standard_by_number(self, is_number: str) -> Optional[Dict[str, Any]]:
         return self.standards_by_number.get(is_number)
 
-    def get_standard_by_id(self, std_id: str) -> Dict[str, Any]:
+    def get_standard_by_id(self, std_id: str) -> Optional[Dict[str, Any]]:
         return self.standards_by_id.get(std_id)

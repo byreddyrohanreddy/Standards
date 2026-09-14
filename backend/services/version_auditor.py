@@ -27,42 +27,69 @@ class VersionAuditor:
                         "is_number": sup,
                         "status": "superseded",
                         "superseded_by": s["is_number"],
-                        "title": f"Older standard superseded by {s['is_number']}"
+                        "title": f"Standard superseded by {s['is_number']}"
                     }
+
+    def _extract_is_patterns(self, text: str) -> List[str]:
+        """Extracts standard citations like 'IS 325:1996', 'IS:325', 'IS 12615', 'IS-456:2000' from text."""
+        raw_matches = re.findall(r"\bIS\s*[:\-]?\s*(\d+)(?:\s*[:\-]\s*(\d{4}))?\b", text, re.IGNORECASE)
+        results = []
+        for base, year in raw_matches:
+            if year:
+                results.append(f"IS {base}:{year}")
+            else:
+                results.append(f"IS {base}")
+        return results
 
     def audit_text_for_versions(self, text: str, detected_standards: List[str]) -> List[VersionAlert]:
         alerts: List[VersionAlert] = []
         seen_refs = set()
 
-        # Check detected standard tokens
-        for std_ref in detected_standards:
-            std_ref_clean = std_ref.strip()
-            if std_ref_clean in seen_refs:
-                continue
-            seen_refs.add(std_ref_clean)
+        # Combine detected standards with any regex-extracted citations in raw text
+        candidates = list(detected_standards) + self._extract_is_patterns(text)
 
-            # 1. Exact match in superseded map
-            if std_ref_clean in self.superseded_map:
-                sup_info = self.superseded_map[std_ref_clean]
-                rep = sup_info.get("superseded_by", "current edition")
+        for std_ref in candidates:
+            # Normalize whitespace: "IS  325 : 1996" -> "IS 325:1996"
+            norm_ref = re.sub(r"\s+", " ", std_ref).strip()
+            norm_ref = re.sub(r"IS\s*[:\-]?\s*", "IS ", norm_ref, flags=re.IGNORECASE)
+            norm_ref = re.sub(r"\s*:\s*", ":", norm_ref)
+            
+            if norm_ref in seen_refs:
+                continue
+            seen_refs.add(norm_ref)
+
+            # 1. Exact match in superseded map (e.g. "IS 325:1996" or "IS 8112:1989")
+            matched_sup = None
+            for sup_key, sup_val in self.superseded_map.items():
+                if sup_key.lower() == norm_ref.lower():
+                    matched_sup = sup_val
+                    break
+
+            if matched_sup:
+                rep = matched_sup.get("superseded_by", "current edition")
                 alerts.append(VersionAlert(
-                    referenced_standard=std_ref_clean,
+                    referenced_standard=norm_ref,
                     status="Superseded Standard",
                     current_replacement=rep,
-                    title=sup_info.get("title", ""),
-                    recommendation=f"The tender reference {std_ref_clean} has been superseded. Procurement specifications should be updated to {rep} to ensure compliance with current BIS Quality Control Orders.",
+                    title=matched_sup.get("title", ""),
+                    recommendation=f"The tender reference {norm_ref} has been officially superseded. Procurement specifications must be updated to {rep} to align with current BIS Quality Control Orders (QCO) and avoid rejected bids.",
                     severity="warning"
                 ))
                 continue
 
-            # If standard is exactly active and current in catalog, do not flag
-            if std_ref_clean in self.standards_by_number:
-                active_std = self.standards_by_number[std_ref_clean]
-                if active_std.get("status") == "current":
-                    continue
+            # If standard is exactly active and current in catalog, check if user provided older year
+            exact_active = None
+            for c_num, c_data in self.standards_by_number.items():
+                if c_num.lower() == norm_ref.lower():
+                    exact_active = c_data
+                    break
 
-            # 2. Check by base number (e.g. user typed "IS 325" without year)
-            base_match = re.search(r"IS\s*(\d+)", std_ref_clean, re.IGNORECASE)
+            if exact_active and exact_active.get("status") == "current":
+                # Current standard confirmed valid
+                continue
+
+            # 2. Check by base number (e.g. user typed "IS 325" or "IS 8112" without year)
+            base_match = re.search(r"\bIS\s*(\d+)", norm_ref, re.IGNORECASE)
             if base_match:
                 base_num = base_match.group(1)
                 
@@ -73,43 +100,46 @@ class VersionAuditor:
                         current_matching = c_num
                         break
 
-                # Check if this base number was genuinely superseded
+                # Check if this base number was superseded
+                superseded_entry = None
                 for sup_key, sup_val in self.superseded_map.items():
                     if re.search(rf"\bIS\s*{base_num}\b", sup_key, re.IGNORECASE):
-                        rep = sup_val.get("superseded_by", "current edition")
-                        # Only flag if rep is different from current_matching or if current_matching has a different base
-                        if current_matching and current_matching == rep and not re.search(r":\d{4}", std_ref_clean):
-                            # User just wrote the un-versioned active standard name (e.g. "IS 12615")
-                            continue
-                            
-                        alerts.append(VersionAlert(
-                            referenced_standard=std_ref_clean,
-                            status="Superseded Standard Reference",
-                            current_replacement=rep,
-                            title=sup_val.get("title", ""),
-                            recommendation=f"The standard {std_ref_clean} is an older standard that has been superseded by {rep}. It is recommended to update the tender specification to avoid non-compliant bids.",
-                            severity="warning"
-                        ))
+                        superseded_entry = sup_val
                         break
 
-            # 3. Check for older revision year mentions (e.g., IS 456:1978 or IS 1180:1989)
-            year_match = re.search(r":(\d{4})", std_ref_clean)
+                if superseded_entry:
+                    rep = superseded_entry.get("superseded_by", "current edition")
+                    # If current matching has the same number (i.e. not superseded by different number) and no year was specified:
+                    if current_matching and current_matching == rep and ":" not in norm_ref:
+                        continue
+                    alerts.append(VersionAlert(
+                        referenced_standard=norm_ref,
+                        status="Superseded Standard",
+                        current_replacement=rep,
+                        title=superseded_entry.get("title", ""),
+                        recommendation=f"The standard {norm_ref} is an older standard series superseded by {rep}. Specifications should cite {rep} for active conformity assessment.",
+                        severity="warning"
+                    ))
+                    continue
+
+            # 3. Check for older revision year mentions (e.g., IS 456:1978 vs IS 456:2000, or IS 1180:1989 vs IS 1180:2014)
+            year_match = re.search(r":(\d{4})", norm_ref)
             if year_match:
                 ref_year = int(year_match.group(1))
-                # Match against base standard
                 for curr_num, curr_data in self.standards_by_number.items():
                     if curr_data.get("status") == "current" and curr_data.get("year", 0) > ref_year:
-                        curr_base = re.sub(r":\d{4}", "", curr_num)
-                        ref_base = re.sub(r":\d{4}", "", std_ref_clean)
-                        if curr_base.lower() == ref_base.lower():
+                        curr_base = re.sub(r":\d{4}", "", curr_num).strip().lower()
+                        ref_base = re.sub(r":\d{4}", "", norm_ref).strip().lower()
+                        if curr_base == ref_base:
                             alerts.append(VersionAlert(
-                                referenced_standard=std_ref_clean,
+                                referenced_standard=norm_ref,
                                 status="Outdated Edition Reference",
                                 current_replacement=curr_num,
                                 title=curr_data.get("title", ""),
-                                recommendation=f"Specification cites {std_ref_clean}, but current active edition is {curr_num}. Update requirement to reflect the latest testing tolerances and safety amendments.",
+                                recommendation=f"Specification cites {norm_ref}, but the current active edition is {curr_num} (reaffirmed with latest amendments). Update requirement to reflect modern tolerances and safety testing.",
                                 severity="warning"
                             ))
                             break
 
         return alerts
+

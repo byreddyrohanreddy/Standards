@@ -1,16 +1,14 @@
 import re
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from backend.models.schemas import ExtractedRequirements
 
 def extract_standards_mentions(text: str) -> List[str]:
     """Finds all occurrences of Indian Standards (e.g., IS 325:1996, IS 12615, IS/IEC 60034-1)."""
     pattern = r"\b(?:IS(?:/IEC)?\s+\d+(?:\s*\([^\)]+\))?(?::\d{4})?)\b"
     matches = re.findall(pattern, text, re.IGNORECASE)
-    # Standardize casing and formatting
     cleaned = []
     for m in matches:
         clean = re.sub(r"\s+", " ", m).strip()
-        # Ensure uppercase 'IS'
         if clean.lower().startswith("is"):
             clean = "IS" + clean[2:]
         if clean not in cleaned:
@@ -19,203 +17,283 @@ def extract_standards_mentions(text: str) -> List[str]:
 
 def extract_requirements(text: str) -> ExtractedRequirements:
     """
-    Dynamically extracts product entities, technical ratings, materials,
-    domain, and compliance attributes from input query or tender document.
+    Dynamically parses natural language requirements or tender text to extract
+    structured parameters across 16 technical dimensions.
     """
     text_lower = text.lower()
     ratings: Dict[str, str] = {}
     materials: List[str] = []
-    compliance_needs: List[str] = []
-    
-    # 1. Electrical Ratings
-    # Power
+    perf_reqs: List[str] = []
+    safety_reqs: List[str] = []
+    test_reqs: List[str] = []
+
+    # 1. Electrical & Mechanical Ratings
+    # Power / Capacity
+    power_val: Optional[str] = None
     power_match = re.search(r"(\d+(?:\.\d+)?)\s*(kw|hp|kva|mva|w|wp)\b", text_lower)
     if power_match:
-        ratings["Power / Capacity"] = f"{power_match.group(1)} {power_match.group(2).upper()}"
+        power_val = f"{power_match.group(1)} {power_match.group(2).upper()}"
+        ratings["Power / Capacity"] = power_val
 
     # Voltage
+    voltage_val: Optional[str] = None
     volt_match = re.search(r"(\d+(?:\.\d+)?)\s*(v|kv|volts?)\b", text_lower)
     if volt_match:
-        ratings["Voltage"] = f"{volt_match.group(1)} {volt_match.group(2).upper()}"
-
-    # Frequency
-    freq_match = re.search(r"(\d+(?:\.\d+)?)\s*(hz|cycles)\b", text_lower)
-    if freq_match:
-        ratings["Frequency"] = f"{freq_match.group(1)} Hz"
-
-    # Phase
-    if "three phase" in text_lower or "3 phase" in text_lower or "3-phase" in text_lower or "three-phase" in text_lower:
-        ratings["Phase"] = "Three-Phase (3-Phase)"
-    elif "single phase" in text_lower or "1 phase" in text_lower or "single-phase" in text_lower:
-        ratings["Phase"] = "Single-Phase (1-Phase)"
-
-    # IP Protection
-    ip_match = re.search(r"\b(ip\s*\d{2})\b", text_lower)
-    if ip_match:
-        ratings["Ingress Protection"] = ip_match.group(1).replace(" ", "").upper()
-    elif "ip protection" in text_lower or "enclosure protection" in text_lower:
-        ratings["Ingress Protection"] = "IP Protection Required"
+        voltage_val = f"{volt_match.group(1)} {volt_match.group(2).upper()}"
+        ratings["Voltage"] = voltage_val
 
     # Current
-    current_match = re.search(r"(\d+(?:\.\d+)?)\s*(a|amp|amps|amperes?)\b", text_lower)
-    if current_match and not power_match:
-        ratings["Current Rating"] = f"{current_match.group(1)} A"
+    current_val: Optional[str] = None
+    curr_match = re.search(r"(\d+(?:\.\d+)?)\s*(a|amp|amps|amperes?)\b", text_lower)
+    if curr_match and not power_match:
+        current_val = f"{curr_match.group(1)} A"
+        ratings["Current"] = current_val
 
-    # Breaking Capacity
-    ka_match = re.search(r"(\d+(?:\.\d+)?)\s*ka\b", text_lower)
-    if ka_match:
-        ratings["Breaking Capacity"] = f"{ka_match.group(1)} kA"
+    # Frequency
+    frequency_val: Optional[str] = None
+    freq_match = re.search(r"(\d+(?:\.\d+)?)\s*(hz|cycles)\b", text_lower)
+    if freq_match:
+        frequency_val = f"{freq_match.group(1)} Hz"
+        ratings["Frequency"] = frequency_val
 
-    # 2. Civil / Material Ratings
-    # Concrete Grades
-    concrete_grade = re.search(r"\b(m-?\d{2})\b", text_lower)
-    if concrete_grade:
-        ratings["Concrete Grade"] = concrete_grade.group(1).upper()
+    # Phase
+    phase_val: Optional[str] = None
+    if any(p in text_lower for p in ["three phase", "3 phase", "3-phase", "three-phase"]):
+        phase_val = "Three-Phase"
+        ratings["Phase"] = "Three-Phase (3-Phase)"
+    elif any(p in text_lower for p in ["single phase", "1 phase", "1-phase", "single-phase"]):
+        phase_val = "Single-Phase"
+        ratings["Phase"] = "Single-Phase (1-Phase)"
 
-    # Rebar Grades
-    steel_grade = re.search(r"\b(fe\s*\d{3}[a-z]?)\b", text_lower)
-    if steel_grade:
-        ratings["Steel Grade"] = steel_grade.group(1).replace(" ", "").upper()
+    # Ingress Protection (IP Code)
+    ip_val: Optional[str] = None
+    ip_match = re.search(r"\b(ip\s*\d{2})\b", text_lower)
+    if ip_match:
+        ip_val = ip_match.group(1).replace(" ", "").upper()
+        ratings["Ingress Protection"] = ip_val
+    elif "ip protection" in text_lower or "enclosure protection" in text_lower:
+        ip_val = "IP Enclosure Protection"
+        ratings["Ingress Protection"] = "IP Protection Required"
 
-    # Cement Grades
-    cement_grade = re.search(r"\b(33|43|53)\s*grade\b", text_lower)
-    if cement_grade:
-        ratings["Cement Grade"] = f"{cement_grade.group(1)} Grade"
+    # Dimensions / Diameters / Thickness
+    dim_val: Optional[str] = None
+    dim_match = re.search(r"(\d+(?:\.\d+)?)\s*(mm|cm|inch|inches|meter|m)\b", text_lower)
+    if dim_match:
+        dim_val = f"{dim_match.group(1)} {dim_match.group(2)}"
+        ratings["Dimensions"] = dim_val
 
-    # Pipe Pressure
-    pn_match = re.search(r"\b(pn\s*\d+(?:\.\d+)?)\b", text_lower)
+    # Pressure / Hydraulic Rating
+    pressure_val: Optional[str] = None
+    pn_match = re.search(r"\b(pn\s*\d+(?:\.\d+)?|(\d+)\s*(?:bar|kg/cm2|mpa))\b", text_lower)
     if pn_match:
-        ratings["Pressure Rating"] = pn_match.group(1).upper().replace(" ", "")
+        pressure_val = pn_match.group(1).upper()
+        ratings["Pressure"] = pressure_val
+    elif re.search(r"\b(\d+)\s*ka\b", text_lower):
+        ka_m = re.search(r"\b(\d+)\s*ka\b", text_lower)
+        pressure_val = f"{ka_m.group(1)} kA Breaking Capacity"
+        ratings["Breaking Capacity"] = pressure_val
 
-    # Pipe / Rebar Diameters
-    dia_match = re.search(r"(\d+)\s*mm\b", text_lower)
-    if dia_match:
-        ratings["Dimension / Diameter"] = f"{dia_match.group(1)} mm"
+    # Temperature Limits
+    temp_val: Optional[str] = None
+    temp_match = re.search(r"(\d+)\s*(?:deg\s*c|°c|celsius|k\s*rise)\b", text_lower)
+    if temp_match:
+        temp_val = temp_match.group(0).strip()
+        ratings["Temperature"] = temp_val
 
-    # 3. Materials
-    material_keywords = [
+    # Concrete / Material Grades
+    concrete_match = re.search(r"\b(m-?\d{2})\b", text_lower)
+    if concrete_match:
+        ratings["Concrete Grade"] = concrete_match.group(1).upper()
+
+    steel_match = re.search(r"\b(fe\s*\d{3}[a-z]?)\b", text_lower)
+    if steel_match:
+        ratings["Steel Grade"] = steel_match.group(1).replace(" ", "").upper()
+
+    cement_match = re.search(r"\b(33|43|53)\s*grade\b", text_lower)
+    if cement_match:
+        ratings["Cement Grade"] = f"{cement_match.group(1)} Grade"
+
+    # 2. Materials
+    materials_catalog = [
         "copper", "aluminium", "aluminum", "pvc", "xlpe", "hdpe", "mild steel", "galvanized",
-        "tmt", "pozzolana", "fly ash", "silica fume", "crushed stone", "cast iron", "silicon"
+        "tmt", "pozzolana", "fly ash", "silica fume", "crushed stone", "cast iron", "silicon",
+        "stainless steel", "polyethylene", "brass", "rubber"
     ]
-    for mat in material_keywords:
+    for mat in materials_catalog:
         if mat in text_lower:
             materials.append(mat.capitalize())
 
-    # 4. Compliance & Performance Requirements
-    if any(w in text_lower for w in ["efficiency", "energy efficient", "ie2", "ie3", "ie4", "bee"]):
-        compliance_needs.append("Energy Efficiency / BEE Star Rating")
-    if any(w in text_lower for w in ["fire retardant", "frls", "frlsh", "flame"]):
-        compliance_needs.append("Flame Retardant / FRLS")
-    if any(w in text_lower for w in ["shock absorption", "electrical insulation", "impact resistance", "1000 v", "penetration"]):
-        compliance_needs.append("High Impact & Electrical Insulation Protection")
-    if any(w in text_lower for w in ["seismic", "earthquake", "ductile"]):
-        compliance_needs.append("Ductile Detailing / Earthquake Resistance")
-    if any(w in text_lower for w in ["compressive strength", "cube test", "tensile strength"]):
-        compliance_needs.append("Mechanical Strength Testing")
+    # 3. Performance Requirements
+    if any(w in text_lower for w in ["efficiency", "energy efficient", "ie2", "ie3", "ie4", "bee star"]):
+        perf_reqs.append("Energy Efficiency (IE Code / BEE Star)")
+    if any(w in text_lower for w in ["accuracy", "class 1", "class 2", "class 0.5"]):
+        perf_reqs.append("Precision Accuracy Class")
+    if any(w in text_lower for w in ["luminous flux", "efficacy", "lumens/watt", "cri"]):
+        perf_reqs.append("Luminous Efficacy & Photometric Quality")
+    if any(w in text_lower for w in ["ductility", "ductile detailing", "elongation", "earthquake", "seismic"]):
+        perf_reqs.append("High Ductility & Seismic Resistance")
+    if any(w in text_lower for w in ["continuous duty", "s1 duty", "heavy duty"]):
+        perf_reqs.append("Continuous Heavy-Duty Rating (S1)")
+
+    # 4. Safety Requirements
+    if any(w in text_lower for w in ["shock absorption", "electrical insulation", "1000 v", "penetration"]):
+        safety_reqs.append("Shock Absorption & High-Voltage Dielectric Insulation")
+    if any(w in text_lower for w in ["fire retardant", "frls", "frlsh", "flame resistance", "fire extinguisher"]):
+        safety_reqs.append("Fire Resistance & Low Smoke Halogen-Free (FRLS)")
+    if any(w in text_lower for w in ["electric shock", "earth leakage", "rccb", "elcb", "30 ma"]):
+        safety_reqs.append("Human Electric Shock Protection (<30 mA)")
+    if any(w in text_lower for w in ["fall arrest", "safety harness", "height safety"]):
+        safety_reqs.append("Personal Fall Arrest & Dynamic Drop Safety")
     if any(w in text_lower for w in ["potable", "drinking water", "water supply"]):
-        compliance_needs.append("Potable Water Safety Suitability")
-    if any(w in text_lower for w in ["damp heat", "uv", "hail impact"]):
-        compliance_needs.append("Environmental & Weathering Qualification")
+        safety_reqs.append("Potable Drinking Water Non-Toxicity")
 
-    # 5. Product Classification & Category
-    product = "Technical Requirement"
-    category = "General Engineering"
-    domain = "Procurement"
+    # 5. Testing Requirements
+    if any(w in text_lower for w in ["loss determination", "efficiency test", "dynamometer"]):
+        test_reqs.append("Efficiency & Losses Test (IS 15999)")
+    if any(w in text_lower for w in ["cube test", "compressive strength", "flexural strength"]):
+        test_reqs.append("Compressive / Mechanical Strength Test (IS 516 / IS 4031)")
+    if any(w in text_lower for w in ["hydrostatic", "pressure test"]):
+        test_reqs.append("Hydrostatic Pressure Withstand Testing")
+    if any(w in text_lower for w in ["damp heat", "thermal cycling", "uv preconditioning", "hail impact"]):
+        test_reqs.append("Environmental Damp Heat & Weathering Qualification")
+    if any(w in text_lower for w in ["dielectric withstand", "spark test", "insulation resistance"]):
+        test_reqs.append("High Voltage Dielectric & Spark Testing")
 
-    if any(w in text_lower for w in ["induction motor", "squirrel cage motor", "electric motor", "three phase motor"]):
+    # 6. Product Classification & Sector Domain
+    product = "Procurement Item"
+    product_type = "Standard Equipment"
+    industry_domain = "General Procurement"
+    application = "General Industrial / Civil Application"
+
+    # Multi-domain mapping
+    if any(w in text_lower for w in ["induction motor", "electric motor", "squirrel cage motor", "rotating machine"]):
         product = "Three-Phase AC Induction Motor"
-        category = "Rotating Electrical Machines"
-        domain = "Electrical"
+        product_type = "Line-Operated Squirrel Cage AC Motor"
+        industry_domain = "Electrical"
+        application = "Industrial Machinery & Continuous Duty Drives"
     elif any(w in text_lower for w in ["transformer", "distribution transformer", "power transformer"]):
-        product = "Electrical Transformer"
-        category = "Power Distribution Equipment"
-        domain = "Electrical"
-    elif any(w in text_lower for w in ["cable", "wire", "conductor", "wiring"]):
-        product = "Electric Cable / Building Wire"
-        category = "Cables and Conductors"
-        domain = "Electrical"
-    elif any(w in text_lower for w in ["circuit breaker", "mccb", "mcb", "rccb", "switchgear"]):
+        product = "Oil Immersed Electrical Transformer"
+        product_type = "Outdoor Distribution / Power Transformer"
+        industry_domain = "Electrical"
+        application = "Substation Electrical Power Distribution"
+    elif any(w in text_lower for w in ["cable", "wire", "conductor", "wiring", "frls"]):
+        product = "Insulated Electric Cable / Building Wire"
+        product_type = "PVC / XLPE Insulated Power & Control Conductor"
+        industry_domain = "Electrical"
+        application = "Internal Building Wiring & Underground Power Feeder"
+    elif any(w in text_lower for w in ["mccb", "mcb", "rccb", "circuit breaker", "switchgear"]):
         product = "Low Voltage Circuit Breaker / Switchgear"
-        category = "Switchgear and Protection"
-        domain = "Electrical"
+        product_type = "Moulded Case / Residual Current Circuit Breaker"
+        industry_domain = "Electrical"
+        application = "Power Distribution Board & Personnel Shock Protection"
+    elif any(w in text_lower for w in ["smart meter", "energy meter", "watt-hour meter", "watt hour"]):
+        product = "Static Watt-Hour Smart Energy Meter"
+        product_type = "Direct Connected Bi-Directional AMI Smart Meter"
+        industry_domain = "Electrical"
+        application = "Utility Grid Metering & Automated Metering Infrastructure"
+    elif any(w in text_lower for w in ["earthing", "grounding", "earth electrode", "earth pit"]):
+        product = "Electrical Earthing System"
+        product_type = "Pipe / Plate Earth Electrode & Grounding Pit"
+        industry_domain = "Electrical"
+        application = "Substation & Facility Electrical Fault Grounding"
     elif any(w in text_lower for w in ["cement", "pozzolana", "opc", "ppc"]):
-        product = "Hydraulic Cement"
-        category = "Cement and Building Binders"
-        domain = "Civil"
-    elif any(w in text_lower for w in ["concrete", "rcc", "aggregate", "slump"]):
-        product = "Concrete / Structural Elements"
-        category = "Concrete and Structural Works"
-        domain = "Civil"
-    elif any(w in text_lower for w in ["tmt", "rebar", "deformed steel", "reinforcement steel"]):
-        product = "High Strength Steel Reinforcement Rebar"
-        category = "Reinforcing Steel"
-        domain = "Civil"
-    elif any(w in text_lower for w in ["structural steel", "steel plate", "beam", "joist", "angle"]):
+        product = "Hydraulic Structural Cement"
+        product_type = "Portland Pozzolana / Ordinary Portland Cement"
+        industry_domain = "Civil"
+        application = "Reinforced Concrete Foundation & Structural Civil Works"
+    elif any(w in text_lower for w in ["concrete", "rcc", "aggregate", "slump", "mix design"]):
+        product = "Plain and Reinforced Concrete"
+        product_type = "Design Mix Concrete with Coarse & Fine Aggregates"
+        industry_domain = "Civil"
+        application = "Structural Building Frames, Beams, Slabs & Columns"
+    elif any(w in text_lower for w in ["tmt", "rebar", "deformed steel", "reinforcement bar"]):
+        product = "High Strength Deformed Steel Reinforcement Bar"
+        product_type = "Thermo-Mechanically Treated (TMT) Steel Rebar"
+        industry_domain = "Civil"
+        application = "Earthquake Resistant Concrete Reinforcement"
+    elif any(w in text_lower for w in ["structural steel", "steel plate", "beam", "joist", "steel section"]):
         product = "Hot Rolled Structural Steel"
-        category = "Structural Steelwork"
-        domain = "Civil"
-    elif any(w in text_lower for w in ["hdpe pipe", "gi pipe", "ms pipe", "steel tubes", "pipes"]):
-        product = "Pressure Pipes & Tubes"
-        category = "Piping Systems"
-        domain = "Mechanical"
+        product_type = "Medium and High Tensile Structural Steel Sections"
+        industry_domain = "Civil"
+        application = "Steel Trusses, Pre-Engineered Buildings & Bridges"
+    elif any(w in text_lower for w in ["hdpe pipe", "gi pipe", "ms pipe", "steel tubes", "pipe"]):
+        product = "Pressure Supply Piping"
+        product_type = "High Density Polyethylene / Galvanized Mild Steel Pipe"
+        industry_domain = "Mechanical"
+        application = "Potable Drinking Water Mains & Plumbing Conveyance"
     elif any(w in text_lower for w in ["submersible pump", "water pump", "borewell pump", "openwell"]):
-        product = "Submersible / Monoset Pumpset"
-        category = "Pumping Machinery"
-        domain = "Mechanical"
+        product = "Submersible Water Pumpset"
+        product_type = "Borewell / Openwell Multistage Electric Pumpset"
+        industry_domain = "Mechanical"
+        application = "Agricultural Irrigation & Deep Well Water Extraction"
     elif any(w in text_lower for w in ["helmet", "hard hat", "head protection"]):
         product = "Industrial Safety Helmet (PPE)"
-        category = "Personal Protective Equipment"
-        domain = "Safety/PPE"
-    elif any(w in text_lower for w in ["footwear", "safety shoes", "safety boots", "steel toe"]):
-        product = "Industrial Safety Footwear (PPE)"
-        category = "Personal Protective Equipment"
-        domain = "Safety/PPE"
-    elif any(w in text_lower for w in ["solar", "photovoltaic", "pv module"]):
-        product = "Crystalline Silicon Solar PV Module"
-        category = "Solar Photovoltaic Systems"
-        domain = "Solar/Renewable"
-    elif any(w in text_lower for w in ["led lamp", "led bulb", "luminaire", "street light"]):
-        product = "LED Luminaire / Self-Ballasted Lamp"
-        category = "Illumination and Lighting"
-        domain = "Consumer/Lighting"
-    elif any(w in text_lower for w in ["smart meter", "energy meter", "watt-hour meter", "watt hour"]):
-        product = "Static Watt-Hour Energy / Smart Meter"
-        category = "Metering and Instrumentation"
-        domain = "Electrical"
-    elif any(w in text_lower for w in ["fire extinguisher", "extinguisher"]):
+        product_type = "High Impact Shock Absorbing Hard Hat"
+        industry_domain = "Safety/PPE"
+        application = "Construction Site & Industrial Head Protection"
+    elif any(w in text_lower for w in ["safety shoes", "safety footwear", "safety boots", "steel toe"]):
+        product = "Personal Protective Safety Footwear"
+        product_type = "200J Impact Resistant Steel Toe Safety Shoes"
+        industry_domain = "Safety/PPE"
+        application = "Factory Floor & Industrial Foot Protection"
+    elif any(w in text_lower for w in ["respirator", "half mask", "dust mask", "ffp2"]):
+        product = "Respiratory Protective Half Mask"
+        product_type = "Particle Filtering Half Mask Respirator"
+        industry_domain = "Safety/PPE"
+        application = "Particulate, Aerosol & Hazardous Dust Protection"
+    elif any(w in text_lower for w in ["safety harness", "safety belt", "fall arrest"]):
+        product = "Personal Fall Arrest Safety Harness"
+        product_type = "Full Body Industrial Fall Arrest Harness"
+        industry_domain = "Safety/PPE"
+        application = "Working at Height & Transmission Tower Maintenance"
+    elif any(w in text_lower for w in ["fire extinguisher", "extinguisher", "abc powder"]):
         product = "Portable Fire Extinguisher"
-        category = "Fire Fighting and Life Safety"
-        domain = "Safety/Fire"
-    elif any(w in text_lower for w in ["earthing", "grounding"]):
-        product = "Electrical Earthing System"
-        category = "Earthing & Substation Safety"
-        domain = "Electrical"
+        product_type = "ABC Dry Chemical Powder / CO2 Portable Extinguisher"
+        industry_domain = "Safety/Fire"
+        application = "First-Aid Fire Fighting in Buildings & Factories"
+    elif any(w in text_lower for w in ["solar", "photovoltaic", "pv module"]):
+        product = "Crystalline Silicon Terrestrial PV Module"
+        product_type = "Mono/Polycrystalline Silicon Photovoltaic Panel"
+        industry_domain = "Solar/Renewable"
+        application = "Utility Grid-Connected Solar Power Plants"
+    elif any(w in text_lower for w in ["led lamp", "led bulb", "luminaire", "street light"]):
+        product = "Self-Ballasted LED Lamp / Luminaire"
+        product_type = "Energy Efficient LED Fixture & Road Luminaire"
+        industry_domain = "Consumer/Lighting"
+        application = "Residential, Commercial & Street Illumination"
 
-    # 6. Application Context
-    app_context = "General Procurement"
-    if "industrial" in text_lower or "factory" in text_lower or "manufacturing" in text_lower:
-        app_context = "Industrial / Heavy Duty Operation"
-    elif "marine" in text_lower or "jetty" in text_lower or "coastal" in text_lower:
-        app_context = "Marine / Aggressive Chemical Exposure"
-    elif "construction" in text_lower or "building" in text_lower or "civil" in text_lower:
-        app_context = "Building Construction & Infrastructure"
-    elif "agricultural" in text_lower or "irrigation" in text_lower or "borewell" in text_lower:
-        app_context = "Agricultural & Irrigation Pumping"
-    elif "residential" in text_lower or "domestic" in text_lower or "household" in text_lower:
-        app_context = "Residential / Commercial Installation"
+    # Context override from text clues
+    if "marine" in text_lower or "jetty" in text_lower or "coastal" in text_lower:
+        application = "Marine & High Chemical Exposure Infrastructure"
+    elif "agricultural" in text_lower or "irrigation" in text_lower or "canal" in text_lower:
+        application = "Agricultural Pumping & Irrigation Schemes"
     elif "mining" in text_lower:
-        app_context = "Mining & Hazardous Work Environment"
+        application = "Underground Mining & Heavy Industrial Extraction"
 
-    # Mentioned Standards
     detected_stds = extract_standards_mentions(text)
+
+    # Consolidated compliance needs list
+    compliance_needs = list(set(perf_reqs + safety_reqs + test_reqs))
 
     return ExtractedRequirements(
         product=product,
-        category=category,
-        domain=domain,
-        ratings=ratings,
+        product_type=product_type,
+        application=application,
+        industry_domain=industry_domain,
+        voltage=voltage_val,
+        current=current_val,
+        power=power_val,
+        frequency=frequency_val,
+        phase=phase_val,
+        dimensions=dim_val,
         materials=materials,
-        compliance_needs=compliance_needs,
-        application=app_context,
-        detected_standards=detected_stds
+        temperature=temp_val,
+        pressure=pressure_val,
+        ip_rating=ip_val,
+        performance_requirements=perf_reqs,
+        safety_requirements=safety_reqs,
+        testing_requirements=test_reqs,
+        detected_standards=detected_stds,
+        ratings=ratings,
+        compliance_needs=compliance_needs
     )

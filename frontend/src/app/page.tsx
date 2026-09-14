@@ -8,6 +8,7 @@ import { VersionAlertBanner } from "@/components/VersionAlertBanner";
 import { PrimaryStandardCard } from "@/components/PrimaryStandardCard";
 import { RelatedStandardsSection } from "@/components/RelatedStandardsSection";
 import { CandidateStandardsList } from "@/components/CandidateStandardsList";
+import { AnalysisDetailsCard } from "@/components/AnalysisDetailsCard";
 import { StandardsGraphModal } from "@/components/StandardsGraphModal";
 import { StandardDetailModal } from "@/components/StandardDetailModal";
 import {
@@ -17,6 +18,7 @@ import {
   fetchStandards,
 } from "@/lib/api";
 import { AnalysisResponse, ExampleScenario, StandardMetadata } from "@/types";
+
 import {
   FileCheck2,
   AlertCircle,
@@ -161,13 +163,20 @@ export default function HomePage() {
               />
             )}
 
-            {/* 4. Categorized Related Standards (Normative, Testing, Safety, Installation) */}
+            {/* 4. Algorithmic Evidence & Scoring Details Card (Collapsible) */}
+            <AnalysisDetailsCard
+              result={result}
+              onSelectStandard={(std) => setSelectedStandard(std)}
+            />
+
+            {/* 5. Categorized Related Standards (Normative, Testing, Safety, Installation) */}
             {result.related_standards && (
               <RelatedStandardsSection
                 related={result.related_standards}
                 onSelectStandard={(std) => setSelectedStandard(std)}
               />
             )}
+
 
             {/* 5. Alternative Candidate Standards Pool */}
             {result.candidate_standards && (
