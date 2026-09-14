@@ -212,6 +212,7 @@ SIH108/
 │
 ├── documents/
 │   ├── System_Architecture_Diagram.png # High-resolution system architecture infographic
+│   ├── TechStack_Architecture_Diagram.png # High-resolution technology stack infographic
 │   ├── Evaluation_Benchmark_Report.pdf # Formal SIH evaluation benchmark report
 │   ├── System_Architecture.pdf         # Complete system architecture specification
 │   ├── TechStack_Architecture.pdf      # Detailed tech stack specification
