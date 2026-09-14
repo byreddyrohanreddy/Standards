@@ -48,22 +48,101 @@ with open("data/certifications.json", "r", encoding="utf-8") as f:
 with open("data/examples.json", "r", encoding="utf-8") as f:
     EXAMPLES_DATA = json.load(f)
 
+from backend.services.nlp_extractor import extract_requirements, segment_multi_requirements
+from backend.models.schemas import RequirementGroupResult
+
 def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisResponse:
     t_start = time.perf_counter()
 
-    # 1. NLP Requirement Extraction
+    # 1. NLP Requirement Extraction & Multi-Requirement Grouping
     t0 = time.perf_counter()
-    req = extract_requirements(query)
+    full_req = extract_requirements(query)
+    groups = segment_multi_requirements(query)
     nlp_ms = round((time.perf_counter() - t0) * 1000.0, 2)
 
     # 2. Version and Supersession Audit
-    version_alerts = version_auditor.audit_text_for_versions(query, req.detected_standards)
+    version_alerts = version_auditor.audit_text_for_versions(query, full_req.detected_standards)
 
-    # 3. Hybrid Candidate Retrieval (BM25 + Dense Semantic Vector Search + Scoring)
+    # If multiple distinct requirement groups are identified (e.g. multi-product tender)
+    if len(groups) > 1:
+        t1 = time.perf_counter()
+        group_results: List[RequirementGroupResult] = []
+        all_clauses: List[str] = []
+
+        for g in groups:
+            g_req = g["requirements"]
+            g_cands = retrieval_engine.retrieve_candidates(g["text"], g_req, top_k=top_k, mode=mode)
+            g_meets, g_conf, g_msg = retrieval_engine.check_confidence(g_cands)
+            g_alerts = version_auditor.audit_text_for_versions(g["text"], g_req.detected_standards)
+
+            g_primary = g_cands[0] if (g_cands and g_meets) else None
+            g_rel = graph_service.get_related_standards(g_primary) if g_primary else RelatedStandardsCategorized()
+            g_clause = retrieval_engine.generate_tender_clause(g_primary, g_rel) if g_primary else None
+            if g_clause:
+                all_clauses.append(g_clause)
+
+            group_results.append(RequirementGroupResult(
+                group_id=g["group_id"],
+                requirement_label=g["label"],
+                extracted_requirements=g_req,
+                primary_standard=g_primary,
+                candidate_standards=g_cands,
+                related_standards=g_rel,
+                version_alerts=g_alerts,
+                meets_recommendation_threshold=g_meets,
+                confidence=g_conf,
+                threshold_message=g_msg,
+                semantic_vs_keyword_note=g_primary.semantic_insight if g_primary else None,
+                tender_clause=g_clause
+            ))
+
+        retrieval_ms = round((time.perf_counter() - t1) * 1000.0, 2)
+
+        # Primary anchor is from first qualifying group
+        primary_group = next((gr for gr in group_results if gr.primary_standard is not None), group_results[0])
+        primary_std = primary_group.primary_standard
+        candidates = primary_group.candidate_standards
+        related_standards = primary_group.related_standards
+        graph_data = graph_service.build_react_flow_graph(primary_std, related_standards) if primary_std else GraphData(nodes=[], edges=[])
+
+        total_ms = round((time.perf_counter() - t_start) * 1000.0, 2)
+        latency = LatencyBreakdown(
+            nlp_extraction_ms=nlp_ms,
+            retrieval_ms=retrieval_ms,
+            reranking_ms=0.5,
+            graph_expansion_ms=0.5,
+            total_ms=total_ms
+        )
+
+        summary = (
+            f"Identified {len(group_results)} distinct technical procurement requirements in specification. "
+            f"Retrieved primary applicable standards, testing methods, and safety references for each item independently."
+        )
+
+        return AnalysisResponse(
+            query=query,
+            extracted_requirements=full_req,
+            primary_standard=primary_std,
+            candidate_standards=candidates,
+            related_standards=related_standards,
+            version_alerts=version_alerts,
+            certifications=[],
+            graph_data=graph_data,
+            summary_explanation=summary,
+            latency_breakdown=latency,
+            meets_recommendation_threshold=primary_group.meets_recommendation_threshold,
+            confidence=primary_group.confidence,
+            threshold_message=primary_group.threshold_message,
+            semantic_vs_keyword_note=primary_std.semantic_insight if primary_std else None,
+            is_multi_requirement=True,
+            requirement_groups=group_results,
+            tender_clause="\n\n".join(all_clauses)
+        )
+
+    # 3. Single Requirement Flow (BM25 + Dense Semantic Vector Search + Chunk Max-Pooling)
     t1 = time.perf_counter()
-    candidates = retrieval_engine.retrieve_candidates(query, req, top_k=top_k, mode=mode)
+    candidates = retrieval_engine.retrieve_candidates(query, full_req, top_k=top_k, mode=mode)
     retrieval_ms = round((time.perf_counter() - t1) * 1000.0, 2)
-
 
     t2 = time.perf_counter()
     meets_threshold, confidence, threshold_msg = retrieval_engine.check_confidence(candidates)
@@ -81,7 +160,7 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
         )
         return AnalysisResponse(
             query=query,
-            extracted_requirements=req,
+            extracted_requirements=full_req,
             primary_standard=None,
             candidate_standards=candidates,
             related_standards=empty_rel,
@@ -92,14 +171,17 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
             latency_breakdown=latency,
             meets_recommendation_threshold=False,
             confidence="low",
-            threshold_message=threshold_msg
+            threshold_message=threshold_msg,
+            is_multi_requirement=False,
+            requirement_groups=[],
+            tender_clause="No applicable standards clause available (query below recommendation threshold)."
         )
 
     # Primary recommended standard is candidate rank #1
     primary_std = candidates[0]
     reranking_ms = round((time.perf_counter() - t2) * 1000.0, 2)
 
-    # 4. Traversal of Related Standards (Normative, Testing, Safety, Installation, Superseded)
+    # 4. Traversal of Related Standards
     t3 = time.perf_counter()
     related_standards = graph_service.get_related_standards(primary_std)
 
@@ -111,13 +193,13 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
     applicable_certs = []
     for cert_scheme in CERTIFICATIONS_DATA:
         for item in cert_scheme.get("mandatory_items", []):
-            if primary_std.is_number in item or (req.product and req.product.lower() in item.lower()):
+            if primary_std.is_number in item or (full_req.product and full_req.product.lower() in item.lower()):
                 applicable_certs.append(cert_scheme)
                 break
 
     # 7. Synthesize Transparent Summary Explanation
-    prod_label = req.product if req.product else "specified item"
-    app_label = f" in {req.application}" if req.application else ""
+    prod_label = full_req.product if full_req.product else "specified item"
+    app_label = f" in {full_req.application}" if full_req.application else ""
     summary = (
         f"Selected {primary_std.is_number} as the primary applicable standard with an "
         f"AI relevance score of {primary_std.ai_relevance_score}%. "
@@ -128,6 +210,9 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
     )
     if version_alerts:
         summary += f" Detected {len(version_alerts)} obsolete or superseded standard references in the requirement text."
+
+    # 8. Generate Tender Compliance Clause
+    tender_clause = retrieval_engine.generate_tender_clause(primary_std, related_standards)
 
     total_ms = round((time.perf_counter() - t_start) * 1000.0, 2)
     latency = LatencyBreakdown(
@@ -140,7 +225,7 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
 
     return AnalysisResponse(
         query=query,
-        extracted_requirements=req,
+        extracted_requirements=full_req,
         primary_standard=primary_std,
         candidate_standards=candidates,
         related_standards=related_standards,
@@ -152,7 +237,10 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
         meets_recommendation_threshold=True,
         confidence=confidence,
         threshold_message=threshold_msg,
-        semantic_vs_keyword_note=primary_std.semantic_insight
+        semantic_vs_keyword_note=primary_std.semantic_insight,
+        is_multi_requirement=False,
+        requirement_groups=[],
+        tender_clause=tender_clause
     )
 
 

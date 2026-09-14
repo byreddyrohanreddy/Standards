@@ -11,6 +11,7 @@ import { CandidateStandardsList } from "@/components/CandidateStandardsList";
 import { AnalysisDetailsCard } from "@/components/AnalysisDetailsCard";
 import { StandardsGraphModal } from "@/components/StandardsGraphModal";
 import { StandardDetailModal } from "@/components/StandardDetailModal";
+import { CopyToTenderModal } from "@/components/CopyToTenderModal";
 import {
   analyzeRequirement,
   uploadTenderPdf,
@@ -27,6 +28,8 @@ import {
   FileSpreadsheet,
   CheckCircle,
   HelpCircle,
+  Layers,
+  Copy
 } from "lucide-react";
 
 export default function HomePage() {
@@ -34,7 +37,7 @@ export default function HomePage() {
     "15 kW three phase induction motor, 415 V, 50 Hz for industrial applications with efficiency and IP protection requirements"
   );
   const [examples, setExamples] = useState<ExampleScenario[]>([]);
-  const [standardsCount, setStandardsCount] = useState<number>(62);
+  const [standardsCount, setStandardsCount] = useState<number>(113);
   const [apiHealthy, setApiHealthy] = useState<boolean>(true);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -44,6 +47,8 @@ export default function HomePage() {
   // Modals state
   const [isGraphOpen, setIsGraphOpen] = useState<boolean>(false);
   const [selectedStandard, setSelectedStandard] = useState<StandardMetadata | null>(null);
+  const [isClauseModalOpen, setIsClauseModalOpen] = useState<boolean>(false);
+  const [activeRequirementIndex, setActiveRequirementIndex] = useState<number>(0);
 
   // Load initial examples & standards
   useEffect(() => {
@@ -142,87 +147,167 @@ export default function HomePage() {
         )}
 
         {/* Results Stream */}
-        {result && (
-          <div className="space-y-6 animate-in fade-in-50 duration-300">
-            {/* 1. Outdated Version Alert (if any) */}
-            {result.version_alerts && result.version_alerts.length > 0 && (
-              <VersionAlertBanner alerts={result.version_alerts} />
-            )}
+        {result && (() => {
+          const isMulti = Boolean(result.is_multi_requirement && result.requirement_groups && result.requirement_groups.length > 1);
+          const activeGroup = isMulti && result.requirement_groups ? result.requirement_groups[activeRequirementIndex] || result.requirement_groups[0] : null;
 
-            {/* 2. Dynamic Requirement Understanding Card */}
-            {result.extracted_requirements && (
-              <RequirementUnderstandingCard requirements={result.extracted_requirements} />
-            )}
+          const currentRequirements = activeGroup ? activeGroup.extracted_requirements : result.extracted_requirements;
+          const currentPrimary = activeGroup ? activeGroup.primary_standard : result.primary_standard;
+          const currentRelated = activeGroup ? activeGroup.related_standards : result.related_standards;
+          const currentCandidates = activeGroup ? activeGroup.candidate_standards : result.candidate_standards;
+          const currentAlerts = activeGroup ? activeGroup.version_alerts : result.version_alerts;
+          const currentSemanticNote = activeGroup ? activeGroup.semantic_vs_keyword_note : result.semantic_vs_keyword_note;
+          const meetsThresh = activeGroup ? activeGroup.meets_recommendation_threshold : result.meets_recommendation_threshold;
+          const threshMsg = activeGroup ? activeGroup.threshold_message : result.threshold_message;
 
-            {/* 3. Unknown Query / Low Confidence Warning Card */}
-            {!result.primary_standard && (
-              <div className="p-5 bg-amber-50 border-2 border-amber-300 rounded-xl text-amber-900 shadow-xs">
-                <div className="flex items-center gap-2.5 font-bold text-sm">
-                  <AlertCircle className="w-5 h-5 text-amber-700 shrink-0" />
-                  <span>No Sufficiently Relevant Standard Found in Prototype Corpus</span>
+          return (
+            <div className="space-y-6 animate-in fade-in-50 duration-300">
+              {/* Multi-Requirement Group Switcher (if composite query or tender) */}
+              {isMulti && result.requirement_groups && (
+                <div className="bg-white rounded-xl p-4 border-2 border-blue-600/30 shadow-xs space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <span className="p-1.5 rounded-lg bg-blue-100 text-blue-800">
+                        <Layers className="w-4 h-4" />
+                      </span>
+                      <div>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                          Multi-Requirement Procurement Tender ({result.requirement_groups.length} Items Identified)
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          Select a requirement item below to inspect specific standard recommendations, testing methods, and relationship graphs.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsClauseModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition self-start sm:self-auto shadow-xs"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>View Combined Tender Clause</span>
+                    </button>
+                  </div>
+
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {result.requirement_groups.map((group, idx) => {
+                      const isSelected = activeRequirementIndex === idx;
+                      const primaryNum = group.primary_standard?.is_number || "No Match";
+                      return (
+                        <button
+                          key={group.group_id}
+                          type="button"
+                          onClick={() => setActiveRequirementIndex(idx)}
+                          className={`px-3.5 py-2.5 rounded-lg text-left transition border shrink-0 min-w-[200px] ${
+                            isSelected
+                              ? "bg-blue-700 text-white border-blue-700 shadow-xs"
+                              : "bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200"
+                          }`}
+                        >
+                          <div className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? "text-blue-200" : "text-slate-500"}`}>
+                            Requirement Item #{idx + 1}
+                          </div>
+                          <div className="font-bold text-xs mt-0.5 truncate max-w-[220px]">
+                            {group.requirement_label}
+                          </div>
+                          <div className={`text-[11px] mt-1 font-mono font-medium ${isSelected ? "text-amber-300" : "text-blue-700"}`}>
+                            → {primaryNum}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <p className="mt-1.5 text-xs text-amber-800 leading-relaxed">
-                  {result.threshold_message || "The input specification does not meet the minimum confidence threshold for automated recommendation. Weak potential matches are displayed below for audit inspection."}
-                </p>
-                <div className="mt-2 text-[11px] text-amber-700 italic">
-                  * In a production deployment across all 20,000+ Indian Standards, out-of-catalog items are routed for manual technical committee review.
+              )}
+
+              {/* 1. Outdated Version Alert (if any) */}
+              {currentAlerts && currentAlerts.length > 0 && (
+                <VersionAlertBanner alerts={currentAlerts} />
+              )}
+
+              {/* 2. Dynamic Requirement Understanding Card */}
+              {currentRequirements && (
+                <RequirementUnderstandingCard requirements={currentRequirements} />
+              )}
+
+              {/* 3. Unknown Query / Low Confidence Warning Card */}
+              {(!currentPrimary || meetsThresh === false) && (
+                <div className="p-5 bg-amber-50 border-2 border-amber-300 rounded-xl text-amber-900 shadow-xs">
+                  <div className="flex items-center gap-2.5 font-bold text-sm">
+                    <AlertCircle className="w-5 h-5 text-amber-700 shrink-0" />
+                    <span>No Sufficiently Relevant Standard Found in Prototype Corpus</span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-amber-800 leading-relaxed">
+                    {threshMsg || "The input specification does not meet the minimum confidence threshold for automated recommendation. Weak potential matches are displayed below for audit inspection."}
+                  </p>
+                  <div className="mt-2 text-[11px] text-amber-700 italic">
+                    * In a production deployment across all 20,000+ Indian Standards, out-of-catalog items are routed for manual technical committee review.
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* 4. Primary Recommended Standard */}
-            {result.primary_standard && (
-              <PrimaryStandardCard
-                standard={result.primary_standard}
-                semanticNote={result.semantic_vs_keyword_note}
-                onOpenGraph={() => setIsGraphOpen(true)}
-                onViewStandard={(std) => setSelectedStandard(std)}
-              />
-            )}
+              {/* 4. Primary Recommended Standard */}
+              {currentPrimary && (
+                <PrimaryStandardCard
+                  standard={currentPrimary}
+                  semanticNote={currentSemanticNote}
+                  onOpenGraph={() => setIsGraphOpen(true)}
+                  onViewStandard={(std) => setSelectedStandard(std)}
+                  onOpenClause={() => setIsClauseModalOpen(true)}
+                />
+              )}
 
-            {/* 5. Algorithmic Evidence & Scoring Details Card (Collapsible) */}
-            <AnalysisDetailsCard
-              result={result}
-              onSelectStandard={(std) => setSelectedStandard(std)}
-            />
-
-
-            {/* 5. Categorized Related Standards (Normative, Testing, Safety, Installation) */}
-            {result.related_standards && (
-              <RelatedStandardsSection
-                related={result.related_standards}
+              {/* 5. Algorithmic Evidence & Scoring Details Card (Collapsible) */}
+              <AnalysisDetailsCard
+                result={result}
                 onSelectStandard={(std) => setSelectedStandard(std)}
               />
-            )}
 
+              {/* 6. Categorized Related Standards (Normative, Testing, Safety, Installation) */}
+              {currentRelated && (
+                <RelatedStandardsSection
+                  related={currentRelated}
+                  onSelectStandard={(std) => setSelectedStandard(std)}
+                />
+              )}
 
-            {/* 5. Alternative Candidate Standards Pool */}
-            {result.candidate_standards && (
-              <CandidateStandardsList
-                candidates={result.candidate_standards}
-                onSelectStandard={(std) => setSelectedStandard(std)}
-              />
-            )}
+              {/* 7. Alternative Candidate Standards Pool */}
+              {currentCandidates && currentCandidates.length > 0 && (
+                <CandidateStandardsList
+                  candidates={currentCandidates}
+                  onSelectStandard={(std) => setSelectedStandard(std)}
+                />
+              )}
 
-            {/* Summary & Procurement Export Bar */}
-            <div className="bg-white rounded-xl shadow-xs border border-slate-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-              <div className="text-slate-600">
-                <strong>Analysis Summary:</strong> {result.summary_explanation}
-              </div>
+              {/* Summary & Procurement Export Bar */}
+              <div className="bg-white rounded-xl shadow-xs border border-slate-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="text-slate-600">
+                  <strong>Analysis Summary:</strong> {result.summary_explanation}
+                </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  Print Tender Summary
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsClauseModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    Copy Standards to Tender
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    Print Tender Summary
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Empty State before analysis */}
         {!result && !isLoading && (
@@ -267,6 +352,27 @@ export default function HomePage() {
         standard={selectedStandard}
         onClose={() => setSelectedStandard(null)}
       />
+
+      {/* Copy to Tender Clause Modal */}
+      {result && (
+        <CopyToTenderModal
+          isOpen={isClauseModalOpen}
+          onClose={() => setIsClauseModalOpen(false)}
+          clauseText={
+            result.is_multi_requirement
+              ? result.tender_clause || ""
+              : (result.requirement_groups && result.requirement_groups[activeRequirementIndex]?.tender_clause) || result.tender_clause || ""
+          }
+          standardTitle={
+            (result.requirement_groups && result.requirement_groups[activeRequirementIndex]?.primary_standard?.title) ||
+            result.primary_standard?.title
+          }
+          isNumber={
+            (result.requirement_groups && result.requirement_groups[activeRequirementIndex]?.primary_standard?.is_number) ||
+            result.primary_standard?.is_number
+          }
+        />
+      )}
     </div>
   );
 }

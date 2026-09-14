@@ -141,7 +141,7 @@ def test_all_api_endpoints_valid():
     # Standards catalog endpoint
     r_stds = client.get("/api/standards")
     assert r_stds.status_code == 200
-    assert len(r_stds.json()) == 62
+    assert len(r_stds.json()) == 113
     
     # Standard detail endpoint
     r_detail = client.get("/api/standards/is_12615_2018")
@@ -187,4 +187,29 @@ def test_baseline_retrieval_modes():
     assert len(res_sem.candidate_standards) > 0
     assert len(res_hyb.candidate_standards) > 0
     assert "12615" in res_hyb.primary_standard.is_number
+
+# 13. Multi-requirement compound tender segmentation and independent retrieval
+def test_multi_requirement_segmentation():
+    query = "Procure three-phase induction motors, low-voltage control panels with 415V busbars, and industrial safety helmets for factory workers."
+    res = run_pipeline(query)
+    
+    assert res.is_multi_requirement is True
+    assert len(res.requirement_groups) >= 2
+    # Verify each group has an independent primary standard recommendation
+    group_standards = [g.primary_standard.is_number for g in res.requirement_groups if g.primary_standard is not None]
+    assert len(group_standards) >= 2
+    assert res.tender_clause is not None
+    assert len(res.tender_clause) > 50
+
+# 14. Tender compliance clause generation strictly grounded on retrieved records
+def test_tender_clause_generation():
+    query = "15 kW three phase squirrel cage induction motor 415 V 50 Hz"
+    res = run_pipeline(query)
+    
+    assert res.tender_clause is not None
+    assert "STANDARDS & TECHNICAL COMPLIANCE CLAUSE" in res.tender_clause
+    assert "12615" in res.tender_clause
+    assert "MANDATORY TESTING" in res.tender_clause
+    assert "SAFETY" in res.tender_clause
+
 

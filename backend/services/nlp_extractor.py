@@ -166,7 +166,7 @@ def extract_requirements(text: str) -> ExtractedRequirements:
     application = "General Industrial / Civil Application"
 
     # Multi-domain mapping
-    if any(w in text_lower for w in ["induction motor", "electric motor", "squirrel cage motor", "rotating machine"]):
+    if any(w in text_lower for w in ["induction motor", "electric motor", "squirrel cage motor", "squirrel cage", "squirrel-cage", "rotating machine", "prime mover"]):
         product = "Three-Phase AC Induction Motor"
         product_type = "Line-Operated Squirrel Cage AC Motor"
         industry_domain = "Electrical"
@@ -176,6 +176,11 @@ def extract_requirements(text: str) -> ExtractedRequirements:
         product_type = "Outdoor Distribution / Power Transformer"
         industry_domain = "Electrical"
         application = "Substation Electrical Power Distribution"
+    elif any(w in text_lower for w in ["control panel", "mcc panel", "switchboard", "switchgear assembly", "distribution board", "motor control center"]):
+        product = "Low-Voltage Switchgear & Control Panel Assembly"
+        product_type = "Factory Built Low Voltage Assembly (IS/IEC 61439)"
+        industry_domain = "Electrical"
+        application = "Industrial Power Control & Motor Starter Distribution"
     elif any(w in text_lower for w in ["cable", "wire", "conductor", "wiring", "frls"]):
         product = "Insulated Electric Cable / Building Wire"
         product_type = "PVC / XLPE Insulated Power & Control Conductor"
@@ -262,6 +267,72 @@ def extract_requirements(text: str) -> ExtractedRequirements:
         industry_domain = "Consumer/Lighting"
         application = "Residential, Commercial & Street Illumination"
 
+    # Duty / Usage pattern
+    duty_val: Optional[str] = None
+    if any(w in text_lower for w in ["continuous duty", "s1 duty", "continuous operation", "continuous running"]):
+        duty_val = "Continuous Duty (S1)"
+        ratings["Duty Cycle"] = duty_val
+    elif any(w in text_lower for w in ["intermittent", "s2 duty", "s3 duty"]):
+        duty_val = "Intermittent Duty"
+        ratings["Duty Cycle"] = duty_val
+
+    # Efficiency Class / Energy Star
+    eff_val: Optional[str] = None
+    if "ie4" in text_lower or "super premium efficiency" in text_lower:
+        eff_val = "IE4 Super Premium Efficiency"
+        ratings["Efficiency Class"] = eff_val
+    elif "ie3" in text_lower or "premium efficiency" in text_lower:
+        eff_val = "IE3 Premium Efficiency"
+        ratings["Efficiency Class"] = eff_val
+    elif "ie2" in text_lower or "high efficiency" in text_lower:
+        eff_val = "IE2 High Efficiency"
+        ratings["Efficiency Class"] = eff_val
+    elif "5 star" in text_lower or "5-star" in text_lower:
+        eff_val = "BEE 5-Star Energy Rating"
+        ratings["Energy Label"] = eff_val
+    elif "3 star" in text_lower or "3-star" in text_lower:
+        eff_val = "BEE 3-Star Energy Rating"
+        ratings["Energy Label"] = eff_val
+
+    # Subtype detection
+    subtype_val: Optional[str] = None
+    if "squirrel cage" in text_lower or "squirrel-cage" in text_lower:
+        subtype_val = "Squirrel Cage Rotor"
+    elif "slip ring" in text_lower or "wound rotor" in text_lower:
+        subtype_val = "Slip Ring Wound Rotor"
+    elif "split case" in text_lower:
+        subtype_val = "Horizontal Split-Case"
+    elif "monoset" in text_lower:
+        subtype_val = "Monoset Centrifugal"
+    elif "submersible" in text_lower:
+        subtype_val = "Multi-Stage Submersible Borehole"
+    elif "tmt" in text_lower or "thermo mechanical" in text_lower:
+        subtype_val = "Thermo-Mechanically Treated (TMT)"
+    elif "ppc" in text_lower or "pozzolana" in text_lower:
+        subtype_val = "Portland Pozzolana Cement (Fly Ash / Calcined Clay)"
+    elif "opc" in text_lower:
+        subtype_val = "Ordinary Portland Cement (OPC)"
+    elif "k9" in text_lower:
+        subtype_val = "Class K9 Heavy Duty Pressure"
+    elif "di pipe" in text_lower or "ductile iron" in text_lower:
+        subtype_val = "Ductile Iron Spun"
+
+    # Installation requirement
+    installation_req = any(w in text_lower for w in ["installation", "supply and installation", "erection", "laying", "commissioning", "jointing"])
+
+    # Operating conditions
+    op_conditions: List[str] = []
+    if "continuous" in text_lower or "heavy duty" in text_lower:
+        op_conditions.append("Continuous Heavy-Duty Operation")
+    if any(w in text_lower for w in ["outdoor", "substation", "open yard"]):
+        op_conditions.append("Outdoor Substation Environment")
+    if any(w in text_lower for w in ["marine", "jetty", "coastal", "saline"]):
+        op_conditions.append("Marine / Aggressive Coastal Atmosphere")
+    if any(w in text_lower for w in ["underground", "buried", "soil"]):
+        op_conditions.append("Underground Direct Burial")
+    if any(w in text_lower for w in ["high rise", "multi-story", "building"]):
+        op_conditions.append("High-Rise Building Infrastructure")
+
     # Context override from text clues
     if "marine" in text_lower or "jetty" in text_lower or "coastal" in text_lower:
         application = "Marine & High Chemical Exposure Infrastructure"
@@ -278,6 +349,7 @@ def extract_requirements(text: str) -> ExtractedRequirements:
     return ExtractedRequirements(
         product=product,
         product_type=product_type,
+        subtype=subtype_val,
         application=application,
         industry_domain=industry_domain,
         voltage=voltage_val,
@@ -290,6 +362,11 @@ def extract_requirements(text: str) -> ExtractedRequirements:
         temperature=temp_val,
         pressure=pressure_val,
         ip_rating=ip_val,
+        capacity=power_val or dim_val or pressure_val,
+        duty=duty_val,
+        efficiency=eff_val,
+        installation_required=installation_req,
+        operating_conditions=op_conditions,
         performance_requirements=perf_reqs,
         safety_requirements=safety_reqs,
         testing_requirements=test_reqs,
@@ -297,3 +374,113 @@ def extract_requirements(text: str) -> ExtractedRequirements:
         ratings=ratings,
         compliance_needs=compliance_needs
     )
+
+def normalize_query_for_semantic_search(req: ExtractedRequirements, raw_query: str) -> str:
+    """
+    Synthesizes a rich, normalized semantic query anchored on the raw query
+    and enriched with extracted product taxonomy, operating parameters, and standards vocabulary.
+    """
+    enrichments: List[str] = []
+    if req.product and req.product != "Procurement Item":
+        enrichments.append(req.product)
+    if req.product_type and req.product_type != "Standard Equipment":
+        enrichments.append(req.product_type)
+    if req.subtype:
+        enrichments.append(req.subtype)
+    if req.application and "General" not in req.application:
+        enrichments.append(req.application)
+    if req.industry_domain and "General" not in req.industry_domain:
+        enrichments.append(f"{req.industry_domain} Sector")
+    if req.power:
+        enrichments.append(f"Rating {req.power}")
+    if req.voltage:
+        enrichments.append(f"Voltage {req.voltage}")
+    if req.phase:
+        enrichments.append(req.phase)
+    if req.frequency:
+        enrichments.append(req.frequency)
+    if req.ip_rating:
+        enrichments.append(req.ip_rating)
+    if req.duty:
+        enrichments.append(req.duty)
+    if req.efficiency:
+        enrichments.append(req.efficiency)
+    if req.pressure:
+        enrichments.append(f"Pressure {req.pressure}")
+    if req.dimensions:
+        enrichments.append(f"Dimension {req.dimensions}")
+    if req.materials:
+        enrichments.append(f"Material {', '.join(req.materials)}")
+    
+    enrichments.extend(req.compliance_needs[:3])
+    enrichments.extend(req.operating_conditions[:2])
+    
+    # Filter out enrichments already present in raw query (case-insensitive)
+    query_lower = raw_query.lower()
+    novel_enrichments = [e for e in enrichments if e.lower() not in query_lower]
+    
+    if novel_enrichments:
+        return f"{raw_query.strip()} {' '.join(novel_enrichments)}"
+    return raw_query.strip()
+
+def segment_multi_requirements(text: str) -> List[Dict[str, Any]]:
+    """
+    Detects and segments compound procurement queries or multi-product tenders
+    into distinct requirement groups.
+    Example: 'Procure three-phase induction motors, low-voltage control panels with 415V busbars, and industrial safety helmets for factory workers.'
+    """
+    # 1. Check for numbered lists or explicit line-delimited clauses (e.g. Item 1:, 1., 2.)
+    numbered_splits = re.split(r"(?:\r?\n\s*(?:Item\s*\d+[:.]|\d+[\.\)]\s+|[-*•]\s+))", text.strip(), flags=re.IGNORECASE)
+    if len(numbered_splits) > 1 and any(len(s.strip()) > 10 for s in numbered_splits[1:]):
+        groups = []
+        for idx, chunk in enumerate(numbered_splits):
+            chunk_clean = chunk.strip()
+            if len(chunk_clean) < 8:
+                continue
+            req = extract_requirements(chunk_clean)
+            label = req.product if req.product != "Procurement Item" else f"Requirement Item #{idx + 1}"
+            groups.append({
+                "group_id": f"req_{idx + 1}",
+                "label": label,
+                "text": chunk_clean,
+                "requirements": req
+            })
+        if len(groups) > 1:
+            return groups
+
+    # 2. Check for conjunction splits across distinct product classes (e.g. 'motors, control panels, and safety helmets')
+    clauses = re.split(r",\s*(?:and\s+)?|\band\s+", text.strip(), flags=re.IGNORECASE)
+    if len(clauses) > 1:
+        extracted_groups = []
+        seen_products = set()
+        for clause in clauses:
+            c_text = clause.strip()
+            # remove leading procurement verbs
+            c_text_cleaned = re.sub(r"^(?:procure|supply of|purchase of|requirement for)\s+", "", c_text, flags=re.IGNORECASE).strip()
+            if len(c_text_cleaned) < 6:
+                continue
+            r = extract_requirements(c_text_cleaned)
+            # Only count as distinct group if a recognized product was extracted
+            if r.product != "Procurement Item":
+                prod_key = (r.product, r.industry_domain)
+                if prod_key not in seen_products:
+                    seen_products.add(prod_key)
+                    extracted_groups.append({
+                        "group_id": f"req_{len(extracted_groups) + 1}",
+                        "label": r.product,
+                        "text": c_text,
+                        "requirements": r
+                    })
+        if len(extracted_groups) >= 2:
+            return extracted_groups
+
+    # Single requirement default
+    single_req = extract_requirements(text)
+    label = single_req.product if single_req.product != "Procurement Item" else "Primary Requirement"
+    return [{
+        "group_id": "req_1",
+        "label": label,
+        "text": text,
+        "requirements": single_req
+    }]
+

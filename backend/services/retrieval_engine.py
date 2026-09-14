@@ -23,10 +23,13 @@ STOPWORDS = {
     "been", "which", "that", "this", "these", "those", "under", "into"
 }
 
+from backend.services.nlp_extractor import normalize_query_for_semantic_search
+
 class HybridRetrievalEngine:
-    def __init__(self, standards_path: str = "data/standards.json", embeddings_path: str = "data/standards_embeddings.npy"):
+    def __init__(self, standards_path: str = "data/standards.json", embeddings_path: str = "data/standards_embeddings.npy", chunk_embeddings_path: str = "data/standards_chunk_embeddings.npz"):
         self.standards_path = standards_path
         self.embeddings_path = embeddings_path
+        self.chunk_embeddings_path = chunk_embeddings_path
         self.standards: List[Dict[str, Any]] = []
         self.standards_by_number: Dict[str, Dict[str, Any]] = {}
         self.standards_by_id: Dict[str, Dict[str, Any]] = {}
@@ -34,6 +37,9 @@ class HybridRetrievalEngine:
         self.bm25: Optional[BM25Okapi] = None
         self.dense_model = None
         self.doc_embeddings: Optional[np.ndarray] = None
+        self.chunk_embeddings: Optional[np.ndarray] = None
+        self.chunk_std_indices: Optional[np.ndarray] = None
+        self.chunk_types: Optional[np.ndarray] = None
         self.corpus_texts: List[str] = []
         self.using_transformer = False
         
@@ -91,7 +97,7 @@ class HybridRetrievalEngine:
             self.dense_model = SentenceTransformer(SENTENCE_MODEL_NAME)
             self.using_transformer = True
             
-            # Check for disk cache of embeddings
+            # Check for disk cache of full standard embeddings
             if os.path.exists(self.embeddings_path):
                 print(f"[BIS-SpecAI] Loading cached standard embeddings from {self.embeddings_path}")
                 self.doc_embeddings = np.load(self.embeddings_path)
@@ -105,6 +111,15 @@ class HybridRetrievalEngine:
                 np.save(self.embeddings_path, self.doc_embeddings)
                 print(f"[BIS-SpecAI] Saved embeddings to {self.embeddings_path}")
                 
+            # Check for disk cache of structured chunk embeddings
+            if os.path.exists(self.chunk_embeddings_path):
+                print(f"[BIS-SpecAI] Loading structured chunk embeddings from {self.chunk_embeddings_path}")
+                chunk_npz = np.load(self.chunk_embeddings_path)
+                self.chunk_embeddings = chunk_npz["embeddings"]
+                self.chunk_std_indices = chunk_npz["standard_indices"]
+                self.chunk_types = chunk_npz["chunk_types"]
+                print(f"[BIS-SpecAI] Loaded {len(self.chunk_embeddings)} structured chunk embeddings.")
+                
         except Exception as e:
             print(f"[BIS-SpecAI] Note: SentenceTransformer initialization note ({str(e)}). Engaging resilient subword vector fallback.")
             self.using_transformer = False
@@ -113,12 +128,25 @@ class HybridRetrievalEngine:
             self.fallback_vectors = self.fallback_vectorizer.fit_transform(self.corpus_texts)
 
     def _compute_dense_similarity(self, query: str) -> np.ndarray:
-        """Computes cosine similarity between query and documents using sentence embeddings."""
+        """Computes cosine similarity between query and documents with structured chunk max-pooling."""
         if self.using_transformer and self.dense_model is not None and self.doc_embeddings is not None:
             query_emb = self.dense_model.encode([query], convert_to_numpy=True, show_progress_bar=False)
-            sims = cosine_similarity(query_emb, self.doc_embeddings)[0]
-            # Clip negative similarities to 0
-            return np.clip(sims, 0.0, 1.0)
+            full_sims = cosine_similarity(query_emb, self.doc_embeddings)[0]
+            
+            # Incorporate structured chunk max-pooling across scope, requirements, parameters, testing
+            if self.chunk_embeddings is not None and self.chunk_std_indices is not None:
+                chunk_sims = cosine_similarity(query_emb, self.chunk_embeddings)[0]
+                chunk_max_scores = np.zeros(len(self.standards))
+                for i in range(len(self.standards)):
+                    mask = (self.chunk_std_indices == i)
+                    if np.any(mask):
+                        chunk_max_scores[i] = float(np.max(chunk_sims[mask]))
+                
+                # Fuses overall document semantic similarity (50%) with specific chunk hit similarity (50%)
+                combined_sims = 0.5 * full_sims + 0.5 * chunk_max_scores
+                return np.clip(combined_sims, 0.0, 1.0)
+                
+            return np.clip(full_sims, 0.0, 1.0)
         elif self.fallback_vectorizer is not None and self.fallback_vectors is not None:
             query_vec = self.fallback_vectorizer.transform([query])
             sims = cosine_similarity(query_vec, self.fallback_vectors)[0]
@@ -129,8 +157,8 @@ class HybridRetrievalEngine:
     def retrieve_candidates(self, query: str, req: ExtractedRequirements, top_k: int = 5, mode: str = "hybrid") -> List[StandardMetadata]:
         """
         Executes hybrid retrieval:
-        1. BM25 Okapi lexical scores [0, 1]
-        2. Dense Sentence Transformer cosine similarity [0, 1]
+        1. BM25 Okapi lexical scores on raw query tokens [0, 1]
+        2. Dense Sentence Transformer cosine similarity on normalized semantic query with chunk max-pooling [0, 1]
         3. Parameter & domain coverage score [0, 1]
         4. Lifecycle status weighting
         Returns ranked list of StandardMetadata with full ScoringBreakdown and itemized evidence.
@@ -142,13 +170,12 @@ class HybridRetrievalEngine:
         # 1. BM25 Lexical Scores with realistic scaling denominator
         bm25_raw_scores = np.array(self.bm25.get_scores(query_tokens))
         max_bm25 = float(np.max(bm25_raw_scores)) if len(bm25_raw_scores) > 0 and np.max(bm25_raw_scores) > 0 else 1.0
-        # Prevent small incidental matches (e.g. 1.5) from inflating to 1.0
         scale_denom = max(10.0, max_bm25)
         bm25_norm = np.clip(bm25_raw_scores / scale_denom, 0.0, 1.0)
 
-
-        # 2. Dense Sentence Transformer Cosine Similarity
-        dense_scores = self._compute_dense_similarity(query)
+        # 2. Dense Sentence Transformer Cosine Similarity on Normalized Semantic Query
+        normalized_semantic_query = normalize_query_for_semantic_search(req, query)
+        dense_scores = self._compute_dense_similarity(normalized_semantic_query)
 
         # 3. Multi-Factor Reranking with Full Factor Breakdowns
         scored_candidates: List[Tuple[float, ScoringBreakdown, Dict[str, Any], List[str], List[EvidenceItem]]] = []
@@ -413,3 +440,62 @@ class HybridRetrievalEngine:
 
         return True, "high", None
 
+    @staticmethod
+    def generate_tender_clause(primary_std: Optional[StandardMetadata], related: Any = None) -> str:
+        """
+        Generates a concise, procurement-compliant standards clause from retrieved records.
+        """
+        if not primary_std:
+            return "No specific Indian Standard identified for clause generation."
+            
+        lines = [
+            "============================================================",
+            "STANDARDS & TECHNICAL COMPLIANCE CLAUSE (FOR TENDER NIT)",
+            "============================================================",
+            "",
+            "1. PRIMARY MANDATORY SPECIFICATION:",
+            f"   The supplied equipment/material shall strictly comply with:",
+            f"   - {primary_std.is_number}: {primary_std.title} ({primary_std.year} edition with all current amendments).",
+            ""
+        ]
+        
+        # Normative references
+        norm_refs = getattr(related, "normative_references", []) if related else []
+        if norm_refs:
+            lines.append("2. NORMATIVE AND COMPONENT CODES:")
+            lines.append("   The equipment design and ratings shall adhere to:")
+            for ref in norm_refs[:4]:
+                lines.append(f"   - {ref.is_number}: {ref.title}")
+            lines.append("")
+            
+        # Testing standards
+        test_stds = getattr(related, "testing_standards", []) if related else []
+        if test_stds:
+            lines.append("3. MANDATORY TESTING AND ACCEPTANCE INSPECTION:")
+            lines.append("   Acceptance, routine, and type testing shall be conducted per:")
+            for t in test_stds[:3]:
+                lines.append(f"   - {t.is_number}: {t.title}")
+            lines.append("")
+
+        # Safety standards
+        safety_stds = getattr(related, "safety_standards", []) if related else []
+        if safety_stds:
+            lines.append("4. SAFETY, GROUNDING AND HAZARD MITIGATION:")
+            lines.append("   Safety precautions and earthing/insulation shall conform to:")
+            for s in safety_stds[:3]:
+                lines.append(f"   - {s.is_number}: {s.title}")
+            lines.append("")
+            
+        # Certification
+        if primary_std.certification:
+            lines.append("5. STATUTORY QUALITY CERTIFICATION:")
+            for c in primary_std.certification:
+                lines.append(f"   - {c}")
+            lines.append("")
+            
+        lines.append("6. BIDDER COMPLIANCE UNDERTAKING:")
+        lines.append("   The bidder shall submit valid BIS certification licenses and verified type-test")
+        lines.append("   certificates from NABL-accredited or BIS-approved laboratories along with the bid.")
+        lines.append("============================================================")
+        
+        return "\n".join(lines)

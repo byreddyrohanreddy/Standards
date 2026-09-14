@@ -45,6 +45,13 @@ class ExtractedRequirements(BaseModel):
     testing_requirements: List[str] = Field(default_factory=list)
     detected_standards: List[str] = Field(default_factory=list)
     
+    capacity: Optional[str] = None
+    duty: Optional[str] = None
+    efficiency: Optional[str] = None
+    subtype: Optional[str] = None
+    installation_required: Optional[bool] = False
+    operating_conditions: List[str] = Field(default_factory=list)
+    
     # Generic dictionary of extracted ratings for flexible rendering
     ratings: Dict[str, str] = Field(default_factory=dict)
     compliance_needs: List[str] = Field(default_factory=list)
@@ -73,6 +80,7 @@ class StandardMetadata(BaseModel):
     certification: List[str] = Field(default_factory=list)
     technical_parameters: Dict[str, Any] = Field(default_factory=dict)
     keywords: List[str] = Field(default_factory=list)
+    chunks: Optional[Dict[str, str]] = None
     ai_relevance_score: Optional[float] = None
     scoring_breakdown: Optional[ScoringBreakdown] = None
     why_recommended: List[str] = Field(default_factory=list)
@@ -115,6 +123,20 @@ class GraphData(BaseModel):
     nodes: List[GraphNode] = Field(default_factory=list)
     edges: List[GraphEdge] = Field(default_factory=list)
 
+class RequirementGroupResult(BaseModel):
+    group_id: str
+    requirement_label: str
+    extracted_requirements: ExtractedRequirements
+    primary_standard: Optional[StandardMetadata] = None
+    candidate_standards: List[StandardMetadata] = Field(default_factory=list)
+    related_standards: RelatedStandardsCategorized
+    version_alerts: List[VersionAlert] = Field(default_factory=list)
+    meets_recommendation_threshold: bool = True
+    confidence: str = "high"
+    threshold_message: Optional[str] = None
+    semantic_vs_keyword_note: Optional[str] = None
+    tender_clause: Optional[str] = None
+
 class AnalysisResponse(BaseModel):
     query: str
     extracted_requirements: ExtractedRequirements
@@ -131,4 +153,7 @@ class AnalysisResponse(BaseModel):
     confidence: str = "high"
     threshold_message: Optional[str] = None
     semantic_vs_keyword_note: Optional[str] = None
+    is_multi_requirement: bool = False
+    requirement_groups: List[RequirementGroupResult] = Field(default_factory=list)
+    tender_clause: Optional[str] = None
 

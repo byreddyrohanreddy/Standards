@@ -42,6 +42,12 @@ export interface ExtractedRequirements {
   detected_standards: string[];
   ratings: Record<string, string>;
   compliance_needs: string[];
+  subtype?: string;
+  duty?: string;
+  efficiency?: string;
+  capacity?: string;
+  installation_required?: boolean;
+  operating_conditions?: string[];
   category?: string;
   domain?: string;
 }
@@ -71,6 +77,7 @@ export interface StandardMetadata {
   certification: string[];
   technical_parameters: Record<string, any>;
   keywords: string[];
+  chunks?: Record<string, string>;
   ai_relevance_score?: number;
   scoring_breakdown?: ScoringBreakdown;
   evidence_items?: EvidenceItem[];
@@ -140,6 +147,21 @@ export interface CertificationScheme {
   mandatory_items: string[];
 }
 
+export interface RequirementGroupResult {
+  group_id: string;
+  requirement_label: string;
+  extracted_requirements: ExtractedRequirements;
+  primary_standard?: StandardMetadata | null;
+  candidate_standards: StandardMetadata[];
+  related_standards: RelatedStandardsCategorized;
+  version_alerts: VersionAlert[];
+  meets_recommendation_threshold?: boolean;
+  confidence?: "high" | "medium" | "low" | string;
+  threshold_message?: string;
+  semantic_vs_keyword_note?: string;
+  tender_clause?: string;
+}
+
 export interface AnalysisResponse {
   query: string;
   extracted_requirements: ExtractedRequirements;
@@ -156,6 +178,9 @@ export interface AnalysisResponse {
   confidence?: "high" | "medium" | "low" | string;
   threshold_message?: string;
   semantic_vs_keyword_note?: string;
+  is_multi_requirement?: boolean;
+  requirement_groups?: RequirementGroupResult[];
+  tender_clause?: string;
 }
 
 

@@ -3,48 +3,80 @@
     "id": "scenario_motor",
     "label": "DEMO 1: Product Specification → Primary Standard & Related Graph",
     "category": "Electrical",
-    "query": "15 kW three phase induction motor, 415 V, 50 Hz for industrial applications with energy efficiency and IP55 protection requirements.",
+    "query": "15 kW three phase squirrel cage induction motor, 415 V, 50 Hz for continuous industrial operation with energy efficiency and IP55 protection requirements.",
     "expected_standard": "IS 12615:2018",
     "notes": "Classic multi-parameter engineering specification: Retrieves IS 12615:2018 (IE3 efficiency), extracts 15 kW / 415V / IP55, and maps normative references to IS 15999 and IS/IEC 60034."
   },
   {
     "id": "scenario_paraphrase",
-    "label": "DEMO 2: Paraphrased Wording → Semantic Vector Retrieval",
+    "label": "DEMO 2: Paraphrased Wording → Dense Vector Semantic Retrieval",
     "category": "Semantic vs Keyword",
     "query": "Industrial prime mover with squirrel-cage rotor driven by alternating current for municipal pump house continuous duty with low energy losses.",
     "expected_standard": "IS 12615:2018",
     "notes": "Semantic vector superiority test: Query uses 'prime mover', 'squirrel-cage rotor', and 'low energy losses' (terms absent from standard title), yet all-MiniLM-L6-v2 dense embeddings correctly match IS 12615:2018."
   },
   {
+    "id": "scenario_transformer",
+    "label": "DEMO 3: Multi-Parameter Technical Engineering Spec (Transformer)",
+    "category": "Electrical",
+    "query": "Outdoor oil immersed distribution transformer 250 kVA, 11 kV / 433 V, 50 Hz, 3-phase, with BEE 5-Star energy loss levels and mineral insulating oil.",
+    "expected_standard": "IS 1180 (Part 1):2014",
+    "notes": "Validates exact technical ratings: 250 kVA, 11 kV, 433 V, BEE 5-star losses, and cross-links transformer oil standard IS 335:2018."
+  },
+  {
+    "id": "scenario_multi_req",
+    "label": "DEMO 4: Compound Multi-Requirement Procurement Tender (3 Items)",
+    "category": "Multi-Requirement",
+    "query": "Supply of three-phase 15 kW induction motors for municipal water works; low-voltage motor control center (MCC) switchgear panels with 415V busbars; and personal protective industrial safety helmets for site operators.",
+    "expected_standard": "IS 12615:2018",
+    "notes": "Compound tender test: System identifies 3 distinct requirement groups (Motor -> IS 12615, Control Panel -> IS/IEC 61439, Safety Helmet -> IS 2925) and retrieves independent recommendations for each item."
+  },
+  {
     "id": "scenario_outdated",
-    "label": "DEMO 3: Legacy Tender Audit → Superseded Standard Detection",
+    "label": "DEMO 5: Legacy Tender Audit → Superseded Standard Detection",
     "category": "Tender Version Audit",
     "query": "Supply of three-phase squirrel cage induction motor manufactured as per IS 325:1996 and 43 Grade Ordinary Portland Cement conforming to IS 8112:1989 for pump station works.",
     "expected_standard": "IS 12615:2018",
-    "notes": "Obsolescence audit test: Detects obsolete IS 325:1996 and IS 8112:1989 in the requirement text, generates high-priority warning alerts, and recommends current IS 12615:2018 and IS 269:2015."
+    "notes": "Obsolescence audit test: Detects obsolete IS 325:1996 and IS 8112:1989 in requirement text, generates high-priority warning alerts, and recommends current IS 12615:2018 and IS 269:2015."
   },
   {
     "id": "scenario_cement",
-    "label": "DEMO 4: Structural Pozzolana Cement & Mandatory Testing (Civil)",
+    "label": "DEMO 6: Civil Infrastructure & Normative Testing (Cement & Concrete)",
     "category": "Civil",
     "query": "Fly ash based Portland Pozzolana Cement (PPC) for reinforced concrete foundation and marine civil engineering works with compressive strength testing.",
     "expected_standard": "IS 1489 (Part 1):2015",
     "notes": "Demonstrates pozzolana fly-ash matching, relations to IS 456 (concrete code) and IS 4031 (compressive strength testing)."
   },
   {
-    "id": "scenario_helmet",
-    "label": "DEMO 5: Industrial Safety Helmet / PPE & ISI Mark (Safety)",
+    "id": "scenario_steel",
+    "label": "DEMO 7: Earthquake Resistant Structural Steel Rebars (Civil)",
+    "category": "Civil",
+    "query": "High strength thermo-mechanically treated TMT steel bars grade Fe 500D for earthquake resistant reinforced concrete structures with high ductility.",
+    "expected_standard": "IS 1786:2008",
+    "notes": "Matches Fe 500D grade rebar, elongation and bend testing to IS 1608/IS 1599, and seismic detailing to IS 13920:2016."
+  },
+  {
+    "id": "scenario_ppe",
+    "label": "DEMO 8: Personal Protective Safety Footwear & Head Protection (PPE)",
     "category": "Safety/PPE",
-    "query": "Industrial safety helmets for construction workers providing shock absorption, penetration resistance, flame retardance and electrical insulation up to 1000 V.",
-    "expected_standard": "IS 2925:2024",
-    "notes": "Demonstrates PPE protective helmet classification, mandatory Scheme-I ISI mark, and shock/penetration test criteria."
+    "query": "Personal protective industrial safety footwear with 200 Joules impact resistant steel toe cap, oil and chemical resistant sole, and anti-static properties for factory personnel.",
+    "expected_standard": "IS 15298 (Part 2):2016",
+    "notes": "Demonstrates PPE classification, 200J steel toe impact testing, slip resistance, and mandatory Scheme-I ISI mark under Footwear QCO."
   },
   {
     "id": "scenario_solar",
-    "label": "DEMO 6: Crystalline Silicon Solar PV Modules & CRS Scheme (Solar)",
+    "label": "DEMO 9: Utility Solar PV Modules & Grid Inverter (Renewable)",
     "category": "Solar/Renewable",
     "query": "Crystalline silicon solar photovoltaic (PV) modules 540 Wp for utility grid-connected power plant with design qualification, damp heat testing and safety qualification.",
     "expected_standard": "IS 14286:2010 / IEC 61215:2005",
-    "notes": "Demonstrates Compulsory Registration Scheme (CRS) flagging, relations to IS/IEC 61730 safety tests."
+    "notes": "Demonstrates Compulsory Registration Scheme (CRS) flagging, relations to IS/IEC 61730 safety tests, and anti-islanding inverter codes."
+  },
+  {
+    "id": "scenario_unknown",
+    "label": "DEMO 10: Out-of-Catalog Query → Low Confidence Rejection",
+    "category": "Confidence Threshold",
+    "query": "Quantum warp propulsion system for interstellar spacecraft navigation with tachyon flux dampening.",
+    "expected_standard": "None (Rejection below threshold)",
+    "notes": "Thresholding validation: Gracefully detects non-standard query (dense similarity < 0.33), suppresses primary recommendation, and displays low-confidence disclaimer."
   }
 ]

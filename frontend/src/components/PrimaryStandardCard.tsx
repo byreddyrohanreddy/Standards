@@ -15,7 +15,8 @@ import {
   Sparkles,
   ShieldCheck,
   Layers,
-  FileText
+  FileText,
+  Copy
 } from "lucide-react";
 import { StandardMetadata } from "@/types";
 
@@ -24,6 +25,7 @@ interface Props {
   semanticNote?: string;
   onOpenGraph: () => void;
   onViewStandard: (std: StandardMetadata) => void;
+  onOpenClause?: () => void;
 }
 
 export const PrimaryStandardCard: React.FC<Props> = ({
@@ -31,6 +33,7 @@ export const PrimaryStandardCard: React.FC<Props> = ({
   semanticNote,
   onOpenGraph,
   onViewStandard,
+  onOpenClause,
 }) => {
   const [showEvidence, setShowEvidence] = useState(false);
   const [showAmendments, setShowAmendments] = useState(false);
@@ -46,7 +49,7 @@ export const PrimaryStandardCard: React.FC<Props> = ({
 
   return (
     <div className="bg-white rounded-xl shadow-xs border-2 border-blue-600/30 p-5 md:p-6 transition-all hover:border-blue-600/50">
-      {/* 1. Header: Primary Badge + Graph Action */}
+      {/* 1. Header: Primary Badge + Action Buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-700 text-white shadow-2xs">
@@ -65,14 +68,27 @@ export const PrimaryStandardCard: React.FC<Props> = ({
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={onOpenGraph}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-300 rounded-lg shadow-2xs transition self-start sm:self-auto"
-        >
-          <Network className="w-4 h-4 text-blue-700" />
-          Relationship Graph
-        </button>
+        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+          {onOpenClause && (
+            <button
+              type="button"
+              onClick={onOpenClause}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-lg shadow-2xs transition"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              <span>Copy to Tender</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onOpenGraph}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-300 rounded-lg shadow-2xs transition"
+          >
+            <Network className="w-4 h-4 text-blue-700" />
+            Relationship Graph
+          </button>
+        </div>
       </div>
 
       {/* 2. Standard Identification: IS Number & Title */}
@@ -150,6 +166,32 @@ export const PrimaryStandardCard: React.FC<Props> = ({
             </div>
           ))}
         </div>
+
+        {/* Technical Specification Alignment */}
+        {standard.technical_parameters && Object.keys(standard.technical_parameters).length > 0 && (
+          <div className="mt-3 pt-2.5">
+            <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Technical Parameter Matching</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {Object.entries(standard.technical_parameters).slice(0, 6).map(([k, v], idx) => {
+                if (k === "application" || k === "keywords" || typeof v === "object" && !Array.isArray(v)) return null;
+                const displayVal = Array.isArray(v) ? v.join(", ") : String(v);
+                return (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50/80 text-emerald-900 border border-emerald-200"
+                  >
+                    <span className="capitalize text-slate-600 font-medium">{k.replace("_", " ")}:</span>
+                    <span className="font-semibold text-slate-800">{displayVal}</span>
+                    <span className="text-emerald-600 font-bold ml-0.5">✓</span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 6. Collapsible "View Evidence" Drawer */}
