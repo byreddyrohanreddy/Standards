@@ -2,7 +2,7 @@ import os
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, HRFlowable
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, HRFlowable, Image as RLImage
 from reportlab.pdfgen import canvas
 
 class NumberedCanvas(canvas.Canvas):
@@ -59,16 +59,16 @@ def build_workflow_pdf():
         'DocTitle',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=22,
-        leading=26,
+        fontSize=20,
+        leading=24,
         textColor=colors.HexColor("#0f172a")
     )
     subtitle_style = ParagraphStyle(
         'DocSubTitle',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=11,
-        leading=15,
+        fontSize=9.5,
+        leading=13.5,
         textColor=colors.HexColor("#334155")
     )
     h1_style = ParagraphStyle(
@@ -153,18 +153,34 @@ def build_workflow_pdf():
         ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#cbd5e1")),
         ('LEFTPADDING', (0,0), (-1,-1), 16),
         ('RIGHTPADDING', (0,0), (-1,-1), 16),
-        ('TOPPADDING', (0,0), (-1,-1), 12),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 12),
+        ('TOPPADDING', (0,0), (-1,-1), 10),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 10),
     ]))
     story.append(banner_table)
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 10))
 
-    # Section 1: End-to-End Workflow Lifecycle
+    # START OF PDF: Visual Pipeline Flowchart
+    flowchart_path = "documents/Workflow_Flowchart.png"
+    if os.path.exists(flowchart_path):
+        story.append(Paragraph("<b>EXECUTIVE WORKFLOW & PIPELINE FLOWCHART</b>", h2_style))
+        story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#1e3a8a"), spaceAfter=6))
+        # 504 pt width, aspect ratio 1120 / 1600 * 504 = 352.8 pt height
+        story.append(RLImage(flowchart_path, width=504, height=353))
+        story.append(Spacer(1, 6))
+        story.append(Paragraph(
+            "<i>Figure 1: Complete deterministic dataflow of BIS-SpecAI from procurement tender specification to verified primary Indian Standard, multi-chunk dense retrieval, version alerts, relationship DAG traversal, and tender compliance clause generation.</i>",
+            ParagraphStyle('FigCap', parent=styles['Normal'], fontName='Helvetica-Oblique', fontSize=7.5, leading=10.5, textColor=colors.HexColor("#64748b"))
+        ))
+        story.append(Spacer(1, 10))
+        # Flowchart occupies page 1; detailed tables and narrative begin on page 2
+        story.append(PageBreak())
+
+    # Section 1: End-to-End Workflow Lifecycle (Begins on Page 2)
     story.append(Paragraph("1. End-to-End Recommendation Pipeline Workflow", h1_style))
     story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#1e3a8a"), spaceAfter=6))
     story.append(Paragraph(
         "The core intelligence of BIS-SpecAI is executed across an 8-stage synchronous workflow. "
-        "Every incoming tender specification or user query traverses this lifecycle in sub-2 milliseconds, "
+        "Every incoming tender specification or user query traverses this lifecycle in sub-50 milliseconds, "
         "transforming unstructured technical prose into structured, verified, and explainable Indian Standards recommendations.",
         body_style
     ))
@@ -173,14 +189,14 @@ def build_workflow_pdf():
     # Stage Matrix Table
     workflow_stages = [
         [Paragraph("Stage", table_header), Paragraph("Pipeline Phase", table_header), Paragraph("Input / Output", table_header), Paragraph("Key Algorithmic Operation", table_header)],
-        [Paragraph("Stage 1", table_cell_bold), Paragraph("Specification Ingestion", table_cell_bold), Paragraph("Text prompt or Tender PDF", table_cell), Paragraph("PyMuPDF C-bindings extract raw text stream; validates minimum length", table_cell)],
-        [Paragraph("Stage 2", table_cell_bold), Paragraph("Dynamic NLP Extraction", table_cell_bold), Paragraph("Raw text → ExtractedRequirements", table_cell), Paragraph("Regex + entity rules extract Product, Ratings (kW, V, Hz, IP), Materials, Domain", table_cell)],
-        [Paragraph("Stage 3", table_cell_bold), Paragraph("Version & Obsolescence Audit", table_cell_bold), Paragraph("Citations → VersionAlert[]", table_cell), Paragraph("Identifies obsolete citations (IS 325, IS 8112) and maps active replacements", table_cell)],
-        [Paragraph("Stage 4", table_cell_bold), Paragraph("Hybrid Dual Retrieval", table_cell_bold), Paragraph("Tokens → Candidate Pool", table_cell), Paragraph("Parallel BM25 Okapi lexical scoring + TF-IDF dense subword cosine similarity", table_cell)],
-        [Paragraph("Stage 5", table_cell_bold), Paragraph("Multi-Factor Reranking", table_cell_bold), Paragraph("Candidates → Ranked Top-K", table_cell), Paragraph("Calculates AI Relevance Score combining vector, lexical, coverage & status weights", table_cell)],
-        [Paragraph("Stage 6", table_cell_bold), Paragraph("Explainability Synthesis", table_cell_bold), Paragraph("Scores → Evidence Checklist", table_cell), Paragraph("Generates 5 itemized bullet points citing parameter coverage and active status", table_cell)],
-        [Paragraph("Stage 7", table_cell_bold), Paragraph("Graph Traversal", table_cell_bold), Paragraph("Primary Std → Categorized DAG", table_cell), Paragraph("Traverses 249 relationship edges into Normative, Testing, Safety & Installation tabs", table_cell)],
-        [Paragraph("Stage 8", table_cell_bold), Paragraph("Interactive UI & Export", table_cell_bold), Paragraph("GraphData → React Flow Canvas", table_cell), Paragraph("Renders React Flow DAG, node inspector drawer, and print-ready procurement brief", table_cell)]
+        [Paragraph("Stage 1", table_cell_bold), Paragraph("Specification Ingestion", table_cell_bold), Paragraph("Text prompt or Tender PDF", table_cell), Paragraph("PyMuPDF C-bindings extract raw text stream; validates minimum length (<8ms)", table_cell)],
+        [Paragraph("Stage 2", table_cell_bold), Paragraph("NLP & Multi-Req Segmenter", table_cell_bold), Paragraph("Raw text → ExtractedRequirements", table_cell), Paragraph("Extracts 16 parameters (kW, V, Duty, IP, Safety); segments compound tenders into independent groups", table_cell)],
+        [Paragraph("Stage 3", table_cell_bold), Paragraph("Version & Obsolescence Audit", table_cell_bold), Paragraph("Citations → VersionAlert[]", table_cell), Paragraph("Identifies obsolete citations (IS 325, IS 8112) and automatically promotes active replacements", table_cell)],
+        [Paragraph("Stage 4", table_cell_bold), Paragraph("Chunk-Aware Hybrid Retrieval", table_cell_bold), Paragraph("Query → Candidate Pool", table_cell), Paragraph("BM25 Okapi lexical scoring + all-MiniLM-L6-v2 dense embeddings with structured chunk max-pooling", table_cell)],
+        [Paragraph("Stage 5", table_cell_bold), Paragraph("Multi-Factor Reranking & Gate", table_cell_bold), Paragraph("Candidates → Ranked Top-K", table_cell), Paragraph("Final Score = 0.35(Dense) + 0.25(BM25) + 0.20(Scope) + 0.10(Domain) + 0.10(Ver); rejects score < 0.40", table_cell)],
+        [Paragraph("Stage 6", table_cell_bold), Paragraph("Explainability & Evidence", table_cell_bold), Paragraph("Scores → Evidence Checklist", table_cell), Paragraph("Itemizes matched parameters (kW, V, IP55, S1), active edition, and statutory QCO mandate", table_cell)],
+        [Paragraph("Stage 7", table_cell_bold), Paragraph("Graph Traversal", table_cell_bold), Paragraph("Primary Std → Categorized DAG", table_cell), Paragraph("Traverses 759 relationship edges across 113 standards into Normative, Testing, Safety & Installation tabs", table_cell)],
+        [Paragraph("Stage 8", table_cell_bold), Paragraph("UI, Graph & Tender Clause", table_cell_bold), Paragraph("GraphData → React Flow / Clause", table_cell), Paragraph("Renders React Flow DAG, node inspector drawer, and generates tender compliance clause", table_cell)]
     ]
     t_stages = Table(workflow_stages, colWidths=[44, 96, 124, 240])
     t_stages.setStyle(TableStyle([
@@ -227,7 +243,7 @@ def build_workflow_pdf():
         body_style
     ))
     story.append(Paragraph("• <b>Lexical Channel (BM25):</b> Matches specific technical keywords, exact IS numbers, and part designations.", bullet_style))
-    story.append(Paragraph("• <b>Semantic Channel (Subword TF-IDF):</b> Captures conceptual similarity across equipment scopes and applications.", bullet_style))
+    story.append(Paragraph("• <b>Dense Semantic Channel:</b> Sentence-Transformers (all-MiniLM-L6-v2, 384-dim) over 113 standards and 791 structured chunks with chunk max-pooling.", bullet_style))
     story.append(Paragraph("• <b>Coverage Reranker:</b> Verifies that extracted numerical parameters (kW, V, IP55) are within the standard's scope.", bullet_style))
     story.append(Paragraph("• <b>Status Calibrator:</b> Assigns high confidence (1.0) to active standards while penalizing obsolete ones (0.4) unless explicitly requested.", bullet_style))
     story.append(Spacer(1, 6))
@@ -236,7 +252,7 @@ def build_workflow_pdf():
     story.append(Paragraph(
         "Instead of generic AI hallucinations, the explainability checklist is grounded in retrieved factual evidence: "
         "citing the exact power match, voltage coverage, active edition year, and Quality Control Order (QCO) compliance. "
-        "`StandardsGraphService` then executes a breadth-first traversal of the 249 relationship edges in `relationships.json`, "
+        "`StandardsGraphService` then executes a breadth-first traversal of the 759 relationship edges across 113 authentic standards in `relationships.json`, "
         "categorizing nodes into Normative References, Test Methods, Safety Codes, Installation Guidelines, and Superseded Editions.",
         body_style
     ))
