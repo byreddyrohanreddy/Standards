@@ -70,13 +70,51 @@ export const AnalysisDetailsCard: React.FC<Props> = ({ result, onSelectStandard 
       {/* Expandable Technical Panel */}
       {isOpen && (
         <div className="p-5 space-y-6 text-xs text-slate-700 divide-y divide-slate-100 animate-in fade-in-50 duration-200">
+          {/* Section 0: Complete Algorithmic Pipeline Flow */}
+          <div>
+            <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5 mb-2.5">
+              <Layers className="w-3.5 h-3.5 text-blue-600" />
+              Complete End-to-End Pipeline Execution Flow
+            </h4>
+            <div className="flex flex-wrap items-center gap-1.5 p-3 rounded-lg bg-slate-50 border border-slate-200 text-[10px] font-semibold">
+              <span className="px-2 py-1 bg-white rounded border border-slate-300 text-slate-800 shadow-2xs">
+                1. Input Query / PDF
+              </span>
+              <span className="text-slate-400 font-bold">➔</span>
+              <span className="px-2 py-1 bg-white rounded border border-slate-300 text-slate-800 shadow-2xs">
+                2. 16-Param NLP Parse
+              </span>
+              <span className="text-slate-400 font-bold">➔</span>
+              <span className="px-2 py-1 bg-blue-50 text-blue-800 rounded border border-blue-200 shadow-2xs">
+                3. Hybrid Retrieval (BM25 + all-MiniLM-L6-v2)
+              </span>
+              <span className="text-slate-400 font-bold">➔</span>
+              <span className="px-2 py-1 bg-white rounded border border-slate-300 text-slate-800 shadow-2xs">
+                4. Multi-Factor Rerank
+              </span>
+              <span className="text-slate-400 font-bold">➔</span>
+              <span className="px-2 py-1 bg-emerald-50 text-emerald-800 rounded border border-emerald-200 shadow-2xs">
+                5. Primary Standard Output
+              </span>
+              <span className="text-slate-400 font-bold">➔</span>
+              <span className="px-2 py-1 bg-white rounded border border-slate-300 text-slate-800 shadow-2xs">
+                6. DAG Relationship Traversal
+              </span>
+              <span className="text-slate-400 font-bold">➔</span>
+              <span className="px-2 py-1 bg-amber-50 text-amber-900 rounded border border-amber-200 shadow-2xs">
+                7. Version Audit
+              </span>
+            </div>
+          </div>
+
           {/* Section 1: Execution Latency Profiling */}
           {latency && (
-            <div>
+            <div className="pt-5">
               <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5 mb-3">
                 <Clock className="w-3.5 h-3.5 text-blue-600" />
                 Pipeline Execution Profile (Honest Latency Tracking)
               </h4>
+
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                   <div className="text-[10px] text-slate-500 font-medium">1. NLP Extraction</div>

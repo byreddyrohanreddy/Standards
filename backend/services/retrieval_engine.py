@@ -17,26 +17,26 @@ from backend.models.schemas import (
 # Sentence Transformers genuine embedding model
 SENTENCE_MODEL_NAME = "all-MiniLM-L6-v2"
 
+STOPWORDS = {
+    "for", "and", "the", "with", "per", "as", "of", "to", "in", "by", "on", 
+    "at", "an", "a", "is", "or", "from", "all", "any", "be", "has", "have", 
+    "been", "which", "that", "this", "these", "those", "under", "into"
+}
+
 class HybridRetrievalEngine:
-    def __init__(self, standards_path: str = "data/standards.json", cache_dir: str = "data"):
+    def __init__(self, standards_path: str = "data/standards.json", embeddings_path: str = "data/standards_embeddings.npy"):
         self.standards_path = standards_path
-        self.cache_dir = cache_dir
-        self.embeddings_path = os.path.join(cache_dir, "standards_embeddings.npy")
-        
+        self.embeddings_path = embeddings_path
         self.standards: List[Dict[str, Any]] = []
         self.standards_by_number: Dict[str, Dict[str, Any]] = {}
         self.standards_by_id: Dict[str, Dict[str, Any]] = {}
         
-        self.corpus_texts: List[str] = []
-        self.bm25_corpus: List[List[str]] = []
         self.bm25: Optional[BM25Okapi] = None
-        
-        # Dense Sentence Transformer model & embeddings
         self.dense_model = None
         self.doc_embeddings: Optional[np.ndarray] = None
-        self.using_transformer: bool = False
+        self.corpus_texts: List[str] = []
+        self.using_transformer = False
         
-        # Fallback vectorizer if offline / download fails
         self.fallback_vectorizer = None
         self.fallback_vectors = None
         
@@ -46,13 +46,13 @@ class HybridRetrievalEngine:
     def load_data(self):
         with open(self.standards_path, "r", encoding="utf-8") as f:
             self.standards = json.load(f)
-        
-        for std in self.standards:
-            self.standards_by_number[std["is_number"]] = std
-            self.standards_by_id[std["id"]] = std
+            
+        for s in self.standards:
+            self.standards_by_number[s["is_number"]] = s
+            self.standards_by_id[s["id"]] = s
 
     def _prepare_document_text(self, std: Dict[str, Any]) -> str:
-        """Combines title, domain, scope, keywords, parameters and certifications into a rich representation."""
+        """Constructs rich contextual document string for embedding and BM25 indexing."""
         parts = [
             std.get("is_number", ""),
             std.get("title", ""),
@@ -75,7 +75,7 @@ class HybridRetrievalEngine:
 
     def _tokenize(self, text: str) -> List[str]:
         tokens = re.findall(r"\w+", text.lower())
-        return [t for t in tokens if len(t) > 1]
+        return [t for t in tokens if len(t) > 1 and t not in STOPWORDS]
 
     def initialize_models(self):
         self.corpus_texts = [self._prepare_document_text(s) for s in self.standards]
@@ -126,7 +126,7 @@ class HybridRetrievalEngine:
         else:
             return np.zeros(len(self.standards))
 
-    def retrieve_candidates(self, query: str, req: ExtractedRequirements, top_k: int = 5) -> List[StandardMetadata]:
+    def retrieve_candidates(self, query: str, req: ExtractedRequirements, top_k: int = 5, mode: str = "hybrid") -> List[StandardMetadata]:
         """
         Executes hybrid retrieval:
         1. BM25 Okapi lexical scores [0, 1]
@@ -139,10 +139,13 @@ class HybridRetrievalEngine:
         if not query_tokens:
             return []
             
-        # 1. BM25 Lexical Scores
+        # 1. BM25 Lexical Scores with realistic scaling denominator
         bm25_raw_scores = np.array(self.bm25.get_scores(query_tokens))
         max_bm25 = float(np.max(bm25_raw_scores)) if len(bm25_raw_scores) > 0 and np.max(bm25_raw_scores) > 0 else 1.0
-        bm25_norm = np.clip(bm25_raw_scores / max_bm25, 0.0, 1.0)
+        # Prevent small incidental matches (e.g. 1.5) from inflating to 1.0
+        scale_denom = max(10.0, max_bm25)
+        bm25_norm = np.clip(bm25_raw_scores / scale_denom, 0.0, 1.0)
+
 
         # 2. Dense Sentence Transformer Cosine Similarity
         dense_scores = self._compute_dense_similarity(query)
@@ -224,16 +227,20 @@ class HybridRetrievalEngine:
                 reasons.append(f"Quality compliance: {std['certification'][0]}")
                 evidence.append(EvidenceItem(criterion="Certification", detail=std['certification'][0]))
 
-            # Transparent Multi-Factor Score:
-            # 0.35 * Vector + 0.25 * BM25 + 0.20 * Coverage + 0.10 * Domain + 0.10 * Status
-            raw_score = (
-                0.35 * sem_score +
-                0.25 * lex_score +
-                0.20 * coverage_ratio +
-                0.10 * domain_match +
-                0.10 * status_factor
-            )
-            raw_score = float(np.clip(raw_score, 0.05, 1.0))
+            # Compute score based on retrieval mode
+            if mode == "bm25_only":
+                raw_score = lex_score
+            elif mode == "semantic_only":
+                raw_score = sem_score
+            else: # hybrid
+                raw_score = (
+                    0.35 * sem_score +
+                    0.25 * lex_score +
+                    0.20 * coverage_ratio +
+                    0.10 * domain_match +
+                    0.10 * status_factor
+                )
+            raw_score = float(np.clip(raw_score, 0.0, 1.0))
             
             breakdown = ScoringBreakdown(
                 semantic_score=round(sem_score, 4),
@@ -244,20 +251,41 @@ class HybridRetrievalEngine:
                 final_score=round(raw_score, 4)
             )
 
-            scored_candidates.append((raw_score, breakdown, std, reasons, evidence))
+            # Semantic vs Keyword Demonstration insight:
+            # Detect queries where dense vectors bridged vocabulary differences from the official standard title
+            title_tokens = [w for w in re.findall(r'[a-zA-Z0-9]+', std.get("title", "").lower()) 
+                            if len(w) > 3 and w not in {"specification", "indian", "standard", "code", "part", "section"}]
+            matched_title_tokens = [w for w in title_tokens if w in query_lower]
+            title_overlap = len(matched_title_tokens) / max(1, len(title_tokens))
+
+            sem_insight = None
+            if sem_score >= 0.38 and (title_overlap <= 0.45 or lex_score < 0.45):
+                prod_term = req.product if req.product and req.product != "Procurement Item" else "domain requirements"
+                sem_insight = (
+                    f"Retrieved via dense semantic vector search (all-MiniLM-L6-v2): "
+                    f"The query describes equipment using functional wording ({prod_term}) "
+                    f"rather than the standard's verbatim title ('{std.get('title')}'). Dense embeddings matched "
+                    f"the underlying engineering application and product class."
+                )
+
+            scored_candidates.append((raw_score, breakdown, std, reasons, evidence, sem_insight))
 
         # Sort descending by raw score
         scored_candidates.sort(key=lambda x: x[0], reverse=True)
 
         results: List[StandardMetadata] = []
-        for raw_score, breakdown, std, reasons, evidence in scored_candidates[:top_k + 2]:
+        for raw_score, breakdown, std, reasons, evidence, sem_insight in scored_candidates[:top_k + 2]:
             amendments = [
                 AmendmentInfo(number=a.get("number", ""), year=a.get("year", 0), description=a.get("description", ""))
                 for a in std.get("amendments", [])
             ]
             
-            # Map raw score (0-1) to an honest percentage (e.g. 84.5%)
-            calibrated_percent = round(min(98.5, max(35.0, raw_score * 100.0)), 1)
+            # Map raw score (0-1) to an honest percentage
+            # For low-relevance queries (<0.30), preserve true low score without artificial floor
+            if raw_score < 0.30:
+                calibrated_percent = round(raw_score * 100.0, 1)
+            else:
+                calibrated_percent = round(min(98.5, max(30.0, raw_score * 100.0)), 1)
 
             meta = StandardMetadata(
                 id=std["id"],
@@ -281,7 +309,9 @@ class HybridRetrievalEngine:
                 ai_relevance_score=calibrated_percent,
                 scoring_breakdown=breakdown,
                 why_recommended=reasons[:5],
-                evidence_items=evidence[:5]
+                evidence_items=evidence[:5],
+                is_in_corpus=True,
+                semantic_insight=sem_insight
             )
             results.append(meta)
 
@@ -348,3 +378,38 @@ class HybridRetrievalEngine:
 
     def get_standard_by_id(self, std_id: str) -> Optional[Dict[str, Any]]:
         return self.standards_by_id.get(std_id)
+
+    @staticmethod
+    def check_confidence(candidates: List[StandardMetadata]) -> Tuple[bool, str, Optional[str]]:
+        """
+        Evaluates whether top candidate meets the procurement recommendation threshold.
+        Returns (meets_threshold, confidence_level, threshold_message).
+        """
+        if not candidates:
+            return False, "low", "No matching standards found in prototype corpus."
+
+        top = candidates[0]
+        sb = top.scoring_breakdown
+        if not sb:
+            return True, "high", None
+
+        # Unknown / unrelated product test (e.g. quantum warp drive, alien reactor)
+        if sb.semantic_score < 0.33 and sb.lexical_score < 0.12:
+            return (
+                False,
+                "low",
+                f"No sufficiently relevant standard found in the prototype corpus for this requirement. "
+                f"The closest catalog item ({top.is_number}) has an AI relevance of only {top.ai_relevance_score}%, "
+                f"which falls below the procurement recommendation threshold."
+            )
+
+        if sb.semantic_score < 0.42 and sb.lexical_score < 0.18:
+            return (
+                True,
+                "medium",
+                f"Potentially related standard identified ({top.is_number}), but confidence is moderate ({top.ai_relevance_score}%). "
+                f"Tender authority should manually verify scope before citing."
+            )
+
+        return True, "high", None
+

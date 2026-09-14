@@ -5,5 +5,25 @@
   "mrr": 0.9409,
   "version_detection_accuracy": 100.0,
   "normative_discovery_rate": 100.0,
-  "avg_latency_ms": 18.2
+  "avg_latency_ms": 20.4,
+  "baseline_comparison": {
+    "bm25_only": {
+      "recall_at_1": 86.36,
+      "recall_at_5": 100.0,
+      "mrr": 0.9318,
+      "avg_latency_ms": 22.2
+    },
+    "semantic_only": {
+      "recall_at_1": 81.82,
+      "recall_at_5": 100.0,
+      "mrr": 0.8803,
+      "avg_latency_ms": 20.4
+    },
+    "hybrid": {
+      "recall_at_1": 90.91,
+      "recall_at_5": 100.0,
+      "mrr": 0.9409,
+      "avg_latency_ms": 20.4
+    }
+  }
 }

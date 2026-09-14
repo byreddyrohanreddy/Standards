@@ -78,6 +78,8 @@ class StandardMetadata(BaseModel):
     why_recommended: List[str] = Field(default_factory=list)
     evidence_items: List[EvidenceItem] = Field(default_factory=list)
     relationship_to_primary: Optional[str] = None
+    is_in_corpus: bool = True
+    semantic_insight: Optional[str] = None
 
 class VersionAlert(BaseModel):
     referenced_standard: str
@@ -125,3 +127,8 @@ class AnalysisResponse(BaseModel):
     summary_explanation: str
     latency_breakdown: Optional[LatencyBreakdown] = None
     dataset_label: str = "Prototype Dataset • Curated Standards for Demonstration"
+    meets_recommendation_threshold: bool = True
+    confidence: str = "high"
+    threshold_message: Optional[str] = None
+    semantic_vs_keyword_note: Optional[str] = None
+

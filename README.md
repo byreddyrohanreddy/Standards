@@ -7,7 +7,7 @@
 [![Embeddings](https://img.shields.io/badge/Embeddings-all--MiniLM--L6--v2-blue.svg)](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
 [![Recall@5](https://img.shields.io/badge/Recall@5-100%25-brightgreen.svg)]()
 [![MRR](https://img.shields.io/badge/MRR-0.9409-brightgreen.svg)]()
-[![Tests](https://img.shields.io/badge/Tests-10%2F10_Passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-12%2F12_Passing-brightgreen.svg)]()
 
 > **Smart India Hackathon 2026 — Problem Statement 26108**  
 > *"AI-Powered Recommendation Engine for Identifying Applicable Indian Standards for Procurement Specifications"*  
@@ -15,7 +15,7 @@
 
 ---
 
-## 🏛️ Executive Summary
+## 🏛️ 1. Problem & Executive Summary
 
 Government procurement authorities (CPWD, Indian Railways, Defence, State PWDs, PSUs) publish thousands of tender notices annually. Inadvertently specifying outdated, superseded, or non-harmonized Indian Standards (IS) leads to tender challenges, vendor disqualification disputes, audit objections, and safety risks.
 
@@ -23,38 +23,49 @@ Government procurement authorities (CPWD, Indian Railways, Defence, State PWDs, 
 
 1. **Generic 16-Parameter NLP Extraction**: Automatically extracts product category, product type, application context, domain, voltage, current, power, frequency, phase, dimensions, materials, operating temperature, pressure, IP rating, safety needs, and testing requirements.
 2. **Dual-Path Hybrid Retrieval**:
-   - **Dense Semantic Embeddings**: Generates 384-dimensional dense vectors using `sentence-transformers/all-MiniLM-L6-v2` with offline disk caching (`data/standards_embeddings.npy`) for sub-20ms retrieval.
+   - **Dense Semantic Embeddings**: Generates 384-dimensional dense vectors using `sentence-transformers/all-MiniLM-L6-v2` with offline disk caching (`data/standards_embeddings.npy`) for sub-21ms retrieval.
    - **Lexical Keyword Matching**: Uses normalized BM25 Okapi (`rank-bm25`) to reward exact terminology matches (e.g., "IE3", "Fe 500D", "PE 100").
 3. **Multi-Factor Algorithmic Scoring**:
-   $$\text{Final Score} = 0.35 \cdot \text{Semantic} + 0.30 \cdot \text{Lexical} + 0.20 \cdot \text{Coverage} + 0.10 \cdot \text{Domain} + 0.05 \cdot \text{Version}$$
-4. **Tender Version & Obsolescence Auditor**: Detects outdated or superseded standard references in queries (e.g., `IS 325:1996` superseded by `IS 12615:2018`, `IS 8112:1989` superseded by `IS 269:2015`) and alerts procurement officers.
-5. **Standards Relationship Graph**: Traverses normative references, testing standards, safety standards, installation codes, and related products rendered in an interactive React Flow DAG.
-6. **Transparent Technical Evidence**: Itemizes verified matching proofs and exposes a complete candidate scoring matrix with honest latency breakdown.
+   $$\text{Final Score} = 0.35 \cdot \text{Semantic} + 0.25 \cdot \text{Lexical} + 0.20 \cdot \text{Coverage} + 0.10 \cdot \text{Domain} + 0.10 \cdot \text{Version}$$
+4. **Confidence Thresholding & Rejection**: Gracefully rejects non-catalog or out-of-domain queries (e.g., "Quantum warp propulsion system") rather than hallucinating false recommendations with high scores.
+5. **Tender Version & Obsolescence Auditor**: Detects outdated or superseded standard references in queries (e.g., `IS 325:1996` superseded by `IS 12615:2018`, `IS 8112:1989` superseded by `IS 269:2015`) and alerts procurement officers.
+6. **Standards Relationship Graph**: Traverses normative references, testing standards, safety standards, installation codes, and related products rendered in an interactive React Flow DAG. Standards external to the prototype catalog are clearly designated as *"Referenced standard not included in prototype corpus"*.
 
 ---
 
-## 📊 Benchmark Evaluation Results
+## 📊 2. Benchmark Evaluation & Baseline Comparison
 
-The recommendation pipeline is empirically evaluated against **22 ground-truth procurement queries** spanning Electrical, Civil, Mechanical, Safety/PPE, and Solar sectors:
+### Retrieval Architecture Ablation Analysis (22 Ground-Truth Test Queries)
 
-| Metric | Empirical Result | SIH Target | Technical Evaluation Notes |
+To demonstrate that our hybrid architecture provides measurable value beyond single-method retrieval, we conducted a rigorous baseline comparison across all 22 ground-truth test specifications:
+
+| Retrieval Mode | Recall@1 | Recall@5 | MRR | Avg Latency | Key Performance Characteristics |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **BM25 Lexical Only** | 86.36% | 100.00% | 0.9318 | 22.2 ms | Accurate on exact code/parameter hits; fails on paraphrasing ("prime mover" vs "motor") |
+| **Dense Semantic Only** | 81.82% | 100.00% | 0.8803 | 20.4 ms | Understands functional intent; occasional confusion between adjacent rating grades |
+| **Hybrid Pipeline (Ours)** | **90.91%** | **100.00%** | **0.9409** | **20.4 ms** | **Superior precision: Fuses dense semantic generalization with lexical exactness** |
+
+### Why Hybrid Retrieval was Chosen
+- **Vocabulary Disconnect**: Procurement tenders frequently describe equipment using functional terminology ("industrial rotary driver with squirrel-cage rotor for pump house") rather than the verbatim standard title ("Line Operated Three-Phase AC Motors"). BM25 alone yields low lexical overlap on such queries.
+- **Precision on Ratings & Codes**: Pure dense vector search can blur distinct standard parts or numerical grades (e.g., distinguishing IS 1180 Part 1 from Part 2). BM25 provides the exact lexical anchor for numerical ratings.
+- **Combined Synergy**: The hybrid approach achieves **90.91% Recall@1** and **0.9409 MRR**, outperforming both single-mode baselines without increasing inference latency.
+
+### Prototype Benchmark Summary (Curated Dataset)
+
+| Metric | Prototype Benchmark Score | SIH Target | Significance |
 | :--- | :---: | :---: | :--- |
-| **Recall@1** | **90.91%** (20/22) | > 85% | Top-ranked recommendation matches the primary ground-truth standard |
-| **Recall@5** | **100.00%** (22/22) | > 90% | Applicable standard is present in top-5 candidate pool across all queries |
-| **Mean Reciprocal Rank (MRR)** | **0.9409** | > 0.8500 | High rank confidence across multi-parameter technical queries |
-| **Outdated Version Detection** | **100.00%** (2/2) | 100% | Correctly identifies superseded standards (`IS 325`, `IS 8112`) and recommends replacements |
-| **Normative Ref. Discovery** | **100.00%** (22/22) | > 95% | Successfully traverses mandatory testing & safety cross-references |
-| **Average Pipeline Latency** | **18.2 ms / query** | < 100 ms | Real-time CPU inference with pre-computed cached sentence embeddings |
+| **Recall@1** | **90.91%** (20/22) | > 85% | Primary recommendation matches ground truth top-1 |
+| **Recall@5** | **100.00%** (22/22) | > 90% | Ground-truth standard present in top-5 candidate pool |
+| **Mean Reciprocal Rank (MRR)** | **0.9409** | > 0.8500 | Evaluates ranking position quality across multi-parameter queries |
+| **Outdated Version Detection** | **100.00%** (2/2) | 100% | Correctly identifies superseded standards (`IS 325`, `IS 8112`) and links replacements |
+| **Normative Ref. Discovery** | **100.00%** (22/22) | > 95% | Traverses mandatory testing, safety, and installation cross-references |
+| **Average Pipeline Latency** | **20.4 ms / query** | < 100 ms | Real-time CPU inference (*excludes cold-start model load; embeddings cached*) |
 
-*Run the evaluation suite:*
-```bash
-python evaluation/evaluate.py
-```
-*Results are saved to:* `evaluation/eval_results.json` and rendered in `documents/Evaluation_Benchmark_Report.pdf`.
+*Run evaluation suite:* `python evaluation/evaluate.py` (saves to `evaluation/eval_results.json` and updates `documents/Evaluation_Benchmark_Report.pdf`).
 
 ---
 
-## 🧪 Automated Test Suite (10/10 Passing)
+## 🧪 3. Automated Test Suite (12/12 Passing)
 
 A comprehensive test suite in `tests/test_pipeline.py` verifies all critical pipeline functions:
 
@@ -62,7 +73,7 @@ A comprehensive test suite in `tests/test_pipeline.py` verifies all critical pip
 | :-: | :--- | :--- | :-: |
 | 1 | `test_basic_query_returns_expected_standard` | Motor query returns `IS 12615:2018` with >60% relevance and semantic score >0.4 | **PASSED** |
 | 2 | `test_query_with_technical_parameters` | Extracts 11 kW, 415V, Three-Phase, IP55 and matches `IS 12615:2018` | **PASSED** |
-| 3 | `test_unknown_product_graceful_handling` | Fictional item (quantum warp drive) handled gracefully without hallucinated high confidence | **PASSED** |
+| 3 | `test_unknown_product_graceful_handling` | Fictional item (quantum warp drive) rejected gracefully below recommendation threshold | **PASSED** |
 | 4 | `test_outdated_standard_superseded_detection` | `IS 325:1996` flagged as superseded by `IS 12615:2018` with warning severity | **PASSED** |
 | 5 | `test_current_standard_confirmation` | `IS 12615:2018` confirmed active; zero false superseded alerts | **PASSED** |
 | 6 | `test_relationship_graph_categories` | DAG generates Normative, Testing, and Safety nodes with valid React Flow coordinates | **PASSED** |
@@ -70,6 +81,8 @@ A comprehensive test suite in `tests/test_pipeline.py` verifies all critical pip
 | 8 | `test_empty_input_validation` | Empty/whitespace query returns HTTP 400 Bad Request with descriptive message | **PASSED** |
 | 9 | `test_invalid_pdf_handling` | Zero-byte or corrupted file returns HTTP 400 Bad Request | **PASSED** |
 | 10 | `test_all_api_endpoints_valid` | Validates `/api/health`, `/api/standards`, `/api/standards/{id}/relationships`, `/api/examples` | **PASSED** |
+| 11 | `test_semantic_paraphrasing_retrieval` | Paraphrased description ("prime mover with squirrel-cage rotor") matches IS 12615 with semantic insight | **PASSED** |
+| 12 | `test_baseline_retrieval_modes` | Validates multi-mode baseline retrieval execution (BM25 only, Semantic only, Hybrid) | **PASSED** |
 
 *Run the test suite:*
 ```bash

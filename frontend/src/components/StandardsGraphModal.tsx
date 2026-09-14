@@ -202,41 +202,90 @@ export const StandardsGraphModal: React.FC<Props> = ({
             <div className="absolute top-3 left-3 z-10 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-md border border-slate-200 shadow-2xs text-[11px] text-slate-600 font-medium">
               💡 Click any standard node to inspect full metadata & scope
             </div>
+
+            {/* Permanent Relationship Legend */}
+            <div className="absolute top-3 right-3 z-10 bg-white/95 backdrop-blur-xs p-2.5 rounded-lg border border-slate-200 shadow-sm text-[10px] space-y-1 hidden sm:block max-w-xs">
+              <div className="font-bold text-slate-800 uppercase tracking-wider text-[9px] mb-1">
+                Relationship Legend
+              </div>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
+                  <span className="text-slate-700">Normative (Mandatory)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                  <span className="text-slate-700">Testing Standard</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
+                  <span className="text-slate-700">Safety Standard</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                  <span className="text-slate-700">Installation Code</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
+                  <span className="text-slate-700">Related Product</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+                  <span className="text-slate-700">Superseded</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right Inspector Drawer (if node clicked) */}
           {selectedNodeData && (
             <div className="w-full md:w-80 bg-white border-t md:border-t-0 md:border-l border-slate-200 p-5 overflow-y-auto shrink-0 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                  <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 uppercase">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">
                     {selectedNodeData.category}
                   </span>
                   <button
+                    type="button"
                     onClick={() => setSelectedNodeData(null)}
-                    className="text-slate-400 hover:text-slate-600 text-xs"
+                    className="text-slate-400 hover:text-slate-700 text-xs font-semibold"
                   >
                     Close
                   </button>
                 </div>
 
-                <div className="mt-3">
-                  <h4 className="font-mono text-base font-extrabold text-slate-900">
-                    {selectedNodeData.is_number}
-                  </h4>
-                  <div className="text-xs font-semibold text-slate-700 mt-1 leading-snug">
-                    {selectedNodeData.title}
-                  </div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">
-                    Edition: {selectedNodeData.year} • {selectedNodeData.domain}
-                  </div>
+                <div className="font-mono text-base font-black text-slate-900">
+                  {selectedNodeData.is_number}
                 </div>
 
-                <div className="mt-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
-                  <div className="font-bold text-slate-700 mb-1">Scope:</div>
-                  <div className="text-slate-600 leading-relaxed text-[11px]">
-                    {selectedNodeData.scope}
+                <div className="text-xs font-semibold text-slate-700 mt-1 leading-snug">
+                  {selectedNodeData.title}
+                </div>
+
+                {/* Corpus Status Badge */}
+                <div className="mt-2.5">
+                  {selectedNodeData.is_in_corpus === false ? (
+                    <div className="p-2 rounded bg-amber-50 border border-amber-200 text-[10px] text-amber-900">
+                      <strong>Referenced standard not included in prototype corpus</strong>
+                      <p className="mt-0.5 text-amber-800">
+                        This standard is cited in the technical specifications. The full 20,000+ BIS catalog is not fully loaded in this MVP prototype.
+                      </p>
+                    </div>
+                  ) : (
+                    <span className="inline-block text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      ✓ In Prototype Catalog (62 Standards)
+                    </span>
+                  )}
+                </div>
+
+                {/* Scope */}
+                <div className="mt-3">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Standard Scope
                   </div>
+                  <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 leading-relaxed font-mono">
+                    {selectedNodeData.scope}
+                  </p>
                 </div>
 
                 {selectedNodeData.certification && selectedNodeData.certification.length > 0 && (

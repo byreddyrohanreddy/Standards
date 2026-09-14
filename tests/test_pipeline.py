@@ -164,3 +164,27 @@ def test_all_api_endpoints_valid():
     assert r_analyze.status_code == 200
     assert r_analyze.json()["primary_standard"] is not None
     assert "1180" in r_analyze.json()["primary_standard"]["is_number"]
+
+# 11. Paraphrased query demonstrates semantic vector retrieval beyond keyword match
+def test_semantic_paraphrasing_retrieval():
+    query = "Industrial prime mover with squirrel-cage rotor driven by alternating current for municipal pump house continuous duty with low energy losses"
+    res = run_pipeline(query)
+    
+    assert res.primary_standard is not None
+    assert "12615" in res.primary_standard.is_number
+    assert res.primary_standard.scoring_breakdown.semantic_score > 0.40
+    # Demonstrates semantic insight bridging vocabulary gap
+    assert res.semantic_vs_keyword_note is not None or res.primary_standard.semantic_insight is not None
+
+# 12. Multi-mode baseline execution (BM25 only, Semantic only, Hybrid)
+def test_baseline_retrieval_modes():
+    query = "15 kW three phase induction motor 415V"
+    res_bm25 = run_pipeline(query, mode="bm25_only")
+    res_sem = run_pipeline(query, mode="semantic_only")
+    res_hyb = run_pipeline(query, mode="hybrid")
+    
+    assert len(res_bm25.candidate_standards) > 0
+    assert len(res_sem.candidate_standards) > 0
+    assert len(res_hyb.candidate_standards) > 0
+    assert "12615" in res_hyb.primary_standard.is_number
+

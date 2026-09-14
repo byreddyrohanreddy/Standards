@@ -107,19 +107,19 @@ export default function HomePage() {
             </div>
             <div>
               <div className="text-sm font-bold flex items-center gap-2">
-                BIS-SpecAI Recommendation Engine Prototype
+                BIS-SpecAI Recommendation Engine
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
                   SIH 2026 #26108
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-0.5">
-                Demonstrating requirement understanding, hybrid BM25 + dense semantic retrieval, normative relationship graphs, and tender version detection across 62 curated Indian Standards.
+                <strong>Prototype Dataset:</strong> This prototype uses a curated standards corpus for demonstration. Recommendations should be verified against the latest authoritative BIS publications before procurement.
               </p>
             </div>
           </div>
 
           <div className="shrink-0 text-xs text-slate-300 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
-            Dataset: <strong>Curated Prototype Catalog</strong>
+            Catalog: <strong>62 Curated Standards</strong>
           </div>
         </div>
 
@@ -154,20 +154,38 @@ export default function HomePage() {
               <RequirementUnderstandingCard requirements={result.extracted_requirements} />
             )}
 
-            {/* 3. Primary Recommended Standard */}
+            {/* 3. Unknown Query / Low Confidence Warning Card */}
+            {!result.primary_standard && (
+              <div className="p-5 bg-amber-50 border-2 border-amber-300 rounded-xl text-amber-900 shadow-xs">
+                <div className="flex items-center gap-2.5 font-bold text-sm">
+                  <AlertCircle className="w-5 h-5 text-amber-700 shrink-0" />
+                  <span>No Sufficiently Relevant Standard Found in Prototype Corpus</span>
+                </div>
+                <p className="mt-1.5 text-xs text-amber-800 leading-relaxed">
+                  {result.threshold_message || "The input specification does not meet the minimum confidence threshold for automated recommendation. Weak potential matches are displayed below for audit inspection."}
+                </p>
+                <div className="mt-2 text-[11px] text-amber-700 italic">
+                  * In a production deployment across all 20,000+ Indian Standards, out-of-catalog items are routed for manual technical committee review.
+                </div>
+              </div>
+            )}
+
+            {/* 4. Primary Recommended Standard */}
             {result.primary_standard && (
               <PrimaryStandardCard
                 standard={result.primary_standard}
+                semanticNote={result.semantic_vs_keyword_note}
                 onOpenGraph={() => setIsGraphOpen(true)}
                 onViewStandard={(std) => setSelectedStandard(std)}
               />
             )}
 
-            {/* 4. Algorithmic Evidence & Scoring Details Card (Collapsible) */}
+            {/* 5. Algorithmic Evidence & Scoring Details Card (Collapsible) */}
             <AnalysisDetailsCard
               result={result}
               onSelectStandard={(std) => setSelectedStandard(std)}
             />
+
 
             {/* 5. Categorized Related Standards (Normative, Testing, Safety, Installation) */}
             {result.related_standards && (

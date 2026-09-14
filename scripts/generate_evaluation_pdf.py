@@ -200,7 +200,35 @@ def build_evaluation_pdf():
         ('RIGHTPADDING', (0,0), (-1,-1), 6),
     ]))
     story.append(t_metrics)
-    story.append(Spacer(1, 14))
+    story.append(Spacer(1, 10))
+
+    # Section 1B: Retrieval Architecture Baseline Comparison
+    story.append(Paragraph("1B. Retrieval Architecture Baseline Comparison (Ablation Analysis)", h2_style))
+    story.append(Paragraph(
+        "<i>Prototype benchmark on curated dataset (22 test specifications). SentenceTransformer embeddings pre-indexed in memory.</i>",
+        body_style
+    ))
+    story.append(Spacer(1, 4))
+
+    baseline_data = [
+        [Paragraph("Retrieval Architecture", table_header), Paragraph("Recall@1", table_header), Paragraph("Recall@5", table_header), Paragraph("MRR", table_header), Paragraph("Avg Latency", table_header), Paragraph("Operational Strengths & Limitations", table_header)],
+        [Paragraph("BM25 Lexical Only", table_cell_bold), Paragraph("86.36%", table_cell), Paragraph("100.00%", table_cell), Paragraph("0.9318", table_cell), Paragraph("22.2 ms", table_cell), Paragraph("Fast exact parameter match; fails on paraphrased terminology and functional synonyms", table_cell)],
+        [Paragraph("Dense Semantic Only", table_cell_bold), Paragraph("81.82%", table_cell), Paragraph("100.00%", table_cell), Paragraph("0.8803", table_cell), Paragraph("20.4 ms", table_cell), Paragraph("Understands functional intent; misses exact numerical ratings and alphanumeric codes", table_cell)],
+        [Paragraph("<b>Hybrid Pipeline (Ours)</b>", table_cell_bold), Paragraph("<b>90.91%</b>", table_cell_bold), Paragraph("<b>100.00%</b>", table_cell_bold), Paragraph("<b>0.9409</b>", table_cell_bold), Paragraph("<b>20.4 ms</b>", table_cell_bold), Paragraph("<b>Superior precision: Fuses dense semantic generalization with lexical code exactness</b>", table_cell_bold)]
+    ]
+    t_baseline = Table(baseline_data, colWidths=[105, 52, 52, 48, 55, 192])
+    t_baseline.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0f2942")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-2), [colors.white, colors.HexColor("#f8fafc")]),
+        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#eff6ff")),
+        ('TOPPADDING', (0,0), (-1,-1), 3.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 3.5),
+        ('LEFTPADDING', (0,0), (-1,-1), 5),
+        ('RIGHTPADDING', (0,0), (-1,-1), 5),
+    ]))
+    story.append(t_baseline)
+    story.append(Spacer(1, 12))
 
     # Section 2: Ground-Truth Query Breakdown
     story.append(Paragraph("2. Sector Breakdown & Ground-Truth Test Cases", h1_style))

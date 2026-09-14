@@ -1,15 +1,31 @@
 [
   {
     "id": "scenario_motor",
-    "label": "1. Three-Phase Induction Motor (Electrical)",
+    "label": "DEMO 1: Product Specification → Primary Standard & Related Graph",
     "category": "Electrical",
     "query": "15 kW three phase induction motor, 415 V, 50 Hz for industrial applications with energy efficiency and IP55 protection requirements.",
     "expected_standard": "IS 12615:2018",
-    "notes": "Demonstrates IE3 efficiency matching, 415V/50Hz voltage/frequency parameters, IP55 enclosure, and relations to IS 15999 (efficiency testing) and IS/IEC 60034-5."
+    "notes": "Classic multi-parameter engineering specification: Retrieves IS 12615:2018 (IE3 efficiency), extracts 15 kW / 415V / IP55, and maps normative references to IS 15999 and IS/IEC 60034."
+  },
+  {
+    "id": "scenario_paraphrase",
+    "label": "DEMO 2: Paraphrased Wording → Semantic Vector Retrieval",
+    "category": "Semantic vs Keyword",
+    "query": "Industrial prime mover with squirrel-cage rotor driven by alternating current for municipal pump house continuous duty with low energy losses.",
+    "expected_standard": "IS 12615:2018",
+    "notes": "Semantic vector superiority test: Query uses 'prime mover', 'squirrel-cage rotor', and 'low energy losses' (terms absent from standard title), yet all-MiniLM-L6-v2 dense embeddings correctly match IS 12615:2018."
+  },
+  {
+    "id": "scenario_outdated",
+    "label": "DEMO 3: Legacy Tender Audit → Superseded Standard Detection",
+    "category": "Tender Version Audit",
+    "query": "Supply of three-phase squirrel cage induction motor manufactured as per IS 325:1996 and 43 Grade Ordinary Portland Cement conforming to IS 8112:1989 for pump station works.",
+    "expected_standard": "IS 12615:2018",
+    "notes": "Obsolescence audit test: Detects obsolete IS 325:1996 and IS 8112:1989 in the requirement text, generates high-priority warning alerts, and recommends current IS 12615:2018 and IS 269:2015."
   },
   {
     "id": "scenario_cement",
-    "label": "2. Structural Portland Pozzolana Cement (Civil)",
+    "label": "DEMO 4: Structural Pozzolana Cement & Mandatory Testing (Civil)",
     "category": "Civil",
     "query": "Fly ash based Portland Pozzolana Cement (PPC) for reinforced concrete foundation and marine civil engineering works with compressive strength testing.",
     "expected_standard": "IS 1489 (Part 1):2015",
@@ -17,34 +33,18 @@
   },
   {
     "id": "scenario_helmet",
-    "label": "3. Industrial Safety Helmet / Hard Hat (PPE)",
+    "label": "DEMO 5: Industrial Safety Helmet / PPE & ISI Mark (Safety)",
     "category": "Safety/PPE",
     "query": "Industrial safety helmets for construction workers providing shock absorption, penetration resistance, flame retardance and electrical insulation up to 1000 V.",
     "expected_standard": "IS 2925:2024",
     "notes": "Demonstrates PPE protective helmet classification, mandatory Scheme-I ISI mark, and shock/penetration test criteria."
   },
   {
-    "id": "scenario_rebar",
-    "label": "4. TMT High Strength Steel Rebars (Civil)",
-    "category": "Civil",
-    "query": "Fe 500D thermo-mechanically treated (TMT) high strength deformed steel bars 16 mm and 20 mm for seismic zone earthquake resistant RCC building reinforcement.",
-    "expected_standard": "IS 1786:2008",
-    "notes": "Demonstrates steel rebar grade Fe 500D extraction, tensile and ductility parameters, and relationship to IS 456 and IS 13920."
-  },
-  {
     "id": "scenario_solar",
-    "label": "5. Crystalline Silicon Solar PV Modules (Renewable)",
+    "label": "DEMO 6: Crystalline Silicon Solar PV Modules & CRS Scheme (Solar)",
     "category": "Solar/Renewable",
     "query": "Crystalline silicon solar photovoltaic (PV) modules 540 Wp for utility grid-connected power plant with design qualification, damp heat testing and safety qualification.",
     "expected_standard": "IS 14286:2010 / IEC 61215:2005",
     "notes": "Demonstrates Compulsory Registration Scheme (CRS) flagging, relations to IS/IEC 61730 safety tests."
-  },
-  {
-    "id": "scenario_outdated",
-    "label": "6. Legacy Tender Audit: Outdated IS 325 & IS 8112 (Version Alert)",
-    "category": "Audit/Warning",
-    "query": "Supply of three-phase squirrel cage induction motor manufactured as per IS 325:1996 and 43 Grade Ordinary Portland Cement conforming to IS 8112:1989 for pump station works.",
-    "expected_standard": "IS 12615:2018",
-    "notes": "Crucial test: Detects obsolete IS 325:1996 and IS 8112:1989 in the requirement text, generates high-priority warning alerts, and recommends current IS 12615:2018 and IS 269:2015."
   }
 ]

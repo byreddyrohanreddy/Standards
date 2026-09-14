@@ -57,18 +57,20 @@ class StandardsGraphService:
         )
 
     def _create_placeholder_metadata(self, is_num: str, rel_label: str) -> StandardMetadata:
-        """Fallback for referenced standard not in primary catalog."""
+        """Explicit representation for referenced standard cited in specifications but outside the prototype catalog."""
         safe_id = is_num.replace(" ", "_").replace(":", "_").replace("/", "_").replace("(", "").replace(")", "")
         return StandardMetadata(
             id=safe_id,
             is_number=is_num,
-            title=f"Indian Standard Reference: {is_num}",
+            title=f"{is_num} (Referenced Standard)",
             year=2020,
-            domain="General",
-            scope=f"Referenced complementary standard {is_num} cited under {rel_label} requirements.",
-            status="current",
-            relationship_to_primary=rel_label
+            domain="Referenced Standard",
+            scope=f"Referenced standard cited under {rel_label} requirements. Full record not included in prototype corpus.",
+            status="referenced",
+            relationship_to_primary=rel_label,
+            is_in_corpus=False
         )
+
 
     def get_related_standards(self, primary_std: StandardMetadata) -> RelatedStandardsCategorized:
         """Traverses relationships for the given primary standard and returns categorized lists."""
@@ -229,10 +231,13 @@ class StandardsGraphService:
                         "category": category,
                         "is_primary": False,
                         "certification": item.certification,
-                        "amendments_count": len(item.amendments)
+                        "amendments_count": len(item.amendments),
+                        "is_in_corpus": getattr(item, "is_in_corpus", True),
+                        "corpus_note": "In Prototype Catalog" if getattr(item, "is_in_corpus", True) else "Referenced standard not included in prototype corpus"
                     },
                     position={"x": curr_x, "y": y}
                 ))
+
                 
                 # Directed edge from primary to related
                 edges.append(GraphEdge(

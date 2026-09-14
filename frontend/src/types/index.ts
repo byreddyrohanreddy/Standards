@@ -76,6 +76,8 @@ export interface StandardMetadata {
   evidence_items?: EvidenceItem[];
   why_recommended?: string[];
   relationship_to_primary?: string;
+  is_in_corpus?: boolean;
+  semantic_insight?: string;
 }
 
 export interface VersionAlert {
@@ -110,6 +112,8 @@ export interface GraphNode {
     is_primary: boolean;
     certification?: string[];
     amendments_count?: number;
+    is_in_corpus?: boolean;
+    corpus_note?: string;
   };
   position: { x: number; y: number };
   type?: string;
@@ -148,7 +152,12 @@ export interface AnalysisResponse {
   summary_explanation: string;
   latency_breakdown?: LatencyBreakdown;
   dataset_label: string;
+  meets_recommendation_threshold?: boolean;
+  confidence?: "high" | "medium" | "low" | string;
+  threshold_message?: string;
+  semantic_vs_keyword_note?: string;
 }
+
 
 export interface ExampleScenario {
   id: string;

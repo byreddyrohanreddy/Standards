@@ -48,7 +48,7 @@ with open("data/certifications.json", "r", encoding="utf-8") as f:
 with open("data/examples.json", "r", encoding="utf-8") as f:
     EXAMPLES_DATA = json.load(f)
 
-def run_pipeline(query: str, top_k: int = 5) -> AnalysisResponse:
+def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisResponse:
     t_start = time.perf_counter()
 
     # 1. NLP Requirement Extraction
@@ -61,11 +61,14 @@ def run_pipeline(query: str, top_k: int = 5) -> AnalysisResponse:
 
     # 3. Hybrid Candidate Retrieval (BM25 + Dense Semantic Vector Search + Scoring)
     t1 = time.perf_counter()
-    candidates = retrieval_engine.retrieve_candidates(query, req, top_k=top_k)
+    candidates = retrieval_engine.retrieve_candidates(query, req, top_k=top_k, mode=mode)
     retrieval_ms = round((time.perf_counter() - t1) * 1000.0, 2)
 
+
     t2 = time.perf_counter()
-    if not candidates:
+    meets_threshold, confidence, threshold_msg = retrieval_engine.check_confidence(candidates)
+
+    if not candidates or not meets_threshold:
         empty_graph = GraphData(nodes=[], edges=[])
         empty_rel = RelatedStandardsCategorized()
         total_ms = round((time.perf_counter() - t_start) * 1000.0, 2)
@@ -80,13 +83,16 @@ def run_pipeline(query: str, top_k: int = 5) -> AnalysisResponse:
             query=query,
             extracted_requirements=req,
             primary_standard=None,
-            candidate_standards=[],
+            candidate_standards=candidates,
             related_standards=empty_rel,
             version_alerts=version_alerts,
             certifications=[],
             graph_data=empty_graph,
-            summary_explanation="No closely matching Indian Standards found for this specification in the prototype catalog.",
-            latency_breakdown=latency
+            summary_explanation=threshold_msg or "No sufficiently relevant Indian Standards found for this specification in the prototype catalog.",
+            latency_breakdown=latency,
+            meets_recommendation_threshold=False,
+            confidence="low",
+            threshold_message=threshold_msg
         )
 
     # Primary recommended standard is candidate rank #1
@@ -142,8 +148,13 @@ def run_pipeline(query: str, top_k: int = 5) -> AnalysisResponse:
         certifications=applicable_certs,
         graph_data=graph_data,
         summary_explanation=summary,
-        latency_breakdown=latency
+        latency_breakdown=latency,
+        meets_recommendation_threshold=True,
+        confidence=confidence,
+        threshold_message=threshold_msg,
+        semantic_vs_keyword_note=primary_std.semantic_insight
     )
+
 
 @app.get("/api/health")
 def health_check():
