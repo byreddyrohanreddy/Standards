@@ -1,0 +1,1745 @@
+[
+  {
+    "source_id": "IS_12615_2018",
+    "source_number": "IS 12615:2018",
+    "target_number": "IS 325:1996",
+    "relationship_type": "supersedes",
+    "description": "IS 12615:2018 supersedes older standard IS 325:1996"
+  },
+  {
+    "source_id": "IS_12615_2018",
+    "source_number": "IS 12615:2018",
+    "target_number": "IS 12615:2011",
+    "relationship_type": "supersedes",
+    "description": "IS 12615:2018 supersedes older standard IS 12615:2011"
+  },
+  {
+    "source_id": "IS_12615_2018",
+    "source_number": "IS 12615:2018",
+    "target_number": "IS/IEC 60034-1:2004",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60034-1:2004"
+  },
+  {
+    "source_id": "IS_12615_2018",
+    "source_number": "IS 12615:2018",
+    "target_number": "IS/IEC 60034-5:2000",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60034-5:2000"
+  },
+  {
+    "source_id": "IS_12615_2018",
+    "source_number": "IS 12615:2018",
+    "target_number": "IS/IEC 60034-8:2002",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60034-8:2002"
+  },
+  {
+    "source_id": "IS_12615_2018",
+    "source_number": "IS 12615:2018",
+    "target_number": "IS 1231:1974",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 1231:1974"
+  },
+  {
+    "source_id": "IS_12615_2018",
+    "source_number": "IS 12615:2018",
+    "target_number": "IS 15999 (Part 2/Sec 1):2015",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 15999 (Part 2/Sec 1):2015"
+  },
+  {
+    "source_id": "IS_12615_2018",
+    "source_number": "IS 12615:2018",
+    "target_number": "IS/IEC 60034-5:2000",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS/IEC 60034-5:2000"
+  },
+  {
+    "source_id": "IS_12615_2018",
+    "source_number": "IS 12615:2018",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_12615_2018",
+    "source_number": "IS 12615:2018",
+    "target_number": "IS 900:1992",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 900:1992"
+  },
+  {
+    "source_id": "IS_325_1996",
+    "source_number": "IS 325:1996",
+    "target_number": "IS 12615:2018",
+    "relationship_type": "superseded_by",
+    "description": "IS 325:1996 has been superseded by current standard IS 12615:2018"
+  },
+  {
+    "source_id": "IS_325_1996",
+    "source_number": "IS 325:1996",
+    "target_number": "IS 1231:1974",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 1231:1974"
+  },
+  {
+    "source_id": "IS_325_1996",
+    "source_number": "IS 325:1996",
+    "target_number": "IS 4722:1968",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 4722:1968"
+  },
+  {
+    "source_id": "IS_325_1996",
+    "source_number": "IS 325:1996",
+    "target_number": "IS 4029:2010",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 4029:2010"
+  },
+  {
+    "source_id": "IS_325_1996",
+    "source_number": "IS 325:1996",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_325_1996",
+    "source_number": "IS 325:1996",
+    "target_number": "IS 900:1992",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 900:1992"
+  },
+  {
+    "source_id": "IS_15999_Part2_Sec1_2015",
+    "source_number": "IS 15999 (Part 2/Sec 1):2015",
+    "target_number": "IS 4029:2010",
+    "relationship_type": "supersedes",
+    "description": "IS 15999 (Part 2/Sec 1):2015 supersedes older standard IS 4029:2010"
+  },
+  {
+    "source_id": "IS_15999_Part2_Sec1_2015",
+    "source_number": "IS 15999 (Part 2/Sec 1):2015",
+    "target_number": "IS/IEC 60034-1:2004",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60034-1:2004"
+  },
+  {
+    "source_id": "IS_IEC_60034_1_2004",
+    "source_number": "IS/IEC 60034-1:2004",
+    "target_number": "IS 4722:1992",
+    "relationship_type": "supersedes",
+    "description": "IS/IEC 60034-1:2004 supersedes older standard IS 4722:1992"
+  },
+  {
+    "source_id": "IS_IEC_60034_1_2004",
+    "source_number": "IS/IEC 60034-1:2004",
+    "target_number": "IS 15999 (Part 2/Sec 1):2015",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 15999 (Part 2/Sec 1):2015"
+  },
+  {
+    "source_id": "IS_IEC_60034_1_2004",
+    "source_number": "IS/IEC 60034-1:2004",
+    "target_number": "IS/IEC 60034-5:2000",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS/IEC 60034-5:2000"
+  },
+  {
+    "source_id": "IS_IEC_60034_1_2004",
+    "source_number": "IS/IEC 60034-1:2004",
+    "target_number": "IS 900:1992",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 900:1992"
+  },
+  {
+    "source_id": "IS_IEC_60034_5_2000",
+    "source_number": "IS/IEC 60034-5:2000",
+    "target_number": "IS 4691:1985",
+    "relationship_type": "supersedes",
+    "description": "IS/IEC 60034-5:2000 supersedes older standard IS 4691:1985"
+  },
+  {
+    "source_id": "IS_IEC_60034_5_2000",
+    "source_number": "IS/IEC 60034-5:2000",
+    "target_number": "IS/IEC 60529:2001",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS/IEC 60529:2001"
+  },
+  {
+    "source_id": "IS_1231_1974",
+    "source_number": "IS 1231:1974",
+    "target_number": "IS 900:1992",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 900:1992"
+  },
+  {
+    "source_id": "IS_900_1992",
+    "source_number": "IS 900:1992",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_900_1992",
+    "source_number": "IS 900:1992",
+    "target_number": "IS 732:2019",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 732:2019"
+  },
+  {
+    "source_id": "IS_900_1992",
+    "source_number": "IS 900:1992",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_1180_Part1_2014",
+    "source_number": "IS 1180 (Part 1):2014",
+    "target_number": "IS 1180 (Part 1):1989",
+    "relationship_type": "supersedes",
+    "description": "IS 1180 (Part 1):2014 supersedes older standard IS 1180 (Part 1):1989"
+  },
+  {
+    "source_id": "IS_1180_Part1_2014",
+    "source_number": "IS 1180 (Part 1):2014",
+    "target_number": "IS 1180 (Part 2):1989",
+    "relationship_type": "supersedes",
+    "description": "IS 1180 (Part 1):2014 supersedes older standard IS 1180 (Part 2):1989"
+  },
+  {
+    "source_id": "IS_1180_Part1_2014",
+    "source_number": "IS 1180 (Part 1):2014",
+    "target_number": "IS 2026 (Part 1):2011",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 2026 (Part 1):2011"
+  },
+  {
+    "source_id": "IS_1180_Part1_2014",
+    "source_number": "IS 1180 (Part 1):2014",
+    "target_number": "IS 335:2018",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 335:2018"
+  },
+  {
+    "source_id": "IS_1180_Part1_2014",
+    "source_number": "IS 1180 (Part 1):2014",
+    "target_number": "IS 2099:1986",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 2099:1986"
+  },
+  {
+    "source_id": "IS_1180_Part1_2014",
+    "source_number": "IS 1180 (Part 1):2014",
+    "target_number": "IS 2026 (Part 1 to 5):2011",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 2026 (Part 1 to 5):2011"
+  },
+  {
+    "source_id": "IS_1180_Part1_2014",
+    "source_number": "IS 1180 (Part 1):2014",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_1180_Part1_2014",
+    "source_number": "IS 1180 (Part 1):2014",
+    "target_number": "IS 10028 (Part 1 to 3):1985",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 10028 (Part 1 to 3):1985"
+  },
+  {
+    "source_id": "IS_1180_Part1_2014",
+    "source_number": "IS 1180 (Part 1):2014",
+    "target_number": "IS 10028 (Part 2):1981",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 10028 (Part 2):1981"
+  },
+  {
+    "source_id": "IS_2026_Part1_2011",
+    "source_number": "IS 2026 (Part 1):2011",
+    "target_number": "IS 2026 (Part 1):1977",
+    "relationship_type": "supersedes",
+    "description": "IS 2026 (Part 1):2011 supersedes older standard IS 2026 (Part 1):1977"
+  },
+  {
+    "source_id": "IS_2026_Part1_2011",
+    "source_number": "IS 2026 (Part 1):2011",
+    "target_number": "IS 335:2018",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 335:2018"
+  },
+  {
+    "source_id": "IS_2026_Part1_2011",
+    "source_number": "IS 2026 (Part 1):2011",
+    "target_number": "IS 2099:1986",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 2099:1986"
+  },
+  {
+    "source_id": "IS_2026_Part1_2011",
+    "source_number": "IS 2026 (Part 1):2011",
+    "target_number": "IS 2026 (Part 1 to 5):2011",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 2026 (Part 1 to 5):2011"
+  },
+  {
+    "source_id": "IS_2026_Part1_2011",
+    "source_number": "IS 2026 (Part 1):2011",
+    "target_number": "IS 10028:1985",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 10028:1985"
+  },
+  {
+    "source_id": "IS_2026_Part1_2011",
+    "source_number": "IS 2026 (Part 1):2011",
+    "target_number": "IS 10028:1985",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 10028:1985"
+  },
+  {
+    "source_id": "IS_335_2018",
+    "source_number": "IS 335:2018",
+    "target_number": "IS 335:1993",
+    "relationship_type": "supersedes",
+    "description": "IS 335:2018 supersedes older standard IS 335:1993"
+  },
+  {
+    "source_id": "IS_335_2018",
+    "source_number": "IS 335:2018",
+    "target_number": "IS 12463:1988",
+    "relationship_type": "supersedes",
+    "description": "IS 335:2018 supersedes older standard IS 12463:1988"
+  },
+  {
+    "source_id": "IS_335_2018",
+    "source_number": "IS 335:2018",
+    "target_number": "IS 6792:1992",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 6792:1992"
+  },
+  {
+    "source_id": "IS_335_2018",
+    "source_number": "IS 335:2018",
+    "target_number": "IS 6792:1992",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 6792:1992"
+  },
+  {
+    "source_id": "IS_335_2018",
+    "source_number": "IS 335:2018",
+    "target_number": "IS 6103:1971",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 6103:1971"
+  },
+  {
+    "source_id": "IS_694_2010",
+    "source_number": "IS 694:2010",
+    "target_number": "IS 694:1990",
+    "relationship_type": "supersedes",
+    "description": "IS 694:2010 supersedes older standard IS 694:1990"
+  },
+  {
+    "source_id": "IS_694_2010",
+    "source_number": "IS 694:2010",
+    "target_number": "IS 8130:2013",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 8130:2013"
+  },
+  {
+    "source_id": "IS_694_2010",
+    "source_number": "IS 694:2010",
+    "target_number": "IS 5831:1984",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 5831:1984"
+  },
+  {
+    "source_id": "IS_694_2010",
+    "source_number": "IS 694:2010",
+    "target_number": "IS 10810:1984",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 10810:1984"
+  },
+  {
+    "source_id": "IS_694_2010",
+    "source_number": "IS 694:2010",
+    "target_number": "IS 732:2019",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 732:2019"
+  },
+  {
+    "source_id": "IS_694_2010",
+    "source_number": "IS 694:2010",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_694_2010",
+    "source_number": "IS 694:2010",
+    "target_number": "IS 732:2019",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 732:2019"
+  },
+  {
+    "source_id": "IS_7098_Part1_1988",
+    "source_number": "IS 7098 (Part 1):1988",
+    "target_number": "IS 8130:2013",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 8130:2013"
+  },
+  {
+    "source_id": "IS_7098_Part1_1988",
+    "source_number": "IS 7098 (Part 1):1988",
+    "target_number": "IS 3975:1999",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 3975:1999"
+  },
+  {
+    "source_id": "IS_7098_Part1_1988",
+    "source_number": "IS 7098 (Part 1):1988",
+    "target_number": "IS 10810:1984",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 10810:1984"
+  },
+  {
+    "source_id": "IS_7098_Part1_1988",
+    "source_number": "IS 7098 (Part 1):1988",
+    "target_number": "IS 1255:1983",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 1255:1983"
+  },
+  {
+    "source_id": "IS_7098_Part1_1988",
+    "source_number": "IS 7098 (Part 1):1988",
+    "target_number": "IS 1255:1983",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 1255:1983"
+  },
+  {
+    "source_id": "IS_7098_Part2_2011",
+    "source_number": "IS 7098 (Part 2):2011",
+    "target_number": "IS 7098 (Part 2):1985",
+    "relationship_type": "supersedes",
+    "description": "IS 7098 (Part 2):2011 supersedes older standard IS 7098 (Part 2):1985"
+  },
+  {
+    "source_id": "IS_7098_Part2_2011",
+    "source_number": "IS 7098 (Part 2):2011",
+    "target_number": "IS 8130:2013",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 8130:2013"
+  },
+  {
+    "source_id": "IS_7098_Part2_2011",
+    "source_number": "IS 7098 (Part 2):2011",
+    "target_number": "IS 3975:1999",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 3975:1999"
+  },
+  {
+    "source_id": "IS_7098_Part2_2011",
+    "source_number": "IS 7098 (Part 2):2011",
+    "target_number": "IS 10810:1984",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 10810:1984"
+  },
+  {
+    "source_id": "IS_7098_Part2_2011",
+    "source_number": "IS 7098 (Part 2):2011",
+    "target_number": "IS 1255:1983",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 1255:1983"
+  },
+  {
+    "source_id": "IS_7098_Part2_2011",
+    "source_number": "IS 7098 (Part 2):2011",
+    "target_number": "IS 1255:1983",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 1255:1983"
+  },
+  {
+    "source_id": "IS_3043_2018",
+    "source_number": "IS 3043:2018",
+    "target_number": "IS 3043:1987",
+    "relationship_type": "supersedes",
+    "description": "IS 3043:2018 supersedes older standard IS 3043:1987"
+  },
+  {
+    "source_id": "IS_3043_2018",
+    "source_number": "IS 3043:2018",
+    "target_number": "IS 732:2019",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 732:2019"
+  },
+  {
+    "source_id": "IS_732_2019",
+    "source_number": "IS 732:2019",
+    "target_number": "IS 732:1989",
+    "relationship_type": "supersedes",
+    "description": "IS 732:2019 supersedes older standard IS 732:1989"
+  },
+  {
+    "source_id": "IS_732_2019",
+    "source_number": "IS 732:2019",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_732_2019",
+    "source_number": "IS 732:2019",
+    "target_number": "IS 694:2010",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 694:2010"
+  },
+  {
+    "source_id": "IS_732_2019",
+    "source_number": "IS 732:2019",
+    "target_number": "IS/IEC 60947-2:2016",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60947-2:2016"
+  },
+  {
+    "source_id": "IS_732_2019",
+    "source_number": "IS 732:2019",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_IEC_60947_2_2016",
+    "source_number": "IS/IEC 60947-2:2016",
+    "target_number": "IS 13947 (Part 2):1993",
+    "relationship_type": "supersedes",
+    "description": "IS/IEC 60947-2:2016 supersedes older standard IS 13947 (Part 2):1993"
+  },
+  {
+    "source_id": "IS_IEC_60947_2_2016",
+    "source_number": "IS/IEC 60947-2:2016",
+    "target_number": "IS/IEC 60947-1:2007",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60947-1:2007"
+  },
+  {
+    "source_id": "IS_IEC_60947_2_2016",
+    "source_number": "IS/IEC 60947-2:2016",
+    "target_number": "IS 8623 (Part 1):1993",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 8623 (Part 1):1993"
+  },
+  {
+    "source_id": "IS_IEC_60898_1_2002",
+    "source_number": "IS/IEC 60898-1:2002",
+    "target_number": "IS 8828:1996",
+    "relationship_type": "supersedes",
+    "description": "IS/IEC 60898-1:2002 supersedes older standard IS 8828:1996"
+  },
+  {
+    "source_id": "IS_IEC_60898_1_2002",
+    "source_number": "IS/IEC 60898-1:2002",
+    "target_number": "IS 732:2019",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 732:2019"
+  },
+  {
+    "source_id": "IS_12640_Part1_2016",
+    "source_number": "IS 12640 (Part 1):2016",
+    "target_number": "IS 12640 (Part 1):2000",
+    "relationship_type": "supersedes",
+    "description": "IS 12640 (Part 1):2016 supersedes older standard IS 12640 (Part 1):2000"
+  },
+  {
+    "source_id": "IS_12640_Part1_2016",
+    "source_number": "IS 12640 (Part 1):2016",
+    "target_number": "IS/IEC 60898-1:2002",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60898-1:2002"
+  },
+  {
+    "source_id": "IS_12640_Part1_2016",
+    "source_number": "IS 12640 (Part 1):2016",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_12640_Part1_2016",
+    "source_number": "IS 12640 (Part 1):2016",
+    "target_number": "IS 732:2019",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 732:2019"
+  },
+  {
+    "source_id": "IS_456_2000",
+    "source_number": "IS 456:2000",
+    "target_number": "IS 456:1978",
+    "relationship_type": "supersedes",
+    "description": "IS 456:2000 supersedes older standard IS 456:1978"
+  },
+  {
+    "source_id": "IS_456_2000",
+    "source_number": "IS 456:2000",
+    "target_number": "IS 269:2015",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 269:2015"
+  },
+  {
+    "source_id": "IS_456_2000",
+    "source_number": "IS 456:2000",
+    "target_number": "IS 1489 (Part 1):2015",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 1489 (Part 1):2015"
+  },
+  {
+    "source_id": "IS_456_2000",
+    "source_number": "IS 456:2000",
+    "target_number": "IS 1786:2008",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 1786:2008"
+  },
+  {
+    "source_id": "IS_456_2000",
+    "source_number": "IS 456:2000",
+    "target_number": "IS 383:2016",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 383:2016"
+  },
+  {
+    "source_id": "IS_456_2000",
+    "source_number": "IS 456:2000",
+    "target_number": "IS 10262:2019",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 10262:2019"
+  },
+  {
+    "source_id": "IS_456_2000",
+    "source_number": "IS 456:2000",
+    "target_number": "IS 516 (Part 1/Sec 1):2021",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 516 (Part 1/Sec 1):2021"
+  },
+  {
+    "source_id": "IS_456_2000",
+    "source_number": "IS 456:2000",
+    "target_number": "IS 1199 (Part 1):2018",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 1199 (Part 1):2018"
+  },
+  {
+    "source_id": "IS_1786_2008",
+    "source_number": "IS 1786:2008",
+    "target_number": "IS 1786:1985",
+    "relationship_type": "supersedes",
+    "description": "IS 1786:2008 supersedes older standard IS 1786:1985"
+  },
+  {
+    "source_id": "IS_1786_2008",
+    "source_number": "IS 1786:2008",
+    "target_number": "IS 2062:2011",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 2062:2011"
+  },
+  {
+    "source_id": "IS_1786_2008",
+    "source_number": "IS 1786:2008",
+    "target_number": "IS 228:1987",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 228:1987"
+  },
+  {
+    "source_id": "IS_1786_2008",
+    "source_number": "IS 1786:2008",
+    "target_number": "IS 1608 (Part 1):2018",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 1608 (Part 1):2018"
+  },
+  {
+    "source_id": "IS_1786_2008",
+    "source_number": "IS 1786:2008",
+    "target_number": "IS 1599:2019",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 1599:2019"
+  },
+  {
+    "source_id": "IS_1786_2008",
+    "source_number": "IS 1786:2008",
+    "target_number": "IS 13920:2016",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 13920:2016"
+  },
+  {
+    "source_id": "IS_1786_2008",
+    "source_number": "IS 1786:2008",
+    "target_number": "IS 456:2000",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 456:2000"
+  },
+  {
+    "source_id": "IS_269_2015",
+    "source_number": "IS 269:2015",
+    "target_number": "IS 8112:1989",
+    "relationship_type": "supersedes",
+    "description": "IS 269:2015 supersedes older standard IS 8112:1989"
+  },
+  {
+    "source_id": "IS_269_2015",
+    "source_number": "IS 269:2015",
+    "target_number": "IS 12269:1987",
+    "relationship_type": "supersedes",
+    "description": "IS 269:2015 supersedes older standard IS 12269:1987"
+  },
+  {
+    "source_id": "IS_269_2015",
+    "source_number": "IS 269:2015",
+    "target_number": "IS 269:1989",
+    "relationship_type": "supersedes",
+    "description": "IS 269:2015 supersedes older standard IS 269:1989"
+  },
+  {
+    "source_id": "IS_269_2015",
+    "source_number": "IS 269:2015",
+    "target_number": "IS 4031 (Part 1 to 15):1988",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 4031 (Part 1 to 15):1988"
+  },
+  {
+    "source_id": "IS_269_2015",
+    "source_number": "IS 269:2015",
+    "target_number": "IS 4032:1985",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 4032:1985"
+  },
+  {
+    "source_id": "IS_269_2015",
+    "source_number": "IS 269:2015",
+    "target_number": "IS 4031 (Part 6):1988",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 4031 (Part 6):1988"
+  },
+  {
+    "source_id": "IS_269_2015",
+    "source_number": "IS 269:2015",
+    "target_number": "IS 4031 (Part 5):1988",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 4031 (Part 5):1988"
+  },
+  {
+    "source_id": "IS_269_2015",
+    "source_number": "IS 269:2015",
+    "target_number": "IS 456:2000",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 456:2000"
+  },
+  {
+    "source_id": "IS_8112_1989",
+    "source_number": "IS 8112:1989",
+    "target_number": "IS 269:2015",
+    "relationship_type": "superseded_by",
+    "description": "IS 8112:1989 has been superseded by current standard IS 269:2015"
+  },
+  {
+    "source_id": "IS_8112_1989",
+    "source_number": "IS 8112:1989",
+    "target_number": "IS 4031:1988",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 4031:1988"
+  },
+  {
+    "source_id": "IS_8112_1989",
+    "source_number": "IS 8112:1989",
+    "target_number": "IS 4031:1988",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 4031:1988"
+  },
+  {
+    "source_id": "IS_8112_1989",
+    "source_number": "IS 8112:1989",
+    "target_number": "IS 456:2000",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 456:2000"
+  },
+  {
+    "source_id": "IS_12269_1987",
+    "source_number": "IS 12269:1987",
+    "target_number": "IS 269:2015",
+    "relationship_type": "superseded_by",
+    "description": "IS 12269:1987 has been superseded by current standard IS 269:2015"
+  },
+  {
+    "source_id": "IS_12269_1987",
+    "source_number": "IS 12269:1987",
+    "target_number": "IS 4031:1988",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 4031:1988"
+  },
+  {
+    "source_id": "IS_12269_1987",
+    "source_number": "IS 12269:1987",
+    "target_number": "IS 4031:1988",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 4031:1988"
+  },
+  {
+    "source_id": "IS_12269_1987",
+    "source_number": "IS 12269:1987",
+    "target_number": "IS 456:2000",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 456:2000"
+  },
+  {
+    "source_id": "IS_1489_Part1_2015",
+    "source_number": "IS 1489 (Part 1):2015",
+    "target_number": "IS 1489 (Part 1):1991",
+    "relationship_type": "supersedes",
+    "description": "IS 1489 (Part 1):2015 supersedes older standard IS 1489 (Part 1):1991"
+  },
+  {
+    "source_id": "IS_1489_Part1_2015",
+    "source_number": "IS 1489 (Part 1):2015",
+    "target_number": "IS 4031:1988",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 4031:1988"
+  },
+  {
+    "source_id": "IS_1489_Part1_2015",
+    "source_number": "IS 1489 (Part 1):2015",
+    "target_number": "IS 3812 (Part 1):2013",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 3812 (Part 1):2013"
+  },
+  {
+    "source_id": "IS_1489_Part1_2015",
+    "source_number": "IS 1489 (Part 1):2015",
+    "target_number": "IS 4031 (Part 6):1988",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 4031 (Part 6):1988"
+  },
+  {
+    "source_id": "IS_1489_Part1_2015",
+    "source_number": "IS 1489 (Part 1):2015",
+    "target_number": "IS 4031 (Part 5):1988",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 4031 (Part 5):1988"
+  },
+  {
+    "source_id": "IS_1489_Part1_2015",
+    "source_number": "IS 1489 (Part 1):2015",
+    "target_number": "IS 456:2000",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 456:2000"
+  },
+  {
+    "source_id": "IS_383_2016",
+    "source_number": "IS 383:2016",
+    "target_number": "IS 383:1970",
+    "relationship_type": "supersedes",
+    "description": "IS 383:2016 supersedes older standard IS 383:1970"
+  },
+  {
+    "source_id": "IS_383_2016",
+    "source_number": "IS 383:2016",
+    "target_number": "IS 2386 (Part 1 to 8):1963",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 2386 (Part 1 to 8):1963"
+  },
+  {
+    "source_id": "IS_383_2016",
+    "source_number": "IS 383:2016",
+    "target_number": "IS 2386 (Part 1 to 8):1963",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 2386 (Part 1 to 8):1963"
+  },
+  {
+    "source_id": "IS_383_2016",
+    "source_number": "IS 383:2016",
+    "target_number": "IS 456:2000",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 456:2000"
+  },
+  {
+    "source_id": "IS_516_Part1_Sec1_2021",
+    "source_number": "IS 516 (Part 1/Sec 1):2021",
+    "target_number": "IS 516:1959",
+    "relationship_type": "supersedes",
+    "description": "IS 516 (Part 1/Sec 1):2021 supersedes older standard IS 516:1959"
+  },
+  {
+    "source_id": "IS_516_Part1_Sec1_2021",
+    "source_number": "IS 516 (Part 1/Sec 1):2021",
+    "target_number": "IS 1199 (Part 5):2018",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 1199 (Part 5):2018"
+  },
+  {
+    "source_id": "IS_10262_2019",
+    "source_number": "IS 10262:2019",
+    "target_number": "IS 10262:2009",
+    "relationship_type": "supersedes",
+    "description": "IS 10262:2019 supersedes older standard IS 10262:2009"
+  },
+  {
+    "source_id": "IS_10262_2019",
+    "source_number": "IS 10262:2019",
+    "target_number": "IS 456:2000",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 456:2000"
+  },
+  {
+    "source_id": "IS_10262_2019",
+    "source_number": "IS 10262:2019",
+    "target_number": "IS 383:2016",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 383:2016"
+  },
+  {
+    "source_id": "IS_10262_2019",
+    "source_number": "IS 10262:2019",
+    "target_number": "IS 269:2015",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 269:2015"
+  },
+  {
+    "source_id": "IS_10262_2019",
+    "source_number": "IS 10262:2019",
+    "target_number": "IS 1199:2018",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 1199:2018"
+  },
+  {
+    "source_id": "IS_10262_2019",
+    "source_number": "IS 10262:2019",
+    "target_number": "IS 516:2021",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 516:2021"
+  },
+  {
+    "source_id": "IS_10262_2019",
+    "source_number": "IS 10262:2019",
+    "target_number": "IS 456:2000",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 456:2000"
+  },
+  {
+    "source_id": "IS_2062_2011",
+    "source_number": "IS 2062:2011",
+    "target_number": "IS 2062:2006",
+    "relationship_type": "supersedes",
+    "description": "IS 2062:2011 supersedes older standard IS 2062:2006"
+  },
+  {
+    "source_id": "IS_2062_2011",
+    "source_number": "IS 2062:2011",
+    "target_number": "IS 1852:1985",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 1852:1985"
+  },
+  {
+    "source_id": "IS_2062_2011",
+    "source_number": "IS 2062:2011",
+    "target_number": "IS 228:1987",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 228:1987"
+  },
+  {
+    "source_id": "IS_2062_2011",
+    "source_number": "IS 2062:2011",
+    "target_number": "IS 1608 (Part 1):2018",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 1608 (Part 1):2018"
+  },
+  {
+    "source_id": "IS_2062_2011",
+    "source_number": "IS 2062:2011",
+    "target_number": "IS 1757 (Part 1):2014",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 1757 (Part 1):2014"
+  },
+  {
+    "source_id": "IS_2062_2011",
+    "source_number": "IS 2062:2011",
+    "target_number": "IS 800:2007",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 800:2007"
+  },
+  {
+    "source_id": "IS_2062_2011",
+    "source_number": "IS 2062:2011",
+    "target_number": "IS 800:2007",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 800:2007"
+  },
+  {
+    "source_id": "IS_800_2007",
+    "source_number": "IS 800:2007",
+    "target_number": "IS 800:1984",
+    "relationship_type": "supersedes",
+    "description": "IS 800:2007 supersedes older standard IS 800:1984"
+  },
+  {
+    "source_id": "IS_800_2007",
+    "source_number": "IS 800:2007",
+    "target_number": "IS 2062:2011",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 2062:2011"
+  },
+  {
+    "source_id": "IS_800_2007",
+    "source_number": "IS 800:2007",
+    "target_number": "IS 1367:2002",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 1367:2002"
+  },
+  {
+    "source_id": "IS_800_2007",
+    "source_number": "IS 800:2007",
+    "target_number": "IS 808:2021",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 808:2021"
+  },
+  {
+    "source_id": "IS_4984_2016",
+    "source_number": "IS 4984:2016",
+    "target_number": "IS 4984:1995",
+    "relationship_type": "supersedes",
+    "description": "IS 4984:2016 supersedes older standard IS 4984:1995"
+  },
+  {
+    "source_id": "IS_4984_2016",
+    "source_number": "IS 4984:2016",
+    "target_number": "IS 2530:1963",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 2530:1963"
+  },
+  {
+    "source_id": "IS_4984_2016",
+    "source_number": "IS 4984:2016",
+    "target_number": "IS 7328:1992",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 7328:1992"
+  },
+  {
+    "source_id": "IS_4984_2016",
+    "source_number": "IS 4984:2016",
+    "target_number": "IS 12235 (Part 1 to 19):2004",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 12235 (Part 1 to 19):2004"
+  },
+  {
+    "source_id": "IS_4984_2016",
+    "source_number": "IS 4984:2016",
+    "target_number": "IS 10500:2012",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 10500:2012"
+  },
+  {
+    "source_id": "IS_4984_2016",
+    "source_number": "IS 4984:2016",
+    "target_number": "IS 7634 (Part 2):2012",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 7634 (Part 2):2012"
+  },
+  {
+    "source_id": "IS_1239_Part1_2004",
+    "source_number": "IS 1239 (Part 1):2004",
+    "target_number": "IS 1239 (Part 1):1990",
+    "relationship_type": "supersedes",
+    "description": "IS 1239 (Part 1):2004 supersedes older standard IS 1239 (Part 1):1990"
+  },
+  {
+    "source_id": "IS_1239_Part1_2004",
+    "source_number": "IS 1239 (Part 1):2004",
+    "target_number": "IS 1387:1993",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 1387:1993"
+  },
+  {
+    "source_id": "IS_1239_Part1_2004",
+    "source_number": "IS 1239 (Part 1):2004",
+    "target_number": "IS 4736:1986",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 4736:1986"
+  },
+  {
+    "source_id": "IS_1239_Part1_2004",
+    "source_number": "IS 1239 (Part 1):2004",
+    "target_number": "IS 2328:2018",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 2328:2018"
+  },
+  {
+    "source_id": "IS_1239_Part1_2004",
+    "source_number": "IS 1239 (Part 1):2004",
+    "target_number": "IS 1239 (Part 2):2011",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 1239 (Part 2):2011"
+  },
+  {
+    "source_id": "IS_8320_2000",
+    "source_number": "IS 8320:2000",
+    "target_number": "IS 8320:1982",
+    "relationship_type": "supersedes",
+    "description": "IS 8320:2000 supersedes older standard IS 8320:1982"
+  },
+  {
+    "source_id": "IS_8320_2000",
+    "source_number": "IS 8320:2000",
+    "target_number": "IS 9283:2013",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 9283:2013"
+  },
+  {
+    "source_id": "IS_8320_2000",
+    "source_number": "IS 8320:2000",
+    "target_number": "IS 1710:1989",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 1710:1989"
+  },
+  {
+    "source_id": "IS_8320_2000",
+    "source_number": "IS 8320:2000",
+    "target_number": "IS 11346:2002",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 11346:2002"
+  },
+  {
+    "source_id": "IS_8320_2000",
+    "source_number": "IS 8320:2000",
+    "target_number": "IS 9137:1978",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 9137:1978"
+  },
+  {
+    "source_id": "IS_8320_2000",
+    "source_number": "IS 8320:2000",
+    "target_number": "IS 9283:2013",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 9283:2013"
+  },
+  {
+    "source_id": "IS_8320_2000",
+    "source_number": "IS 8320:2000",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_8320_2000",
+    "source_number": "IS 8320:2000",
+    "target_number": "IS 14600:1999",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 14600:1999"
+  },
+  {
+    "source_id": "IS_9283_2013",
+    "source_number": "IS 9283:2013",
+    "target_number": "IS 9283:1995",
+    "relationship_type": "supersedes",
+    "description": "IS 9283:2013 supersedes older standard IS 9283:1995"
+  },
+  {
+    "source_id": "IS_9283_2013",
+    "source_number": "IS 9283:2013",
+    "target_number": "IS/IEC 60034-1:2004",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60034-1:2004"
+  },
+  {
+    "source_id": "IS_9283_2013",
+    "source_number": "IS 9283:2013",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_9283_2013",
+    "source_number": "IS 9283:2013",
+    "target_number": "IS 14600:1999",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 14600:1999"
+  },
+  {
+    "source_id": "IS_14220_1994",
+    "source_number": "IS 14220:1994",
+    "target_number": "IS 9283:2013",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 9283:2013"
+  },
+  {
+    "source_id": "IS_14220_1994",
+    "source_number": "IS 14220:1994",
+    "target_number": "IS 11346:2002",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 11346:2002"
+  },
+  {
+    "source_id": "IS_14220_1994",
+    "source_number": "IS 14220:1994",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_2925_2024",
+    "source_number": "IS 2925:2024",
+    "target_number": "IS 2925:1984",
+    "relationship_type": "supersedes",
+    "description": "IS 2925:2024 supersedes older standard IS 2925:1984"
+  },
+  {
+    "source_id": "IS_2925_2024",
+    "source_number": "IS 2925:2024",
+    "target_number": "IS 15298 (Part 1):2011",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 15298 (Part 1):2011"
+  },
+  {
+    "source_id": "IS_2925_2024",
+    "source_number": "IS 2925:2024",
+    "target_number": "IS 8519:1977",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 8519:1977"
+  },
+  {
+    "source_id": "IS_2925_1984",
+    "source_number": "IS 2925:1984",
+    "target_number": "IS 2925:2024",
+    "relationship_type": "superseded_by",
+    "description": "IS 2925:1984 has been superseded by current standard IS 2925:2024"
+  },
+  {
+    "source_id": "IS_15298_Part2_2016",
+    "source_number": "IS 15298 (Part 2):2016",
+    "target_number": "IS 15298 (Part 2):2002",
+    "relationship_type": "supersedes",
+    "description": "IS 15298 (Part 2):2016 supersedes older standard IS 15298 (Part 2):2002"
+  },
+  {
+    "source_id": "IS_15298_Part2_2016",
+    "source_number": "IS 15298 (Part 2):2016",
+    "target_number": "IS 1989 (Part 1):1986",
+    "relationship_type": "supersedes",
+    "description": "IS 15298 (Part 2):2016 supersedes older standard IS 1989 (Part 1):1986"
+  },
+  {
+    "source_id": "IS_15298_Part2_2016",
+    "source_number": "IS 15298 (Part 2):2016",
+    "target_number": "IS 15298 (Part 1):2011",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 15298 (Part 1):2011"
+  },
+  {
+    "source_id": "IS_15298_Part2_2016",
+    "source_number": "IS 15298 (Part 2):2016",
+    "target_number": "IS 15298 (Part 1):2011",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 15298 (Part 1):2011"
+  },
+  {
+    "source_id": "IS_15298_Part2_2016",
+    "source_number": "IS 15298 (Part 2):2016",
+    "target_number": "IS 8519:1977",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 8519:1977"
+  },
+  {
+    "source_id": "IS_15298_Part1_2011",
+    "source_number": "IS 15298 (Part 1):2011",
+    "target_number": "IS 15298 (Part 1):2002",
+    "relationship_type": "supersedes",
+    "description": "IS 15298 (Part 1):2011 supersedes older standard IS 15298 (Part 1):2002"
+  },
+  {
+    "source_id": "IS_9473_2002",
+    "source_number": "IS 9473:2002",
+    "target_number": "IS 9623:2008",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 9623:2008"
+  },
+  {
+    "source_id": "IS_3521_Part1_2021",
+    "source_number": "IS 3521 (Part 1):2021",
+    "target_number": "IS 3521:1999",
+    "relationship_type": "supersedes",
+    "description": "IS 3521 (Part 1):2021 supersedes older standard IS 3521:1999"
+  },
+  {
+    "source_id": "IS_3521_Part1_2021",
+    "source_number": "IS 3521 (Part 1):2021",
+    "target_number": "IS/ISO 10333-1:2000",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/ISO 10333-1:2000"
+  },
+  {
+    "source_id": "IS_3521_Part1_2021",
+    "source_number": "IS 3521 (Part 1):2021",
+    "target_number": "IS 8519:1977",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 8519:1977"
+  },
+  {
+    "source_id": "IS_14286_2010",
+    "source_number": "IS 14286:2010 / IEC 61215:2005",
+    "target_number": "IS/IEC 61730 (Part 1):2004",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 61730 (Part 1):2004"
+  },
+  {
+    "source_id": "IS_14286_2010",
+    "source_number": "IS 14286:2010 / IEC 61215:2005",
+    "target_number": "IS/IEC 61730 (Part 2):2004",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 61730 (Part 2):2004"
+  },
+  {
+    "source_id": "IS_14286_2010",
+    "source_number": "IS 14286:2010 / IEC 61215:2005",
+    "target_number": "IS 14286:2010",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 14286:2010"
+  },
+  {
+    "source_id": "IS_14286_2010",
+    "source_number": "IS 14286:2010 / IEC 61215:2005",
+    "target_number": "IS/IEC 61730 (Part 1):2004",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS/IEC 61730 (Part 1):2004"
+  },
+  {
+    "source_id": "IS_14286_2010",
+    "source_number": "IS 14286:2010 / IEC 61215:2005",
+    "target_number": "IS/IEC 61730 (Part 2):2004",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS/IEC 61730 (Part 2):2004"
+  },
+  {
+    "source_id": "IS_14286_2010",
+    "source_number": "IS 14286:2010 / IEC 61215:2005",
+    "target_number": "IS 16221 (Part 2):2015",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 16221 (Part 2):2015"
+  },
+  {
+    "source_id": "IS_IEC_61730_Part1_2004",
+    "source_number": "IS/IEC 61730 (Part 1):2004",
+    "target_number": "IS 14286:2010",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 14286:2010"
+  },
+  {
+    "source_id": "IS_IEC_61730_Part1_2004",
+    "source_number": "IS/IEC 61730 (Part 1):2004",
+    "target_number": "IS/IEC 61730 (Part 2):2004",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS/IEC 61730 (Part 2):2004"
+  },
+  {
+    "source_id": "IS_IEC_61730_Part1_2004",
+    "source_number": "IS/IEC 61730 (Part 1):2004",
+    "target_number": "IS/IEC 61730 (Part 2):2004",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS/IEC 61730 (Part 2):2004"
+  },
+  {
+    "source_id": "IS_IEC_61730_Part1_2004",
+    "source_number": "IS/IEC 61730 (Part 1):2004",
+    "target_number": "IS 16221:2015",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 16221:2015"
+  },
+  {
+    "source_id": "IS_IEC_61730_Part2_2004",
+    "source_number": "IS/IEC 61730 (Part 2):2004",
+    "target_number": "IS/IEC 61730 (Part 1):2004",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 61730 (Part 1):2004"
+  },
+  {
+    "source_id": "IS_IEC_61730_Part2_2004",
+    "source_number": "IS/IEC 61730 (Part 2):2004",
+    "target_number": "IS 14286:2010",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 14286:2010"
+  },
+  {
+    "source_id": "IS_16102_Part1_2012",
+    "source_number": "IS 16102 (Part 1):2012",
+    "target_number": "IS 16102 (Part 2):2012",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 16102 (Part 2):2012"
+  },
+  {
+    "source_id": "IS_16102_Part1_2012",
+    "source_number": "IS 16102 (Part 1):2012",
+    "target_number": "IS 732:2019",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 732:2019"
+  },
+  {
+    "source_id": "IS_16102_Part2_2012",
+    "source_number": "IS 16102 (Part 2):2012",
+    "target_number": "IS 16102 (Part 1):2012",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 16102 (Part 1):2012"
+  },
+  {
+    "source_id": "IS_16102_Part2_2012",
+    "source_number": "IS 16102 (Part 2):2012",
+    "target_number": "IS 16102 (Part 1):2012",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 16102 (Part 1):2012"
+  },
+  {
+    "source_id": "IS_10322_Part5_Sec1_2012",
+    "source_number": "IS 10322 (Part 5/Sec 1):2012",
+    "target_number": "IS 10322 (Part 5/Sec 1):1987",
+    "relationship_type": "supersedes",
+    "description": "IS 10322 (Part 5/Sec 1):2012 supersedes older standard IS 10322 (Part 5/Sec 1):1987"
+  },
+  {
+    "source_id": "IS_10322_Part5_Sec1_2012",
+    "source_number": "IS 10322 (Part 5/Sec 1):2012",
+    "target_number": "IS 10322 (Part 1):2014",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 10322 (Part 1):2014"
+  },
+  {
+    "source_id": "IS_10322_Part5_Sec1_2012",
+    "source_number": "IS 10322 (Part 5/Sec 1):2012",
+    "target_number": "IS 10322 (Part 1):2014",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 10322 (Part 1):2014"
+  },
+  {
+    "source_id": "IS_10322_Part5_Sec1_2012",
+    "source_number": "IS 10322 (Part 5/Sec 1):2012",
+    "target_number": "IS 732:2019",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 732:2019"
+  },
+  {
+    "source_id": "IS_10322_Part5_Sec3_2012",
+    "source_number": "IS 10322 (Part 5/Sec 3):2012",
+    "target_number": "IS 10322 (Part 5/Sec 3):1987",
+    "relationship_type": "supersedes",
+    "description": "IS 10322 (Part 5/Sec 3):2012 supersedes older standard IS 10322 (Part 5/Sec 3):1987"
+  },
+  {
+    "source_id": "IS_10322_Part5_Sec3_2012",
+    "source_number": "IS 10322 (Part 5/Sec 3):2012",
+    "target_number": "IS 10322 (Part 1):2014",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 10322 (Part 1):2014"
+  },
+  {
+    "source_id": "IS_10322_Part5_Sec3_2012",
+    "source_number": "IS 10322 (Part 5/Sec 3):2012",
+    "target_number": "IS/IEC 60529:2001",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60529:2001"
+  },
+  {
+    "source_id": "IS_10322_Part5_Sec3_2012",
+    "source_number": "IS 10322 (Part 5/Sec 3):2012",
+    "target_number": "IS 10322 (Part 1):2014",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 10322 (Part 1):2014"
+  },
+  {
+    "source_id": "IS_10322_Part5_Sec3_2012",
+    "source_number": "IS 10322 (Part 5/Sec 3):2012",
+    "target_number": "IS 1944:1970",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 1944:1970"
+  },
+  {
+    "source_id": "IS_16444_Part1_2015",
+    "source_number": "IS 16444 (Part 1):2015",
+    "target_number": "IS 13779:2020",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 13779:2020"
+  },
+  {
+    "source_id": "IS_16444_Part1_2015",
+    "source_number": "IS 16444 (Part 1):2015",
+    "target_number": "IS 15959 (Part 2):2016",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 15959 (Part 2):2016"
+  },
+  {
+    "source_id": "IS_16444_Part1_2015",
+    "source_number": "IS 16444 (Part 1):2015",
+    "target_number": "IS 13779:2020",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 13779:2020"
+  },
+  {
+    "source_id": "IS_16444_Part1_2015",
+    "source_number": "IS 16444 (Part 1):2015",
+    "target_number": "IS 13779:2020",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 13779:2020"
+  },
+  {
+    "source_id": "IS_16444_Part1_2015",
+    "source_number": "IS 16444 (Part 1):2015",
+    "target_number": "IS 15707:2006",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 15707:2006"
+  },
+  {
+    "source_id": "IS_13779_2020",
+    "source_number": "IS 13779:2020",
+    "target_number": "IS 13779:1999",
+    "relationship_type": "supersedes",
+    "description": "IS 13779:2020 supersedes older standard IS 13779:1999"
+  },
+  {
+    "source_id": "IS_13779_2020",
+    "source_number": "IS 13779:2020",
+    "target_number": "IS 15707:2006",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 15707:2006"
+  },
+  {
+    "source_id": "IS_15683_2018",
+    "source_number": "IS 15683:2018",
+    "target_number": "IS 15683:2006",
+    "relationship_type": "supersedes",
+    "description": "IS 15683:2018 supersedes older standard IS 15683:2006"
+  },
+  {
+    "source_id": "IS_15683_2018",
+    "source_number": "IS 15683:2018",
+    "target_number": "IS 2171:1985",
+    "relationship_type": "supersedes",
+    "description": "IS 15683:2018 supersedes older standard IS 2171:1985"
+  },
+  {
+    "source_id": "IS_15683_2018",
+    "source_number": "IS 15683:2018",
+    "target_number": "IS 2878:2004",
+    "relationship_type": "supersedes",
+    "description": "IS 15683:2018 supersedes older standard IS 2878:2004"
+  },
+  {
+    "source_id": "IS_15683_2018",
+    "source_number": "IS 15683:2018",
+    "target_number": "IS 2190:2010",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 2190:2010"
+  },
+  {
+    "source_id": "IS_15683_2018",
+    "source_number": "IS 15683:2018",
+    "target_number": "IS 2190:2010",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 2190:2010"
+  },
+  {
+    "source_id": "IS_2190_2010",
+    "source_number": "IS 2190:2010",
+    "target_number": "IS 2190:1992",
+    "relationship_type": "supersedes",
+    "description": "IS 2190:2010 supersedes older standard IS 2190:1992"
+  },
+  {
+    "source_id": "IS_2190_2010",
+    "source_number": "IS 2190:2010",
+    "target_number": "IS 15683:2018",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 15683:2018"
+  },
+  {
+    "source_id": "IS_1554_Part1_1988",
+    "source_number": "IS 1554 (Part 1):1988",
+    "target_number": "IS 8130:2013",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 8130:2013"
+  },
+  {
+    "source_id": "IS_1554_Part1_1988",
+    "source_number": "IS 1554 (Part 1):1988",
+    "target_number": "IS 5831:1984",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 5831:1984"
+  },
+  {
+    "source_id": "IS_1554_Part1_1988",
+    "source_number": "IS 1554 (Part 1):1988",
+    "target_number": "IS 10810:1984",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 10810:1984"
+  },
+  {
+    "source_id": "IS_1554_Part1_1988",
+    "source_number": "IS 1554 (Part 1):1988",
+    "target_number": "IS 1255:1983",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 1255:1983"
+  },
+  {
+    "source_id": "IS_1554_Part1_1988",
+    "source_number": "IS 1554 (Part 1):1988",
+    "target_number": "IS 1255:1983",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 1255:1983"
+  },
+  {
+    "source_id": "IS_8130_2013",
+    "source_number": "IS 8130:2013",
+    "target_number": "IS 8130:1984",
+    "relationship_type": "supersedes",
+    "description": "IS 8130:2013 supersedes older standard IS 8130:1984"
+  },
+  {
+    "source_id": "IS_8130_2013",
+    "source_number": "IS 8130:2013",
+    "target_number": "IS 10810 (Part 5):1984",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 10810 (Part 5):1984"
+  },
+  {
+    "source_id": "IS_4031_Part6_1988",
+    "source_number": "IS 4031 (Part 6):1988",
+    "target_number": "IS 650:1991",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 650:1991"
+  },
+  {
+    "source_id": "IS_13920_2016",
+    "source_number": "IS 13920:2016",
+    "target_number": "IS 13920:1993",
+    "relationship_type": "supersedes",
+    "description": "IS 13920:2016 supersedes older standard IS 13920:1993"
+  },
+  {
+    "source_id": "IS_13920_2016",
+    "source_number": "IS 13920:2016",
+    "target_number": "IS 456:2000",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 456:2000"
+  },
+  {
+    "source_id": "IS_13920_2016",
+    "source_number": "IS 13920:2016",
+    "target_number": "IS 1786:2008",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 1786:2008"
+  },
+  {
+    "source_id": "IS_10500_2012",
+    "source_number": "IS 10500:2012",
+    "target_number": "IS 10500:1991",
+    "relationship_type": "supersedes",
+    "description": "IS 10500:2012 supersedes older standard IS 10500:1991"
+  },
+  {
+    "source_id": "IS_10500_2012",
+    "source_number": "IS 10500:2012",
+    "target_number": "IS 3025 (Part 1 to 60)",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 3025 (Part 1 to 60)"
+  },
+  {
+    "source_id": "IS_10500_2012",
+    "source_number": "IS 10500:2012",
+    "target_number": "IS 3025",
+    "relationship_type": "test_method",
+    "description": "Mandatory compliance testing method standard: IS 3025"
+  },
+  {
+    "source_id": "IS_10028_Part2_1981",
+    "source_number": "IS 10028 (Part 2):1981",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_10028_Part2_1981",
+    "source_number": "IS 10028 (Part 2):1981",
+    "target_number": "IS 2026:2011",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 2026:2011"
+  },
+  {
+    "source_id": "IS_10028_Part2_1981",
+    "source_number": "IS 10028 (Part 2):1981",
+    "target_number": "IS 10028:1981",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 10028:1981"
+  },
+  {
+    "source_id": "IS_10028_Part2_1981",
+    "source_number": "IS 10028 (Part 2):1981",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_8623_Part1_1993",
+    "source_number": "IS 8623 (Part 1):1993",
+    "target_number": "IS 8623:1977",
+    "relationship_type": "supersedes",
+    "description": "IS 8623 (Part 1):1993 supersedes older standard IS 8623:1977"
+  },
+  {
+    "source_id": "IS_8623_Part1_1993",
+    "source_number": "IS 8623 (Part 1):1993",
+    "target_number": "IS/IEC 60947-2:2016",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60947-2:2016"
+  },
+  {
+    "source_id": "IS_8623_Part1_1993",
+    "source_number": "IS 8623 (Part 1):1993",
+    "target_number": "IS 732:2019",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 732:2019"
+  },
+  {
+    "source_id": "IS_IEC_60947_4_1_2012",
+    "source_number": "IS/IEC 60947-4-1:2012",
+    "target_number": "IS 13947 (Part 4/Sec 1):1993",
+    "relationship_type": "supersedes",
+    "description": "IS/IEC 60947-4-1:2012 supersedes older standard IS 13947 (Part 4/Sec 1):1993"
+  },
+  {
+    "source_id": "IS_IEC_60947_4_1_2012",
+    "source_number": "IS/IEC 60947-4-1:2012",
+    "target_number": "IS/IEC 60947-1:2007",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS/IEC 60947-1:2007"
+  },
+  {
+    "source_id": "IS_IEC_60947_4_1_2012",
+    "source_number": "IS/IEC 60947-4-1:2012",
+    "target_number": "IS 8623 (Part 1):1993",
+    "relationship_type": "installation",
+    "description": "Erection, installation and commissioning standard: IS 8623 (Part 1):1993"
+  },
+  {
+    "source_id": "IS_1255_1983",
+    "source_number": "IS 1255:1983",
+    "target_number": "IS 7098 (Part 1 & 2)",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 7098 (Part 1 & 2)"
+  },
+  {
+    "source_id": "IS_1255_1983",
+    "source_number": "IS 1255:1983",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "normative_reference",
+    "description": "Normative reference required for specification compliance: IS 3043:2018"
+  },
+  {
+    "source_id": "IS_1255_1983",
+    "source_number": "IS 1255:1983",
+    "target_number": "IS 3043:2018",
+    "relationship_type": "safety",
+    "description": "Safety and electrical/mechanical hazard standard: IS 3043:2018"
+  }
+]

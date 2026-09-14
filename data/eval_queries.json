@@ -1,0 +1,196 @@
+[
+  {
+    "query": "15 kW three phase induction motor, 415 V, 50 Hz for industrial applications with efficiency and IP protection requirements",
+    "expected_standards": [
+      "IS 12615:2018",
+      "IS/IEC 60034-1:2004",
+      "IS/IEC 60034-5:2000"
+    ],
+    "top_expected": "IS 12615:2018",
+    "check_version": false
+  },
+  {
+    "query": "Outdoor oil immersed distribution transformer 500 kVA 11 kV / 433 V with BEE star loss levels",
+    "expected_standards": [
+      "IS 1180 (Part 1):2014",
+      "IS 2026 (Part 1):2011",
+      "IS 335:2018"
+    ],
+    "top_expected": "IS 1180 (Part 1):2014",
+    "check_version": false
+  },
+  {
+    "query": "Fe 500D high strength deformed steel rebar for reinforced concrete building construction",
+    "expected_standards": [
+      "IS 1786:2008",
+      "IS 456:2000"
+    ],
+    "top_expected": "IS 1786:2008",
+    "check_version": false
+  },
+  {
+    "query": "Plain and reinforced concrete code of practice for design of M30 grade RCC beam and columns",
+    "expected_standards": [
+      "IS 456:2000",
+      "IS 10262:2019",
+      "IS 1786:2008"
+    ],
+    "top_expected": "IS 456:2000",
+    "check_version": false
+  },
+  {
+    "query": "Industrial safety helmet with high impact resistance and 1000V electrical shock protection",
+    "expected_standards": [
+      "IS 2925:2024"
+    ],
+    "top_expected": "IS 2925:2024",
+    "check_version": false
+  },
+  {
+    "query": "Safety footwear with 200 Joules steel toe cap and oil resistant sole for factory personnel",
+    "expected_standards": [
+      "IS 15298 (Part 2):2016",
+      "IS 15298 (Part 1):2011"
+    ],
+    "top_expected": "IS 15298 (Part 2):2016",
+    "check_version": false
+  },
+  {
+    "query": "Crystalline silicon solar photovoltaic modules design qualification for utility solar farm",
+    "expected_standards": [
+      "IS 14286:2010 / IEC 61215:2005",
+      "IS/IEC 61730 (Part 1):2004"
+    ],
+    "top_expected": "IS 14286:2010 / IEC 61215:2005",
+    "check_version": false
+  },
+  {
+    "query": "High density polyethylene HDPE pipes PE 100 PN 10 for drinking water distribution",
+    "expected_standards": [
+      "IS 4984:2016"
+    ],
+    "top_expected": "IS 4984:2016",
+    "check_version": false
+  },
+  {
+    "query": "Galvanized mild steel tubes and pipes medium class for water supply plumbing",
+    "expected_standards": [
+      "IS 1239 (Part 1):2004"
+    ],
+    "top_expected": "IS 1239 (Part 1):2004",
+    "check_version": false
+  },
+  {
+    "query": "Submersible pumpset 5 HP 4 inch for agricultural borewell irrigation",
+    "expected_standards": [
+      "IS 8320:2000",
+      "IS 9283:2013"
+    ],
+    "top_expected": "IS 8320:2000",
+    "check_version": false
+  },
+  {
+    "query": "Ordinary Portland Cement 53 grade for high strength precast concrete works",
+    "expected_standards": [
+      "IS 269:2015"
+    ],
+    "top_expected": "IS 269:2015",
+    "check_version": false
+  },
+  {
+    "query": "Fly ash based Portland Pozzolana Cement PPC for marine jetty construction",
+    "expected_standards": [
+      "IS 1489 (Part 1):2015",
+      "IS 456:2000"
+    ],
+    "top_expected": "IS 1489 (Part 1):2015",
+    "check_version": false
+  },
+  {
+    "query": "PVC insulated copper conductor 1100 V FRLS building wire for internal conduit wiring",
+    "expected_standards": [
+      "IS 694:2010",
+      "IS 732:2019"
+    ],
+    "top_expected": "IS 694:2010",
+    "check_version": false
+  },
+  {
+    "query": "XLPE insulated armoured power cable 1.1 kV 4 core 185 sq mm for underground feeder",
+    "expected_standards": [
+      "IS 7098 (Part 1):1988"
+    ],
+    "top_expected": "IS 7098 (Part 1):1988",
+    "check_version": false
+  },
+  {
+    "query": "11 kV XLPE insulated three core screened armoured cable for electrical distribution substation",
+    "expected_standards": [
+      "IS 7098 (Part 2):2011"
+    ],
+    "top_expected": "IS 7098 (Part 2):2011",
+    "check_version": false
+  },
+  {
+    "query": "Code of practice for earthing and soil resistivity testing with earth electrode pit",
+    "expected_standards": [
+      "IS 3043:2018"
+    ],
+    "top_expected": "IS 3043:2018",
+    "check_version": false
+  },
+  {
+    "query": "Moulded case circuit breaker MCCB 400 A 415 V 50 kA breaking capacity for main switchboard",
+    "expected_standards": [
+      "IS/IEC 60947-2:2016"
+    ],
+    "top_expected": "IS/IEC 60947-2:2016",
+    "check_version": false
+  },
+  {
+    "query": "Residual current circuit breaker RCCB 40 A 30 mA 4 pole for human electric shock protection",
+    "expected_standards": [
+      "IS 12640 (Part 1):2016"
+    ],
+    "top_expected": "IS 12640 (Part 1):2016",
+    "check_version": false
+  },
+  {
+    "query": "Self ballasted LED lamps 9W 6500K B22 cap for residential lighting safety and performance",
+    "expected_standards": [
+      "IS 16102 (Part 1):2012",
+      "IS 16102 (Part 2):2012"
+    ],
+    "top_expected": "IS 16102 (Part 1):2012",
+    "check_version": false
+  },
+  {
+    "query": "Smart electricity meter single phase direct connected class 1.0 with DLMS communication",
+    "expected_standards": [
+      "IS 16444 (Part 1):2015",
+      "IS 13779:2020"
+    ],
+    "top_expected": "IS 16444 (Part 1):2015",
+    "check_version": false
+  },
+  {
+    "query": "Procurement of electric motor as per IS 325:1996 for water pump",
+    "expected_standards": [
+      "IS 12615:2018"
+    ],
+    "top_expected": "IS 12615:2018",
+    "check_version": true,
+    "outdated_flag": "IS 325:1996",
+    "superseded_by": "IS 12615:2018"
+  },
+  {
+    "query": "Supply of cement conforming to IS 8112:1989 for masonry work",
+    "expected_standards": [
+      "IS 269:2015"
+    ],
+    "top_expected": "IS 269:2015",
+    "check_version": true,
+    "outdated_flag": "IS 8112:1989",
+    "superseded_by": "IS 269:2015"
+  }
+]

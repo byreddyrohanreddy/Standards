@@ -1,0 +1,42 @@
+[
+  {
+    "scheme": "Scheme-I (ISI Mark)",
+    "authority": "Bureau of Indian Standards (BIS)",
+    "description": "Product certification scheme granting license to use the Standard Mark (ISI). Governed by BIS Act 2016 and Quality Control Orders (QCOs) issued by line ministries.",
+    "mandatory_items": [
+      "Electric Motors (IS 12615)",
+      "Distribution Transformers (IS 1180)",
+      "TMT Steel Bars (IS 1786)",
+      "Ordinary Portland Cement (IS 269)",
+      "Portland Pozzolana Cement (IS 1489)",
+      "Industrial Safety Helmets (IS 2925)",
+      "Safety Footwear (IS 15298)",
+      "Fire Extinguishers (IS 15683)",
+      "PVC Cables & Wires (IS 694)",
+      "Smart Energy Meters (IS 16444)"
+    ]
+  },
+  {
+    "scheme": "Compulsory Registration Scheme (CRS)",
+    "authority": "Ministry of Electronics and Information Technology (MeitY) / Ministry of New and Renewable Energy (MNRE) through BIS",
+    "description": "Self-declaration of conformity based on testing at BIS-recognized laboratories for IT, electronics and solar photovoltaic equipment.",
+    "mandatory_items": [
+      "Solar Photovoltaic Modules (IS 14286, IS/IEC 61730)",
+      "Self-Ballasted LED Lamps (IS 16102 Part 1)",
+      "Fixed General Purpose Luminaires (IS 10322 Part 5 Sec 1)",
+      "Road & Street Lighting Luminaires (IS 10322 Part 5 Sec 3)",
+      "Power Banks & IT Equipment (IS 13252)"
+    ]
+  },
+  {
+    "scheme": "BEE Star Labelling",
+    "authority": "Bureau of Energy Efficiency (BEE)",
+    "description": "Mandatory and voluntary energy efficiency rating stars (1 to 5 Star) based on BIS test standards.",
+    "mandatory_items": [
+      "Distribution Transformers (based on IS 1180 loss levels)",
+      "Three-Phase Induction Motors (based on IS 12615 / IS 15999)",
+      "Agricultural Pumpsets (based on IS 8320 / IS 11346)",
+      "LED Lamps (based on IS 16102 Part 2)"
+    ]
+  }
+]
