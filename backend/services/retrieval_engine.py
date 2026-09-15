@@ -420,14 +420,14 @@ class HybridRetrievalEngine:
         if not sb:
             return True, "high", None
 
-        # Unknown / unrelated product test (e.g. quantum warp drive, alien reactor)
-        if sb.semantic_score < 0.33 and sb.lexical_score < 0.12:
+        # Unknown / unrelated product test (e.g. quantum warp propulsion, alien reactor)
+        if top.ai_relevance_score < 50.0 or sb.semantic_score < 0.25 or (sb.semantic_score < 0.33 and sb.lexical_score < 0.38):
             return (
                 False,
                 "low",
-                f"No sufficiently relevant standard found in the prototype corpus for this requirement. "
-                f"The closest catalog item ({top.is_number}) has an AI relevance of only {top.ai_relevance_score}%, "
-                f"which falls below the procurement recommendation threshold."
+                f"No sufficiently relevant Indian Standard was found in the prototype catalog for this requirement. "
+                f"The closest catalog item ({top.is_number}) has an AI relevance score of only {top.ai_relevance_score}%, "
+                f"which falls below the procurement recommendation threshold. The system will not force an irrelevant recommendation."
             )
 
         if sb.semantic_score < 0.42 and sb.lexical_score < 0.18:

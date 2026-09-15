@@ -358,7 +358,7 @@ export const AnalysisDetailsCard: React.FC<Props> = ({ result, onSelectStandard 
               * The "AI Relevance Score" represents algorithmic specification relevance, not official statutory compliance.
             </span>
             <span className="font-semibold text-slate-600">
-              Prototype Catalog (62 Standards) • SentenceTransformer all-MiniLM-L6-v2 + BM25 Okapi
+              Prototype Knowledge Base (113 Indian Standards) • SentenceTransformer all-MiniLM-L6-v2 + BM25 Okapi
             </span>
           </div>
         </div>

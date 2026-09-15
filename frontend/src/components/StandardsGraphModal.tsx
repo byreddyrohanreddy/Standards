@@ -273,7 +273,7 @@ export const StandardsGraphModal: React.FC<Props> = ({
                     </div>
                   ) : (
                     <span className="inline-block text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      ✓ In Prototype Catalog (62 Standards)
+                      ✓ In Prototype Catalog (113 Standards)
                     </span>
                   )}
                 </div>

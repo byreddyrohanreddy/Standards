@@ -57,12 +57,25 @@ export const CopyToTenderModal: React.FC<CopyToTenderModalProps> = ({
 
         {/* Modal Content */}
         <div className="p-6 overflow-y-auto space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800 flex items-start space-x-2">
-            <span className="text-blue-600 font-bold">ℹ</span>
-            <span>
-              This clause is generated directly from retrieved BIS catalog records ({isNumber || "applicable standards"}). 
-              Copy and paste directly into your technical specifications, tender schedule, or GeM bid document.
-            </span>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-900 flex items-start space-x-2">
+            <span className="text-blue-700 font-bold text-sm">ℹ</span>
+            <div>
+              <span className="font-semibold text-blue-950">Grounded Procurement Standards Clause:</span>
+              <p className="mt-0.5 text-blue-800">
+                Generated from retrieved BIS catalog records ({isNumber || "applicable standards"}), identifying applicable standards, testing requirements, safety rules, and certification marks.
+              </p>
+            </div>
+          </div>
+
+          {/* Official Disclaimer */}
+          <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 text-xs text-amber-900 flex items-start space-x-2">
+            <span className="text-amber-700 font-bold text-sm">⚠</span>
+            <div>
+              <strong className="text-amber-950">Mandatory Technical Authority Disclaimer:</strong>
+              <p className="mt-0.5 text-amber-800 leading-relaxed">
+                This compliance clause is generated algorithmically for tender preparation assistance. All clauses must be formally reviewed and validated by the competent procurement / technical authority before final inclusion in Notice Inviting Tender (NIT) or bid documents.
+              </p>
+            </div>
           </div>
 
           <div className="relative">

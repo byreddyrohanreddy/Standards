@@ -174,6 +174,7 @@ SIH108/
 │   │   │   └── globals.css         # Tailwind CSS & React Flow styling
 │   │   ├── components/
 │   │   │   ├── Header.tsx          # Government procurement header (113 standards badge)
+│   │   │   ├── SystemPipelineBar.tsx # End-to-end architecture pipeline trail
 │   │   │   ├── RequirementInput.tsx# Query input, 10 quick presets & PDF upload
 │   │   │   ├── RequirementUnderstandingCard.tsx # Parameter display with subtype/duty pills
 │   │   │   ├── AnalysisDetailsCard.tsx          # Collapsible technical audit & score matrix
@@ -208,15 +209,19 @@ SIH108/
 │
 ├── scripts/
 │   ├── build_full_standards_dataset.py # Standards compiler & chunk embedding encoder
+│   ├── create_ppt_sidebar_workflow.py  # Presentation workflow diagram generator
 │   └── generate_evaluation_pdf.py      # PDF benchmark report generator
 │
 ├── documents/
-│   ├── System_Architecture_Diagram.png # High-resolution system architecture infographic
-│   ├── TechStack_Architecture_Diagram.png # High-resolution technology stack infographic
+│   ├── System_Architecture_Diagram.jpg # High-resolution system architecture infographic
+│   ├── TechStack_Architecture_Diagram.jpg # High-resolution technology stack infographic
 │   ├── Evaluation_Benchmark_Report.pdf # Formal SIH evaluation benchmark report
 │   ├── System_Architecture.pdf         # Complete system architecture specification
 │   ├── TechStack_Architecture.pdf      # Detailed tech stack specification
-│   └── Workflow_Architecture.pdf       # E-procurement workflow diagram
+│   ├── Workflow_Architecture.pdf       # E-procurement workflow diagram
+│   ├── Workflow_Flowchart.png          # High-resolution workflow flowchart
+│   ├── Workflow_PPT_RightSide.png      # Wide format workflow diagram
+│   └── Workflow_PPT_Sidebar.png        # Vertical presentation workflow sidebar
 │
 ├── sample_tender_document.pdf      # Sample tender PDF for upload testing
 └── README.md

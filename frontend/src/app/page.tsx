@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
+import { SystemPipelineBar } from "@/components/SystemPipelineBar";
 import { RequirementInput } from "@/components/RequirementInput";
 import { RequirementUnderstandingCard } from "@/components/RequirementUnderstandingCard";
 import { VersionAlertBanner } from "@/components/VersionAlertBanner";
@@ -25,16 +26,18 @@ import {
   AlertCircle,
   Sparkles,
   Printer,
-  FileSpreadsheet,
-  CheckCircle,
+  CheckCircle2,
   HelpCircle,
   Layers,
-  Copy
+  Copy,
+  ArrowRight,
+  ShieldAlert,
+  Database
 } from "lucide-react";
 
 export default function HomePage() {
   const [query, setQuery] = useState(
-    "15 kW three phase induction motor, 415 V, 50 Hz for industrial applications with efficiency and IP protection requirements"
+    "15 kW three-phase squirrel-cage induction motor for industrial operation, 415 V, 50 Hz."
   );
   const [examples, setExamples] = useState<ExampleScenario[]>([]);
   const [standardsCount, setStandardsCount] = useState<number>(113);
@@ -68,13 +71,15 @@ export default function HomePage() {
     init();
   }, []);
 
-  const handleAnalyze = async () => {
-    if (!query.trim()) return;
+  const handleAnalyze = async (customQuery?: string) => {
+    const q = (customQuery !== undefined ? customQuery : query).trim();
+    if (!q) return;
     setIsLoading(true);
     setError(null);
     try {
-      const data = await analyzeRequirement(query);
+      const data = await analyzeRequirement(q);
       setResult(data);
+      setActiveRequirementIndex(0);
     } catch (err: any) {
       setError(err.message || "Failed to analyze requirement");
     } finally {
@@ -88,6 +93,7 @@ export default function HomePage() {
     try {
       const data = await uploadTenderPdf(file);
       setResult(data);
+      setActiveRequirementIndex(0);
       if (data.query) {
         setQuery(data.query.slice(0, 300) + "...");
       }
@@ -103,32 +109,11 @@ export default function HomePage() {
       <Header apiHealthy={apiHealthy} standardsCount={standardsCount} />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Prototype Disclaimer Banner */}
-        <div className="bg-gradient-to-r from-blue-900 to-slate-900 rounded-xl p-4 text-white shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-800/80 shrink-0">
-              <Sparkles className="w-5 h-5 text-amber-400" />
-            </div>
-            <div>
-              <div className="text-sm font-bold flex items-center gap-2">
-                BIS-SpecAI Recommendation Engine
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                  SIH 2026 #26108
-                </span>
-              </div>
-              <p className="text-xs text-slate-300 mt-0.5">
-                <strong>Prototype Dataset:</strong> This prototype uses a curated standards corpus for demonstration. Recommendations should be verified against the latest authoritative BIS publications before procurement.
-              </p>
-            </div>
-          </div>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+        {/* Unobtrusive 8-Stage Architecture Pipeline Bar */}
+        <SystemPipelineBar />
 
-          <div className="shrink-0 text-xs text-slate-300 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
-            Catalog: <strong>62 Curated Standards</strong>
-          </div>
-        </div>
-
-        {/* Input Section */}
+        {/* Input Section (Textarea + PDF Upload + 5 One-Click Demos) */}
         <RequirementInput
           query={query}
           setQuery={setQuery}
@@ -162,20 +147,20 @@ export default function HomePage() {
 
           return (
             <div className="space-y-6 animate-in fade-in-50 duration-300">
-              {/* Multi-Requirement Group Switcher (if composite query or tender) */}
+              {/* COMPOUND TENDER: MULTI-REQUIREMENT SEGMENTATION BREAKDOWN */}
               {isMulti && result.requirement_groups && (
-                <div className="bg-white rounded-xl p-4 border-2 border-blue-600/30 shadow-xs space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                <div className="bg-white rounded-xl p-5 border-2 border-blue-600/40 shadow-xs space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
                     <div className="flex items-center gap-2">
-                      <span className="p-1.5 rounded-lg bg-blue-100 text-blue-800">
+                      <div className="p-1.5 rounded-lg bg-blue-100 text-blue-800">
                         <Layers className="w-4 h-4" />
-                      </span>
+                      </div>
                       <div>
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                          Multi-Requirement Procurement Tender ({result.requirement_groups.length} Items Identified)
-                        </h4>
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                          PROCUREMENT DOCUMENT BREAKDOWN ({result.requirement_groups.length} Distinct Requirements Identified)
+                        </h3>
                         <p className="text-[11px] text-slate-500">
-                          Select a requirement item below to inspect specific standard recommendations, testing methods, and relationship graphs.
+                          The system independently segments compound procurement specifications into distinct technical requirement groups.
                         </p>
                       </div>
                     </div>
@@ -190,59 +175,98 @@ export default function HomePage() {
                     </button>
                   </div>
 
-                  <div className="flex gap-2 overflow-x-auto pb-1">
+                  {/* Visual 3-Group Card Grid for Judges */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {result.requirement_groups.map((group, idx) => {
                       const isSelected = activeRequirementIndex === idx;
                       const primaryNum = group.primary_standard?.is_number || "No Match";
+                      const primaryTitle = group.primary_standard?.title || "No applicable standard";
+                      const relatedCount =
+                        (group.related_standards?.normative_references?.length || 0) +
+                        (group.related_standards?.testing_standards?.length || 0) +
+                        (group.related_standards?.safety_standards?.length || 0);
+
+                      const isOutdated = (group.version_alerts || []).length > 0;
+
                       return (
-                        <button
+                        <div
                           key={group.group_id}
-                          type="button"
                           onClick={() => setActiveRequirementIndex(idx)}
-                          className={`px-3.5 py-2.5 rounded-lg text-left transition border shrink-0 min-w-[200px] ${
+                          className={`p-3.5 rounded-xl border-2 transition text-left cursor-pointer space-y-2.5 ${
                             isSelected
-                              ? "bg-blue-700 text-white border-blue-700 shadow-xs"
-                              : "bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200"
+                              ? "bg-blue-50/70 border-blue-600 shadow-xs"
+                              : "bg-slate-50/70 hover:bg-slate-100/80 border-slate-200"
                           }`}
                         >
-                          <div className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? "text-blue-200" : "text-slate-500"}`}>
-                            Requirement Item #{idx + 1}
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-100 text-blue-900 font-mono">
+                              [{idx + 1}] Item #{idx + 1}
+                            </span>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                              isSelected ? "bg-blue-700 text-white" : "text-slate-500"
+                            }`}>
+                              {isSelected ? "Active Inspection" : "Click to Inspect"}
+                            </span>
                           </div>
-                          <div className="font-bold text-xs mt-0.5 truncate max-w-[220px]">
-                            {group.requirement_label}
+
+                          <div>
+                            <div className="text-xs font-bold text-slate-900 line-clamp-1">
+                              {group.requirement_label}
+                            </div>
+                            <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                              {group.extracted_requirements?.product || "Procurement item"}
+                            </div>
                           </div>
-                          <div className={`text-[11px] mt-1 font-mono font-medium ${isSelected ? "text-amber-300" : "text-blue-700"}`}>
-                            → {primaryNum}
+
+                          <div className="pt-2 border-t border-slate-200/80 text-[11px] space-y-1">
+                            <div className="flex items-start gap-1">
+                              <span className="text-blue-700 font-bold">→ Primary:</span>
+                              <span className="font-mono font-bold text-slate-900 truncate">
+                                {primaryNum}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 text-slate-600">
+                              <span className="text-slate-400">→ Related:</span>
+                              <span>{relatedCount} Normative/Testing codes</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-slate-400">→ Version:</span>
+                              {isOutdated ? (
+                                <span className="font-semibold text-amber-700">⚠ Superseded Edition</span>
+                              ) : (
+                                <span className="font-semibold text-emerald-700">✓ Current Active</span>
+                              )}
+                            </div>
                           </div>
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
                 </div>
               )}
 
-              {/* 1. Outdated Version Alert (if any) */}
+              {/* 1. Outdated Version Alert (if any detected) */}
               {currentAlerts && currentAlerts.length > 0 && (
                 <VersionAlertBanner alerts={currentAlerts} />
               )}
 
-              {/* 2. Dynamic Requirement Understanding Card */}
+              {/* 2. Extracted Requirements Understanding Card */}
               {currentRequirements && (
                 <RequirementUnderstandingCard requirements={currentRequirements} />
               )}
 
-              {/* 3. Unknown Query / Low Confidence Warning Card */}
+              {/* 3. Unknown Query / Low-Confidence Rejection Notice */}
               {(!currentPrimary || meetsThresh === false) && (
-                <div className="p-5 bg-amber-50 border-2 border-amber-300 rounded-xl text-amber-900 shadow-xs">
-                  <div className="flex items-center gap-2.5 font-bold text-sm">
-                    <AlertCircle className="w-5 h-5 text-amber-700 shrink-0" />
-                    <span>No Sufficiently Relevant Standard Found in Prototype Corpus</span>
+                <div className="p-5 bg-amber-50 border-2 border-amber-400 rounded-xl text-amber-950 shadow-xs space-y-2">
+                  <div className="flex items-center gap-2.5 font-bold text-sm text-amber-900">
+                    <ShieldAlert className="w-5 h-5 text-amber-700 shrink-0" />
+                    <span>No Sufficiently Relevant Indian Standard Found in Catalog</span>
                   </div>
-                  <p className="mt-1.5 text-xs text-amber-800 leading-relaxed">
-                    {threshMsg || "The input specification does not meet the minimum confidence threshold for automated recommendation. Weak potential matches are displayed below for audit inspection."}
+                  <p className="text-xs text-amber-900 leading-relaxed">
+                    {threshMsg || "The input specification does not meet the minimum procurement confidence threshold (AI Relevance < 50% or low semantic similarity). The system strictly avoids recommending false or irrelevant standards for unknown products."}
                   </p>
-                  <div className="mt-2 text-[11px] text-amber-700 italic">
-                    * In a production deployment across all 20,000+ Indian Standards, out-of-catalog items are routed for manual technical committee review.
+                  <div className="text-[11px] text-amber-800 italic pt-1 border-t border-amber-200/80">
+                    ✓ Verified Confidence Enforcement: Non-standard items are rejected gracefully rather than hallucinating an inapplicable specification.
                   </div>
                 </div>
               )}
@@ -258,7 +282,7 @@ export default function HomePage() {
                 />
               )}
 
-              {/* 5. Algorithmic Evidence & Scoring Details Card (Collapsible) */}
+              {/* 5. Algorithmic Evidence & Scoring Details Card (Secondary / Collapsible) */}
               <AnalysisDetailsCard
                 result={result}
                 onSelectStandard={(std) => setSelectedStandard(std)}
@@ -280,17 +304,17 @@ export default function HomePage() {
                 />
               )}
 
-              {/* Summary & Procurement Export Bar */}
+              {/* Summary & Procurement Action Bar */}
               <div className="bg-white rounded-xl shadow-xs border border-slate-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
                 <div className="text-slate-600">
-                  <strong>Analysis Summary:</strong> {result.summary_explanation}
+                  <strong className="text-slate-800">Analysis Summary:</strong> {result.summary_explanation}
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => setIsClauseModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition"
                   >
                     <Copy className="w-3.5 h-3.5" />
                     Copy Standards to Tender
@@ -298,10 +322,10 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={() => window.print()}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition"
                   >
                     <Printer className="w-3.5 h-3.5" />
-                    Print Tender Summary
+                    Print Summary
                   </button>
                 </div>
               </div>
@@ -319,7 +343,7 @@ export default function HomePage() {
               Ready to Analyze Procurement Specification
             </h3>
             <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
-              Select an example preset above or enter technical parameters to retrieve applicable Indian Standards, explore normative relationships, and detect outdated editions.
+              Select one of the 5 judge demo buttons above or enter technical parameters to retrieve applicable Indian Standards, explore normative relationships, and detect outdated editions.
             </p>
           </div>
         )}
@@ -332,7 +356,7 @@ export default function HomePage() {
             Smart India Hackathon 2026 Prototype • Problem Statement 26108: AI-Powered Recommendation Engine for Applicable Indian Standards
           </p>
           <p className="text-[11px] text-slate-400 mt-0.5">
-            Designed for National E-Procurement Evaluation • Built with Next.js, React Flow, FastAPI, BM25 & Semantic Retrieval
+            National E-Procurement Evaluation • Prototype Knowledge Base: 113 Indian Standards across 6 Domains • BM25 + Dense Semantic Vector Retrieval
           </p>
         </div>
       </footer>
