@@ -44,14 +44,14 @@ class ExtractedRequirements(BaseModel):
     safety_requirements: List[str] = Field(default_factory=list)
     testing_requirements: List[str] = Field(default_factory=list)
     detected_standards: List[str] = Field(default_factory=list)
-    
+
     capacity: Optional[str] = None
     duty: Optional[str] = None
     efficiency: Optional[str] = None
     subtype: Optional[str] = None
     installation_required: Optional[bool] = False
     operating_conditions: List[str] = Field(default_factory=list)
-    
+
     # Generic dictionary of extracted ratings for flexible rendering
     ratings: Dict[str, str] = Field(default_factory=dict)
     compliance_needs: List[str] = Field(default_factory=list)
@@ -97,6 +97,37 @@ class VersionAlert(BaseModel):
     recommendation: str
     severity: str = "warning"
 
+# ─── QCO / Mandatory Certification Models ────────────────────────────────────
+
+class QCOStatus(BaseModel):
+    """Date-aware enforcement status for a Quality Control Order."""
+    enforcement_status: str = Field(
+        ...,
+        description="One of: 'mandatory' (currently enforced), 'upcoming' (future enforcement date), 'superseded', 'unknown'"
+    )
+    enforcement_date: Optional[str] = Field(None, description="ISO date string YYYY-MM-DD")
+    gazette_notification: Optional[str] = Field(None, description="Gazette S.O. number")
+    status_label: str = Field(..., description="Human-readable status label with emoji indicator")
+    status_detail: str = Field(..., description="Full enforcement context and legal implications")
+
+class QCOResult(BaseModel):
+    """A single Quality Control Order record with computed date-aware status."""
+    qco_id: str
+    qco_title: str
+    product_name: str
+    applicable_is_numbers: List[str] = Field(default_factory=list)
+    certification_scheme: str = Field(..., description="e.g. 'BIS Scheme-I (ISI Mark)' or 'Compulsory Registration Scheme (CRS)'")
+    issuing_ministry: str
+    gazette_notification: str
+    gazette_date: str
+    scope_note: str
+    source_url: str
+    status: QCOStatus
+    verified: bool = Field(True, description="True if traceable to a specific gazette notification")
+    notes: str = ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+
 class RelatedStandardsCategorized(BaseModel):
     normative_references: List[StandardMetadata] = Field(default_factory=list)
     testing_standards: List[StandardMetadata] = Field(default_factory=list)
@@ -131,6 +162,10 @@ class RequirementGroupResult(BaseModel):
     candidate_standards: List[StandardMetadata] = Field(default_factory=list)
     related_standards: RelatedStandardsCategorized
     version_alerts: List[VersionAlert] = Field(default_factory=list)
+    qco_results: List[QCOResult] = Field(
+        default_factory=list,
+        description="Mandatory QCO certifications applicable to this requirement group"
+    )
     meets_recommendation_threshold: bool = True
     confidence: str = "high"
     threshold_message: Optional[str] = None
@@ -145,6 +180,10 @@ class AnalysisResponse(BaseModel):
     related_standards: RelatedStandardsCategorized
     version_alerts: List[VersionAlert] = Field(default_factory=list)
     certifications: List[Dict[str, Any]] = Field(default_factory=list)
+    qco_results: List[QCOResult] = Field(
+        default_factory=list,
+        description="Mandatory QCOs applicable to the primary recommended standard"
+    )
     graph_data: GraphData
     summary_explanation: str
     latency_breakdown: Optional[LatencyBreakdown] = None
@@ -156,4 +195,3 @@ class AnalysisResponse(BaseModel):
     is_multi_requirement: bool = False
     requirement_groups: List[RequirementGroupResult] = Field(default_factory=list)
     tender_clause: Optional[str] = None
-

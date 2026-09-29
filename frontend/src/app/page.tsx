@@ -276,6 +276,8 @@ export default function HomePage() {
                 <PrimaryStandardCard
                   standard={currentPrimary}
                   semanticNote={currentSemanticNote}
+                  qcoResults={activeGroup ? activeGroup.qco_results : result.qco_results}
+                  isMultilingual={result.is_multilingual}
                   onOpenGraph={() => setIsGraphOpen(true)}
                   onViewStandard={(std) => setSelectedStandard(std)}
                   onOpenClause={() => setIsClauseModalOpen(true)}

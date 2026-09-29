@@ -154,11 +154,12 @@ class HybridRetrievalEngine:
         else:
             return np.zeros(len(self.standards))
 
-    def retrieve_candidates(self, query: str, req: ExtractedRequirements, top_k: int = 5, mode: str = "hybrid") -> List[StandardMetadata]:
+    def retrieve_candidates(self, query: str, req: ExtractedRequirements, top_k: int = 5, mode: str = "hybrid", external_semantic_scores: Optional[np.ndarray] = None) -> List[StandardMetadata]:
         """
         Executes hybrid retrieval:
         1. BM25 Okapi lexical scores on raw query tokens [0, 1]
         2. Dense Sentence Transformer cosine similarity on normalized semantic query with chunk max-pooling [0, 1]
+           (or uses provided external_semantic_scores if available)
         3. Parameter & domain coverage score [0, 1]
         4. Lifecycle status weighting
         Returns ranked list of StandardMetadata with full ScoringBreakdown and itemized evidence.
@@ -175,7 +176,10 @@ class HybridRetrievalEngine:
 
         # 2. Dense Sentence Transformer Cosine Similarity on Normalized Semantic Query
         normalized_semantic_query = normalize_query_for_semantic_search(req, query)
-        dense_scores = self._compute_dense_similarity(normalized_semantic_query)
+        if external_semantic_scores is not None:
+            dense_scores = external_semantic_scores
+        else:
+            dense_scores = self._compute_dense_similarity(normalized_semantic_query)
 
         # 3. Multi-Factor Reranking with Full Factor Breakdowns
         scored_candidates: List[Tuple[float, ScoringBreakdown, Dict[str, Any], List[str], List[EvidenceItem]]] = []

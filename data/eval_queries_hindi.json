@@ -1,0 +1,122 @@
+[
+  {
+    "query": "तीन-फेज इंडक्शन मोटर 15 किलोवाट, 415 वोल्ट, 50 हर्ट्ज, औद्योगिक जल पंपिंग के लिए",
+    "expected_standards": ["IS 12615:2018"],
+    "top_expected": "IS 12615:2018",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Three-phase induction motor 15 kW, 415V, 50Hz, industrial water pumping"
+  },
+  {
+    "query": "पोर्टलैंड पोज्जोलाना सीमेंट (पीपीसी) की आपूर्ति, प्रबलित कंक्रीट नींव निर्माण हेतु",
+    "expected_standards": ["IS 1489 (Part 1):2015"],
+    "top_expected": "IS 1489 (Part 1):2015",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Supply of Portland Pozzolana Cement (PPC) for reinforced concrete foundation construction"
+  },
+  {
+    "query": "निर्माण स्थल श्रमिकों के लिए औद्योगिक सुरक्षा हेलमेट, उच्च प्रभाव प्रतिरोधी, ISI चिह्नित",
+    "expected_standards": ["IS 2925:2024"],
+    "top_expected": "IS 2925:2024",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Industrial safety helmet for construction site workers, high impact resistant, ISI marked"
+  },
+  {
+    "query": "Fe 500D ग्रेड थर्मो-मैकेनिकल उपचारित स्टील सरिया, भूकंप प्रतिरोधी आरसीसी संरचना के लिए",
+    "expected_standards": ["IS 1786:2008"],
+    "top_expected": "IS 1786:2008",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Fe 500D grade TMT steel bars for earthquake resistant RCC structure"
+  },
+  {
+    "query": "तेल-भरे वितरण ट्रांसफार्मर 250 केवीए, 11 केवी / 433 वोल्ट, ग्रामीण विद्युतीकरण के लिए",
+    "expected_standards": ["IS 1180 (Part 1):2014"],
+    "top_expected": "IS 1180 (Part 1):2014",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Oil-filled distribution transformer 250 kVA, 11kV/433V for rural electrification"
+  },
+  {
+    "query": "पेयजल वितरण के लिए HDPE पाइप PE 100 वर्ग, PN 10 दबाव रेटिंग",
+    "expected_standards": ["IS 4984:2016"],
+    "top_expected": "IS 4984:2016",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: HDPE pipe PE 100 class, PN 10 pressure rating for drinking water distribution"
+  },
+  {
+    "query": "सौर फोटोवोल्टिक मॉड्यूल 540 वाट पीक, क्रिस्टलीय सिलिकॉन, ग्रिड कनेक्टेड प्लांट के लिए",
+    "expected_standards": ["IS 14286:2010 / IEC 61215:2005"],
+    "top_expected": "IS 14286:2010 / IEC 61215:2005",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Solar PV module 540 Wp, crystalline silicon, for grid-connected plant"
+  },
+  {
+    "query": "भूमिगत केबल 1.1 केवी XLPE इंसुलेटेड आर्मर्ड पावर केबल 4 कोर सड़क प्रकाश के लिए",
+    "expected_standards": ["IS 7098 (Part 1):1988"],
+    "top_expected": "IS 7098 (Part 1):1988",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Underground cable 1.1kV XLPE insulated armoured power cable 4 core for street lighting"
+  },
+  {
+    "query": "कारखाने के श्रमिकों के लिए 200 जूल स्टील टो-कैप सहित सुरक्षा जूते",
+    "expected_standards": ["IS 15298 (Part 2):2016"],
+    "top_expected": "IS 15298 (Part 2):2016",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Safety footwear with 200J steel toe-cap for factory workers"
+  },
+  {
+    "query": "सबस्टेशन अर्थिंग प्रणाली, GI इलेक्ट्रोड और मिट्टी प्रतिरोधकता परीक्षण सहित",
+    "expected_standards": ["IS 3043:2018"],
+    "top_expected": "IS 3043:2018",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Substation earthing system with GI electrode and soil resistivity testing"
+  },
+  {
+    "query": "एकल-फेज स्मार्ट प्रीपेड बिजली मीटर, 1.0 सटीकता वर्ग, AMR क्षमता सहित",
+    "expected_standards": ["IS 16444 (Part 1):2015"],
+    "top_expected": "IS 16444 (Part 1):2015",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Single-phase smart prepaid electricity meter, class 1.0 accuracy, AMR compatible"
+  },
+  {
+    "query": "कृषि बोरवेल के लिए सबमर्सिबल पंपसेट 5 HP, तीन-फेज",
+    "expected_standards": ["IS 8320:2000"],
+    "top_expected": "IS 8320:2000",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: Submersible pumpset 5 HP for agricultural borewell, three-phase"
+  },
+  {
+    "query": "LED स्ट्रीट लाइट लुमिनेयर 45 वाट, IP65, सड़क प्रकाश व्यवस्था के लिए",
+    "expected_standards": ["IS 16102 (Part 1):2012"],
+    "top_expected": "IS 16102 (Part 1):2012",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: LED street light luminaire 45W, IP65, for road lighting"
+  },
+  {
+    "query": "साधारण पोर्टलैंड सीमेंट 53 ग्रेड, उच्च शक्ति प्रीकास्ट कंक्रीट कार्य के लिए ISI चिह्न सहित",
+    "expected_standards": ["IS 269:2015"],
+    "top_expected": "IS 269:2015",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: OPC 53 grade with ISI mark for high strength precast concrete works"
+  },
+  {
+    "query": "मुख्य स्विचबोर्ड के लिए मोल्डेड केस सर्किट ब्रेकर MCCB 400A, 415V, 50 kA ब्रेकिंग क्षमता",
+    "expected_standards": ["IS/IEC 60947-2:2016"],
+    "top_expected": "IS/IEC 60947-2:2016",
+    "check_version": false,
+    "language": "hi",
+    "notes": "Hindi: MCCB 400A, 415V, 50kA breaking capacity for main switchboard"
+  }
+]

@@ -1,0 +1,122 @@
+[
+  {
+    "query": "Supply of three-phase squirrel cage motor rated 22 kW for driving a centrifugal pump at water treatment plant, 415 V AC supply, 50 cycles, efficiency class IE3 minimum",
+    "expected_standards": ["IS 12615:2018"],
+    "top_expected": "IS 12615:2018",
+    "check_version": false,
+    "source": "independent",
+    "notes": "Written in procurement SoR language. Avoids scope text vocabulary; uses '50 cycles' instead of '50 Hz', 'water treatment plant' instead of 'industrial'."
+  },
+  {
+    "query": "Procurement of outdoor pole-mounted distribution transformer, oil-filled, 100 kVA capacity, primary voltage 11 kV, secondary 433/250 V, for rural electrification feeder",
+    "expected_standards": ["IS 1180 (Part 1):2014"],
+    "top_expected": "IS 1180 (Part 1):2014",
+    "check_version": false,
+    "source": "independent",
+    "notes": "Rural electrification context. 'Pole-mounted' and 'feeder' are procurement terms not in scope text."
+  },
+  {
+    "query": "Purchase of Fe 500D grade reinforcement bars for seismic zone IV hospital building, 20 mm and 25 mm dia, with elongation not less than 16 percent",
+    "expected_standards": ["IS 1786:2008"],
+    "top_expected": "IS 1786:2008",
+    "check_version": false,
+    "source": "independent",
+    "notes": "Seismic zone IV hospital context. 'Elongation not less than 16 percent' is a real tender spec phrase."
+  },
+  {
+    "query": "Supply and laying of HDPE pipes class PN 10 for village drinking water scheme piping network, 110 mm outer diameter",
+    "expected_standards": ["IS 4984:2016"],
+    "top_expected": "IS 4984:2016",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'Village drinking water scheme' and 'supply and laying' are JJM/NRDWP procurement terms."
+  },
+  {
+    "query": "Requirement of 9W compact LED lamp B22 cap bayonet base colour temperature 6500K for government office building, BEE labelled",
+    "expected_standards": ["IS 16102 (Part 1):2012"],
+    "top_expected": "IS 16102 (Part 1):2012",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'BEE labelled' and 'government office building' framing. '9W compact' is specific procurement wattage."
+  },
+  {
+    "query": "Provision of safety shoes with steel toecap for construction workers at dam project site, impact resistance 200J, antistatic, oil resistant sole",
+    "expected_standards": ["IS 15298 (Part 2):2016"],
+    "top_expected": "IS 15298 (Part 2):2016",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'Dam project site' and 'provision of' are civil project procurement terms."
+  },
+  {
+    "query": "Laying of 4 core 95 sqmm XLPE armoured aluminium conductor underground power cable 1.1 kV for street lighting feeder",
+    "expected_standards": ["IS 7098 (Part 1):1988"],
+    "top_expected": "IS 7098 (Part 1):1988",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'Street lighting feeder' and 'laying of' are standard EPC procurement phrases."
+  },
+  {
+    "query": "Supply of Portland Pozzolana Cement conforming to relevant Indian Standards for precast concrete pavement blocks, minimum 28-day strength 40 MPa",
+    "expected_standards": ["IS 1489 (Part 1):2015"],
+    "top_expected": "IS 1489 (Part 1):2015",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'Precast concrete pavement blocks' and '28-day strength 40 MPa' are real NIT spec phrases."
+  },
+  {
+    "query": "Rate contract for annual supply of hard hat helmets for construction labourers at highway project, ISI marked, type-tested",
+    "expected_standards": ["IS 2925:2024"],
+    "top_expected": "IS 2925:2024",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'Rate contract' and 'highway project' are procurement context terms. 'Type-tested' is certification language."
+  },
+  {
+    "query": "Procurement of single phase smart prepaid electricity meter class 1 accuracy for housing colony connection, AMR compatible, tamper-proof",
+    "expected_standards": ["IS 16444 (Part 1):2015"],
+    "top_expected": "IS 16444 (Part 1):2015",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'Smart prepaid', 'AMR compatible', 'tamper-proof', 'housing colony' are DISCOM procurement terms."
+  },
+  {
+    "query": "Supply of submersible pumpset 3 HP for lift irrigation scheme in agricultural field, three-phase, borewell suitable, depth 50 metres",
+    "expected_standards": ["IS 8320:2000"],
+    "top_expected": "IS 8320:2000",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'Lift irrigation scheme', 'depth 50 metres', and 'borewell suitable' are state irrigation dept procurement terms."
+  },
+  {
+    "query": "Erection of earthing system at 33/11 kV substation using 50mm x 6mm GI strip and earth electrode pit with bentonite filling",
+    "expected_standards": ["IS 3043:2018"],
+    "top_expected": "IS 3043:2018",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'GI strip', 'bentonite filling', '33/11 kV substation' are real substation earthing tender terms."
+  },
+  {
+    "query": "Works contract for installation of 6.6 kW crystalline silicon solar PV panels on rooftop of government school under PM-KUSUM scheme",
+    "expected_standards": ["IS 14286:2010 / IEC 61215:2005"],
+    "top_expected": "IS 14286:2010 / IEC 61215:2005",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'PM-KUSUM scheme', 'government school', 'rooftop' are solar scheme procurement terms."
+  },
+  {
+    "query": "Supply of medium-class GI pipes 25mm nominal bore for overhead cold water supply piping in multistorey building",
+    "expected_standards": ["IS 1239 (Part 1):2004"],
+    "top_expected": "IS 1239 (Part 1):2004",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'Medium-class', 'nominal bore', 'overhead cold water' are plumbing NIT spec terms."
+  },
+  {
+    "query": "Electric motor specification for metro rail tunnel ventilation fans: 110 kW, 6.6 kV, 50 Hz, three-phase, totally enclosed fan cooled, continuous duty S1",
+    "expected_standards": ["IS 12615:2018"],
+    "top_expected": "IS 12615:2018",
+    "check_version": false,
+    "source": "independent",
+    "notes": "'Metro rail tunnel ventilation', '6.6 kV', 'totally enclosed fan cooled' are DMRC-style procurement terms."
+  }
+]

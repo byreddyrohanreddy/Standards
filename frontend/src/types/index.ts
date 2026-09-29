@@ -147,6 +147,23 @@ export interface CertificationScheme {
   mandatory_items: string[];
 }
 
+export interface QCOStatus {
+  enforcement_date: string;
+  enforcement_status: "mandatory" | "upcoming" | "superseded" | string;
+  status_label: string;
+}
+
+export interface QCOResult {
+  qco_id: string;
+  product_name: string;
+  qco_title: string;
+  applicable_is_numbers: string[];
+  certification_scheme: string;
+  issuing_ministry: string;
+  status: QCOStatus;
+  verified: boolean;
+}
+
 export interface RequirementGroupResult {
   group_id: string;
   requirement_label: string;
@@ -155,6 +172,7 @@ export interface RequirementGroupResult {
   candidate_standards: StandardMetadata[];
   related_standards: RelatedStandardsCategorized;
   version_alerts: VersionAlert[];
+  qco_results?: QCOResult[];
   meets_recommendation_threshold?: boolean;
   confidence?: "high" | "medium" | "low" | string;
   threshold_message?: string;
@@ -170,6 +188,7 @@ export interface AnalysisResponse {
   related_standards: RelatedStandardsCategorized;
   version_alerts: VersionAlert[];
   certifications: CertificationScheme[];
+  qco_results?: QCOResult[];
   graph_data: GraphData;
   summary_explanation: string;
   latency_breakdown?: LatencyBreakdown;
@@ -179,6 +198,7 @@ export interface AnalysisResponse {
   threshold_message?: string;
   semantic_vs_keyword_note?: string;
   is_multi_requirement?: boolean;
+  is_multilingual?: boolean;
   requirement_groups?: RequirementGroupResult[];
   tender_clause?: string;
 }

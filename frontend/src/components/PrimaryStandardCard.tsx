@@ -17,11 +17,13 @@ import {
   Layers,
   FileCheck
 } from "lucide-react";
-import { StandardMetadata } from "@/types";
+import { StandardMetadata, QCOResult } from "@/types";
 
 interface Props {
   standard: StandardMetadata;
   semanticNote?: string;
+  qcoResults?: QCOResult[];
+  isMultilingual?: boolean;
   onOpenGraph: () => void;
   onViewStandard: (std: StandardMetadata) => void;
   onOpenClause?: () => void;
@@ -30,6 +32,8 @@ interface Props {
 export const PrimaryStandardCard: React.FC<Props> = ({
   standard,
   semanticNote,
+  qcoResults,
+  isMultilingual,
   onOpenGraph,
   onViewStandard,
   onOpenClause,
@@ -218,17 +222,63 @@ export const PrimaryStandardCard: React.FC<Props> = ({
         )}
       </div>
 
-      {/* 4. Semantic vector insight notice (if paraphrased wording was detected) */}
-      {(semanticNote || standard.semantic_insight) && (
+      {/* 4. Semantic vector insight / Multilingual notice (if paraphrased wording was detected) */}
+      {(semanticNote || standard.semantic_insight || isMultilingual) && (
         <div className="p-3 bg-indigo-50/80 rounded-lg border border-indigo-200 text-xs text-indigo-900 flex items-start gap-2.5">
           <Sparkles className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
           <div>
             <div className="font-bold text-[11px] uppercase tracking-wider text-indigo-800">
-              Semantic Vector Match (SentenceTransformer all-MiniLM-L6-v2)
+              {isMultilingual ? "Multilingual Semantic Vector Match (intfloat/multilingual-e5-large)" : "Semantic Vector Match (SentenceTransformer all-MiniLM-L6-v2)"}
             </div>
             <p className="mt-0.5 leading-relaxed text-indigo-950">
-              {semanticNote || standard.semantic_insight}
+              {isMultilingual 
+                ? "This standard was successfully retrieved across language barriers via deep multilingual semantic mapping. The system mapped non-English procurement vocabulary to the correct Indian Standard."
+                : (semanticNote || standard.semantic_insight)}
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* 4.5 QCO Mandatory Certification Panel */}
+      {qcoResults && qcoResults.length > 0 && (
+        <div className="bg-rose-50/80 rounded-lg border border-rose-200 p-4 space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="text-xs font-bold text-rose-900 uppercase tracking-wider flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-rose-600" />
+              MANDATORY QUALITY CONTROL ORDER (QCO) DETECTED
+            </h4>
+            <span className="text-[10px] font-bold px-2 py-0.5 bg-rose-600 text-white rounded">
+              REGULATORY COMPLIANCE REQUIRED
+            </span>
+          </div>
+          <div className="space-y-2">
+            {qcoResults.map((qco, idx) => (
+              <div key={idx} className="bg-white p-3 rounded-md border border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <div className="font-bold text-slate-900 text-xs">{qco.qco_title}</div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">
+                    <strong>Product:</strong> {qco.product_name} | <strong>Ministry:</strong> {qco.issuing_ministry}
+                  </div>
+                  <div className="text-[11px] text-slate-600 mt-1">
+                    <strong>Scheme:</strong> {qco.certification_scheme} (Scheme-I ISI Mark)
+                  </div>
+                </div>
+                <div className="shrink-0 text-right">
+                  <div className={`text-[11px] font-bold px-2 py-1 rounded-md inline-block ${
+                    qco.status.enforcement_status === 'mandatory' 
+                      ? 'bg-rose-100 text-rose-800 border border-rose-200' 
+                      : qco.status.enforcement_status === 'upcoming' 
+                      ? 'bg-amber-100 text-amber-800 border border-amber-200' 
+                      : 'bg-slate-100 text-slate-800 border border-slate-200'
+                  }`}>
+                    {qco.status.status_label}
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-1 font-mono">
+                    Enforcement: {qco.status.enforcement_date}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

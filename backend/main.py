@@ -12,13 +12,17 @@ from backend.models.schemas import (
     GraphData,
     VersionAlert,
     RelatedStandardsCategorized,
-    LatencyBreakdown
+    LatencyBreakdown,
+    QCOResult
 )
 from backend.services.nlp_extractor import extract_requirements
 from backend.services.retrieval_engine import HybridRetrievalEngine
 from backend.services.graph_service import StandardsGraphService
 from backend.services.version_auditor import VersionAuditor
 from backend.services.pdf_service import PDFParserService
+from backend.services.qco_engine import QCOEngine
+from backend.services.multilingual_engine import MultilingualRetrievalEngine, detect_language
+from backend.services.tender_audit_service import TenderAuditService
 
 app = FastAPI(
     title="BIS-SpecAI API",
@@ -40,6 +44,19 @@ retrieval_engine = HybridRetrievalEngine(standards_path="data/standards.json")
 graph_service = StandardsGraphService(standards_path="data/standards.json", relationships_path="data/relationships.json")
 version_auditor = VersionAuditor(standards_path="data/standards.json")
 pdf_service = PDFParserService()
+qco_engine = QCOEngine(qco_path="data/qco_database.json")
+tender_audit_service = TenderAuditService(standards_path="data/standards.json", qco_path="data/qco_database.json")
+
+# Multilingual engine: lazy-initialized on first non-English query
+_multilingual_engine: Optional[MultilingualRetrievalEngine] = None
+
+def _get_multilingual_engine() -> Optional[MultilingualRetrievalEngine]:
+    global _multilingual_engine
+    if _multilingual_engine is None:
+        _multilingual_engine = MultilingualRetrievalEngine(standards_path="data/standards.json")
+        if not _multilingual_engine.initialize():
+            _multilingual_engine = None
+    return _multilingual_engine
 
 # Load Certifications & Examples
 with open("data/certifications.json", "r", encoding="utf-8") as f:
@@ -53,6 +70,16 @@ from backend.models.schemas import RequirementGroupResult
 
 def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisResponse:
     t_start = time.perf_counter()
+
+    # Detect language and select retrieval strategy
+    query_lang = detect_language(query)
+    use_multilingual = (query_lang != "en")
+    
+    ml_scores = None
+    if use_multilingual:
+        ml_engine = _get_multilingual_engine()
+        if ml_engine:
+            ml_scores = ml_engine.compute_similarity(query)
 
     # 1. NLP Requirement Extraction & Multi-Requirement Grouping
     t0 = time.perf_counter()
@@ -71,7 +98,14 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
 
         for g in groups:
             g_req = g["requirements"]
-            g_cands = retrieval_engine.retrieve_candidates(g["text"], g_req, top_k=top_k, mode=mode)
+            
+            g_ml_scores = None
+            if use_multilingual:
+                ml_engine = _get_multilingual_engine()
+                if ml_engine:
+                    g_ml_scores = ml_engine.compute_similarity(g["text"])
+            
+            g_cands = retrieval_engine.retrieve_candidates(g["text"], g_req, top_k=top_k, mode=mode, external_semantic_scores=g_ml_scores)
             g_meets, g_conf, g_msg = retrieval_engine.check_confidence(g_cands)
             g_alerts = version_auditor.audit_text_for_versions(g["text"], g_req.detected_standards)
 
@@ -81,6 +115,11 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
             if g_clause:
                 all_clauses.append(g_clause)
 
+            # QCO lookup for each group's primary standard
+            g_qco: List[QCOResult] = []
+            if g_primary:
+                g_qco = qco_engine.lookup(g_primary.is_number)
+
             group_results.append(RequirementGroupResult(
                 group_id=g["group_id"],
                 requirement_label=g["label"],
@@ -89,6 +128,7 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
                 candidate_standards=g_cands,
                 related_standards=g_rel,
                 version_alerts=g_alerts,
+                qco_results=g_qco,
                 meets_recommendation_threshold=g_meets,
                 confidence=g_conf,
                 threshold_message=g_msg,
@@ -119,6 +159,15 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
             f"Retrieved primary applicable standards, testing methods, and safety references for each item independently."
         )
 
+        # Aggregate QCO results across all groups for top-level response
+        all_qco: List[QCOResult] = []
+        seen_qco_ids: set = set()
+        for gr in group_results:
+            for qr in gr.qco_results:
+                if qr.qco_id not in seen_qco_ids:
+                    all_qco.append(qr)
+                    seen_qco_ids.add(qr.qco_id)
+
         return AnalysisResponse(
             query=query,
             extracted_requirements=full_req,
@@ -127,6 +176,7 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
             related_standards=related_standards,
             version_alerts=version_alerts,
             certifications=[],
+            qco_results=all_qco,
             graph_data=graph_data,
             summary_explanation=summary,
             latency_breakdown=latency,
@@ -135,13 +185,14 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
             threshold_message=primary_group.threshold_message,
             semantic_vs_keyword_note=primary_std.semantic_insight if primary_std else None,
             is_multi_requirement=True,
+            is_multilingual=use_multilingual,
             requirement_groups=group_results,
             tender_clause="\n\n".join(all_clauses)
         )
 
     # 3. Single Requirement Flow (BM25 + Dense Semantic Vector Search + Chunk Max-Pooling)
     t1 = time.perf_counter()
-    candidates = retrieval_engine.retrieve_candidates(query, full_req, top_k=top_k, mode=mode)
+    candidates = retrieval_engine.retrieve_candidates(query, full_req, top_k=top_k, mode=mode, external_semantic_scores=ml_scores)
     retrieval_ms = round((time.perf_counter() - t1) * 1000.0, 2)
 
     t2 = time.perf_counter()
@@ -173,6 +224,7 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
             confidence="low",
             threshold_message=threshold_msg,
             is_multi_requirement=False,
+            is_multilingual=use_multilingual,
             requirement_groups=[],
             tender_clause="No applicable standards clause available (query below recommendation threshold)."
         )
@@ -189,7 +241,10 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
     graph_data = graph_service.build_react_flow_graph(primary_std, related_standards)
     graph_ms = round((time.perf_counter() - t3) * 1000.0, 2)
 
-    # 6. Check applicable certification schemes
+    # 6. QCO lookup for primary standard
+    applicable_qco = qco_engine.lookup(primary_std.is_number)
+
+    # 6b. Legacy certification scheme lookup (kept for backwards-compat)
     applicable_certs = []
     for cert_scheme in CERTIFICATIONS_DATA:
         for item in cert_scheme.get("mandatory_items", []):
@@ -231,6 +286,7 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
         related_standards=related_standards,
         version_alerts=version_alerts,
         certifications=applicable_certs,
+        qco_results=applicable_qco,
         graph_data=graph_data,
         summary_explanation=summary,
         latency_breakdown=latency,
@@ -239,6 +295,7 @@ def run_pipeline(query: str, top_k: int = 5, mode: str = "hybrid") -> AnalysisRe
         threshold_message=threshold_msg,
         semantic_vs_keyword_note=primary_std.semantic_insight,
         is_multi_requirement=False,
+        is_multilingual=use_multilingual,
         requirement_groups=[],
         tender_clause=tender_clause
     )
@@ -310,6 +367,76 @@ async def upload_tender_pdf(file: UploadFile = File(...), top_k: int = Form(5)):
         raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid or corrupted PDF file: {str(e)}")
+
+
+@app.post("/api/tender-audit")
+async def audit_tender_pdf(file: UploadFile = File(...)):
+    """
+    Tender Audit endpoint (Phase 3):
+    Uploads a tender/NIT PDF and runs a full standards compliance audit:
+    - Detects all cited IS standard references
+    - Flags superseded/outdated citations
+    - Identifies missing normative references
+    - Checks mandatory QCO certification gaps
+    Returns a structured per-document audit report.
+    """
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+    try:
+        content = await file.read()
+        if not content or len(content) == 0:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+        extracted_text = pdf_service.extract_text_from_pdf_bytes(content)
+        if not extracted_text or len(extracted_text.strip()) < 10:
+            raise HTTPException(status_code=400, detail="Could not extract text from PDF.")
+        report = tender_audit_service.audit_document(
+            document_text=extracted_text,
+            document_name=file.filename,
+            retrieval_engine=retrieval_engine,
+        )
+        return report
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Audit failed: {str(e)}")
+
+
+@app.get("/api/qco/{is_number:path}")
+def get_qco_for_standard(is_number: str):
+    """
+    QCO lookup endpoint:
+    Returns all mandatory Quality Control Orders applicable to a given IS number.
+    Date-aware: returns current enforcement status (mandatory/upcoming/superseded).
+    """
+    is_number_clean = is_number.replace("_", " ").replace("-", " ").strip()
+    results = qco_engine.lookup(is_number_clean)
+    return {
+        "is_number": is_number_clean,
+        "qco_count": len(results),
+        "qco_results": [r.model_dump() for r in results],
+    }
+
+
+@app.get("/api/qco")
+def list_all_qcos():
+    """Returns the full QCO database with current date-aware enforcement status."""
+    from datetime import date
+    today = date.today()
+    all_results = []
+    for record in qco_engine.qco_records:
+        status = qco_engine._compute_status(record, today)
+        all_results.append({
+            "qco_id": record["qco_id"],
+            "product_name": record["product_name"],
+            "applicable_is_numbers": record["applicable_is_numbers"],
+            "certification_scheme": record["certification_scheme"],
+            "issuing_ministry": record["issuing_ministry"],
+            "enforcement_date": record["enforcement_date"],
+            "enforcement_status": status.enforcement_status,
+            "status_label": status.status_label,
+        })
+    return all_results
+
 
 if __name__ == "__main__":
     import uvicorn
