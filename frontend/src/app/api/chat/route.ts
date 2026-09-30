@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
   });
 
   // Try models in priority order
-  const models = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.0-flash"];
+  const models = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-1.5-flash"];
   let lastError = "";
 
   for (const model of models) {
