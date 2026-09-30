@@ -22,7 +22,7 @@ start "BIS-SpecAI Backend (FastAPI)" /D "%ROOT_DIR%" cmd /k "conda run -n ml --l
 
 :: 2. Start Next.js Frontend in a separate dedicated window
 echo [2/2] Launching Next.js Frontend on http://localhost:3000 ...
-start "BIS-SpecAI Frontend (Next.js)" /D "%ROOT_DIR%\frontend" cmd /k "npm run dev"
+start "BIS-SpecAI Frontend (Next.js)" /D "%ROOT_DIR%\frontend" cmd /k "npm install && npm run dev"
 
 echo.
 echo ==============================================================================
