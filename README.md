@@ -67,7 +67,7 @@ We have optimized this repository for instant, zero-lag presentations using high
 ### Prerequisites
 - Python 3.11+
 - Node.js v18+ and npm
-- Valid `.env` file with `GEMINI_API_KEY` (already configured in root)
+- Valid `GEMINI_API_KEY` (The setup script will auto-generate an `.env` file for you to paste it in)
 
 ### Running the App
 Double-click the **`run_production.bat`** file in the root directory, or run it via terminal:

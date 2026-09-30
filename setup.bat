@@ -13,6 +13,13 @@ set "ROOT_DIR=%~dp0"
 if "%ROOT_DIR:~-1%"=="\" set "ROOT_DIR=%ROOT_DIR:~0,-1%"
 cd /d "%ROOT_DIR%"
 
+:: 0. Check for .env file
+if not exist "%ROOT_DIR%\.env" (
+    echo [*] .env file not found. Creating one from .env.example...
+    copy "%ROOT_DIR%\.env.example" "%ROOT_DIR%\.env"
+    echo [WARNING] Please open the .env file in the root directory and add your GEMINI_API_KEY!
+)
+
 :: 1. Check Python installation (check both 'python' and 'py')
 echo [1/5] Checking Python installation...
 set "PY_CMD=python"

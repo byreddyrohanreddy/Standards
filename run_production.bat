@@ -11,15 +11,21 @@ set "ROOT_DIR=%~dp0"
 if "%ROOT_DIR:~-1%"=="\" set "ROOT_DIR=%ROOT_DIR:~0,-1%"
 cd /d "%ROOT_DIR%"
 
+if not exist "%ROOT_DIR%\.venv\Scripts\python.exe" (
+    echo [*] First-time setup detected. Running setup.bat...
+    call "%ROOT_DIR%\setup.bat"
+)
+
 echo [*] Checking for orphaned background processes on ports 8000 and 3000...
 powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 8000, 3000 -ErrorAction SilentlyContinue | Where-Object { $_.OwningProcess -gt 0 } | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }" >nul 2>&1
 
 :: 1. Start FastAPI Backend
-echo [1/2] Launching FastAPI Backend on http://127.0.0.1:8000 using 'ml' conda env...
-start "BIS-SpecAI Backend (FastAPI)" /D "%ROOT_DIR%" cmd /k "conda run -n ml --live-stream uvicorn backend.main:app --host 127.0.0.1 --port 8000"
+echo [1/2] Launching FastAPI Backend on http://127.0.0.1:8000 using .venv...
+start "BIS-SpecAI Backend (FastAPI)" /D "%ROOT_DIR%" cmd /k "call ""%ROOT_DIR%\.venv\Scripts\activate.bat"" && uvicorn backend.main:app --host 127.0.0.1 --port 8000"
 
 :: 2. Build and Start Next.js Frontend in Production Mode
 echo [2/2] Building and Launching Next.js Frontend in PRODUCTION mode...
+if exist "%ROOT_DIR%\.env" copy /y "%ROOT_DIR%\.env" "%ROOT_DIR%\frontend\.env" >nul
 start "BIS-SpecAI Frontend (Production)" /D "%ROOT_DIR%\frontend" cmd /k "if exist .next rmdir /s /q .next & npm install && npm run build && npm start"
 
 echo.

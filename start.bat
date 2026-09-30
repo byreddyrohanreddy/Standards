@@ -28,6 +28,7 @@ if exist "%ROOT_DIR%\.venv\Scripts\python.exe" (
 
 :: 2. Start Next.js Frontend in a separate dedicated window
 echo [2/2] Launching Next.js Frontend on http://localhost:3000 ...
+if exist "%ROOT_DIR%\.env" copy /y "%ROOT_DIR%\.env" "%ROOT_DIR%\frontend\.env" >nul
 start "BIS-SpecAI Frontend (Next.js)" /D "%ROOT_DIR%\frontend" cmd /k "npm run dev"
 
 echo.
