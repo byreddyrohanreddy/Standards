@@ -20,7 +20,7 @@ start "BIS-SpecAI Backend (FastAPI)" /D "%ROOT_DIR%" cmd /k "conda run -n ml --l
 
 :: 2. Build and Start Next.js Frontend in Production Mode
 echo [2/2] Building and Launching Next.js Frontend in PRODUCTION mode...
-start "BIS-SpecAI Frontend (Production)" /D "%ROOT_DIR%\frontend" cmd /k "npm run build && npm start"
+start "BIS-SpecAI Frontend (Production)" /D "%ROOT_DIR%\frontend" cmd /k "npm install && npm run build && npm start"
 
 echo.
 echo ==============================================================================
