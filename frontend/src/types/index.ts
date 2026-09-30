@@ -201,6 +201,8 @@ export interface AnalysisResponse {
   is_multilingual?: boolean;
   requirement_groups?: RequirementGroupResult[];
   tender_clause?: string;
+  scoring_breakdown?: ScoringBreakdown;
+  evidence_items?: EvidenceItem[];
 }
 
 
@@ -213,46 +215,89 @@ export interface ExampleScenario {
   notes: string;
 }
 
-// Live BIS Know Your Standards Agent Types
-
-export interface StandardVerificationResult {
-  is_number: string;
-  status: "ACTIVE_CURRENT" | "SUPERSEDED" | "WITHDRAWN" | "UNDER_REVISION" | string;
-  status_label: string;
-  latest_edition: string;
-  published_year?: string | null;
-  reaffirmed_year?: string | null;
-  superseded_by?: string | null;
-  verified_via: string;
-  portal_url: string;
-  is_valid_for_procurement: boolean;
-  revisions_history: Array<{
-    id?: string;
-    label?: string;
-    year?: string;
-    reaffirm_year?: string;
-  }>;
-  amendments_count: number;
-  verification_timestamp: string;
-  agent_summary: string;
-  linked_normative_standards: string[];
+export interface TenderAuditSummary {
+  total_standards_cited: number;
+  total_superseded_citations: number;
+  total_outdated_citations: number;
+  total_missing_recommendations: number;
+  total_qco_gaps: number;
+  sections_analysed: number;
+  sections_with_issues: number;
+  has_compliance_issues: boolean;
 }
 
-export interface DiscoveredStandard {
-  is_number: string;
-  title: string;
-  year?: string | null;
+export interface TenderAuditVersionAlert {
+  referenced: string;
   status: string;
-  portal_url: string;
-  is_in_local_catalog: boolean;
-  relevance_note?: string | null;
+  replacement?: string;
+  recommendation: string;
+  severity: "warning" | "error" | "info" | string;
 }
 
-export interface DiscoverStandardsResponse {
-  query: string;
-  discovered_standards: DiscoveredStandard[];
-  total_found_on_portal: number;
-  agent_analysis: string;
-  portal_source: string;
-  execution_time_ms: number;
+export interface TenderAuditQCOGap {
+  standard: string;
+  qco_title: string;
+  certification_scheme: string;
+  issuing_ministry: string;
+  enforcement_date?: string;
+  gap: string;
 }
+
+export interface TenderAuditSectionFinding {
+  section_id: string;
+  text_preview: string;
+  cited_standards: string[];
+  recommended_standards: string[];
+  missing_standards: string[];
+  version_alerts: {
+    referenced: string;
+    status: string;
+    replacement?: string;
+    severity: string;
+  }[];
+  has_issues: boolean;
+}
+
+export interface TenderAuditReport {
+  id?: string;
+  document_name: string;
+  audit_timestamp: string;
+  audit_latency_ms: number;
+  summary: TenderAuditSummary;
+  cited_standards: string[];
+  version_alerts: TenderAuditVersionAlert[];
+  qco_gaps: TenderAuditQCOGap[];
+  section_findings: TenderAuditSectionFinding[];
+}
+
+export interface QCOListItem {
+  qco_id: string;
+  product_name: string;
+  applicable_is_numbers: string[];
+  certification_scheme: string;
+  issuing_ministry: string;
+  enforcement_date: string;
+  enforcement_status: "mandatory" | "upcoming" | "superseded" | string;
+  status_label: string;
+}
+
+export interface RecommendationHistoryItem {
+  id: string;
+  timestamp: string;
+  query: string;
+  primary_standard?: string;
+  primary_title?: string;
+  domain?: string;
+  confidence?: string;
+  is_multi_requirement?: boolean;
+  result: AnalysisResponse;
+}
+
+export interface AuditHistoryItem {
+  id: string;
+  timestamp: string;
+  document_name: string;
+  summary: TenderAuditSummary;
+  report: TenderAuditReport;
+}
+

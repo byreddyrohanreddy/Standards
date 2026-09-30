@@ -3,315 +3,306 @@
 import React, { useState, useMemo, useCallback } from "react";
 import {
   ReactFlow,
-  MiniMap,
   Controls,
   Background,
-  useNodesState,
-  useEdgesState,
+  applyNodeChanges,
+  applyEdgeChanges,
   Node,
   Edge,
   Handle,
   Position,
-  MarkerType,
+  NodeProps,
+  BackgroundVariant
 } from "@xyflow/react";
-import { X, Network, Star, ExternalLink, ShieldAlert, Award, FileText, CheckCircle2 } from "lucide-react";
+import {
+  X,
+  Network,
+  BookOpen,
+  Shield,
+  Layers,
+  Sparkles,
+  ExternalLink,
+  ChevronRight,
+  Maximize2
+} from "lucide-react";
 import { GraphData, StandardMetadata } from "@/types";
 
-interface Props {
+interface StandardsGraphModalProps {
   isOpen: boolean;
   onClose: () => void;
   graphData: GraphData;
-  onSelectStandardMetadata: (std: StandardMetadata) => void;
+  onSelectStandardMetadata?: (std: StandardMetadata) => void;
 }
 
-// Custom Node for React Flow
-const CustomStandardNode = ({ data }: { data: any }) => {
-  const isPrimary = data.is_primary;
-  const status = data.status || "current";
-  const category = data.category || "Standard";
+// Custom Warm Node Component
+const CustomStandardNode = ({ data }: NodeProps) => {
+  const isPrimary = Boolean(data.is_primary);
+  const nodeType = (data.type as string) || "related";
 
-  const categoryColor =
-    category === "Primary Standard"
-      ? "border-blue-600 bg-blue-50/90"
-      : category === "Normative Reference"
-      ? "border-blue-400 bg-white hover:bg-blue-50/40"
-      : category === "Testing Standard"
-      ? "border-emerald-500 bg-white hover:bg-emerald-50/40"
-      : category === "Safety Standard"
-      ? "border-red-400 bg-white hover:bg-red-50/40"
-      : category === "Installation Standard"
-      ? "border-amber-400 bg-white hover:bg-amber-50/40"
-      : "border-slate-300 bg-white hover:bg-slate-50";
+  const getNodeStyles = () => {
+    if (isPrimary) {
+      return "border-[#FC6C26] bg-gradient-to-b from-[#FC6C26] to-[#D95218] text-white shadow-lg shadow-[#D95218]/40 ring-2 ring-[#FC6C26]/40";
+    }
+    switch (nodeType) {
+      case "normative":
+        return "border-[#E7D9BC] bg-[#FFF8E9] text-[#231A14] hover:border-[#FC6C26]";
+      case "testing":
+        return "border-emerald-500/40 bg-emerald-50 text-emerald-950 hover:border-emerald-600";
+      case "safety":
+        return "border-rose-500/40 bg-rose-50 text-rose-950 hover:border-rose-600";
+      case "installation":
+        return "border-amber-500/40 bg-amber-50 text-amber-950 hover:border-amber-600";
+      default:
+        return "border-[#E7D9BC] bg-[#FFFAEF] text-[#231A14] hover:border-[#FC6C26]";
+    }
+  };
 
   return (
     <div
-      className={`px-3.5 py-2.5 rounded-xl shadow-md border-2 w-56 transition-all text-left ${categoryColor}`}
+      className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all min-w-[130px] max-w-[200px] text-center shadow-xs ${getNodeStyles()}`}
     >
-      <Handle type="target" position={Position.Top} className="!bg-blue-600 !w-2 !h-2" />
-
-      <div className="flex items-center justify-between gap-1 mb-1">
-        <span
-          className={`text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${
-            isPrimary
-              ? "bg-blue-700 text-white"
-              : category === "Safety Standard"
-              ? "bg-red-100 text-red-800"
-              : category === "Testing Standard"
-              ? "bg-emerald-100 text-emerald-800"
-              : "bg-slate-100 text-slate-700"
-          }`}
-        >
-          {category}
-        </span>
-
-        <span
-          className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-            status === "current"
-              ? "text-emerald-700 bg-emerald-50"
-              : "text-red-700 bg-red-50"
-          }`}
-        >
-          {status === "current" ? "Active" : "Superseded"}
-        </span>
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="!bg-[#FC6C26] !w-2 !h-2 !border !border-white"
+      />
+      <div className="space-y-0.5">
+        <div className="text-[11px] font-black truncate">{String(data.label || "")}</div>
+        {Boolean(data.title) && (
+          <div className="text-[9px] font-sans font-medium line-clamp-1 opacity-80">
+            {String(data.title)}
+          </div>
+        )}
       </div>
-
-      <div className="font-mono text-xs font-black text-slate-900 truncate">
-        {data.is_number}
-      </div>
-
-      <div className="text-[10px] text-slate-600 line-clamp-2 mt-0.5 font-medium">
-        {data.title}
-      </div>
-
-      {isPrimary && data.ai_relevance_score && (
-        <div className="mt-1.5 text-[10px] font-bold text-blue-800 bg-blue-100/70 px-2 py-0.5 rounded text-center">
-          AI Relevance: {data.ai_relevance_score}%
-        </div>
-      )}
-
-      <Handle type="source" position={Position.Bottom} className="!bg-blue-600 !w-2 !h-2" />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="!bg-[#FC6C26] !w-2 !h-2 !border !border-white"
+      />
     </div>
   );
 };
 
-export const StandardsGraphModal: React.FC<Props> = ({
+const nodeTypes = {
+  standardNode: CustomStandardNode,
+};
+
+export const StandardsGraphModal: React.FC<StandardsGraphModalProps> = ({
   isOpen,
   onClose,
   graphData,
   onSelectStandardMetadata,
 }) => {
-  const [selectedNodeData, setSelectedNodeData] = useState<any | null>(null);
+  const [selectedNode, setSelectedNode] = useState<any | null>(null);
 
-  const nodeTypes = useMemo(() => ({ custom: CustomStandardNode }), []);
-
-  // Format nodes for React Flow
+  // Layout nodes and edges
   const initialNodes: Node[] = useMemo(() => {
-    return (graphData.nodes || []).map((n) => ({
-      id: n.id,
-      position: n.position,
-      data: n.data,
-      type: "custom",
-    }));
-  }, [graphData.nodes]);
+    if (!graphData || !graphData.nodes) return [];
+    const count = graphData.nodes.length;
+    const centerX = 400;
+    const centerY = 250;
+    const radius = Math.min(280, Math.max(160, count * 28));
+
+    return graphData.nodes.map((n, idx) => {
+      const isPrimary = Boolean(n.data?.is_primary ?? (n as any).is_primary);
+      let posX = centerX;
+      let posY = centerY;
+
+      if (!isPrimary) {
+        const nonPrimaryIndex = idx;
+        const angle = (2 * Math.PI * nonPrimaryIndex) / (count - 1 || 1);
+        posX = centerX + radius * Math.cos(angle);
+        posY = centerY + radius * Math.sin(angle);
+      }
+
+      return {
+        id: n.id,
+        type: "standardNode",
+        position: { x: posX - 70, y: posY - 25 },
+        data: {
+          label: n.data?.is_number || (n as any).label || n.id,
+          title: n.data?.title || (n as any).title,
+          is_primary: isPrimary,
+          type: n.type,
+          domain: n.data?.domain || (n as any).domain,
+          scope: n.data?.scope || (n as any).scope,
+        },
+      };
+    });
+  }, [graphData]);
 
   const initialEdges: Edge[] = useMemo(() => {
-    return (graphData.edges || []).map((e) => ({
-      id: e.id,
+    if (!graphData || !graphData.edges) return [];
+    return graphData.edges.map((e, idx) => ({
+      id: `e_${e.source}_${e.target}_${idx}`,
       source: e.source,
       target: e.target,
-      label: e.label,
-      animated: e.animated,
-      style: e.style,
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 14,
-        height: 14,
-        color: e.style?.stroke || "#3b82f6",
+      label: e.label || (e as any).relation,
+      animated: true,
+      style: {
+        stroke: "#FC6C26",
+        strokeWidth: 1.5,
+        opacity: 0.6,
+      },
+      labelStyle: {
+        fontSize: 9,
+        fontWeight: 600,
+        fill: "#E7D9BC",
+        fontFamily: "JetBrains Mono, monospace",
       },
     }));
-  }, [graphData.edges]);
+  }, [graphData]);
 
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
 
-  const onNodeClick = useCallback((_: any, node: Node) => {
-    setSelectedNodeData(node.data);
-  }, []);
+  // Sync state when graphData updates
+  React.useEffect(() => {
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  }, [initialNodes, initialEdges]);
+
+  const onNodesChange = useCallback(
+    (changes: any) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    []
+  );
+  const onEdgesChange = useCallback(
+    (changes: any) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    []
+  );
+
+  const onNodeClick = (_: any, node: Node) => {
+    setSelectedNode(node.data);
+  };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 md:p-6 transition-all">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-6xl h-[88vh] flex flex-col overflow-hidden animate-in fade-in-50 duration-200">
-        {/* Modal Header */}
-        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in-50 duration-150">
+      <div className="relative w-full max-w-6xl h-[88vh] rounded-3xl bg-[#241C15] border border-[#E7D9BC]/30 shadow-2xl flex flex-col overflow-hidden text-[#FFF8E9]">
+        {/* Modal Top Bar */}
+        <div className="px-5 py-3.5 border-b border-[#E7D9BC]/20 bg-[#2A211A] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-blue-100 text-blue-700">
-              <Network className="w-5 h-5 text-blue-700" />
+            <div className="w-8 h-8 rounded-xl bg-[#FC6C26]/20 border border-[#FC6C26]/40 flex items-center justify-center text-[#FC6C26]">
+              <Network className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">
-                Standards Relationship Graph (React Flow)
-              </h3>
-              <p className="text-xs text-slate-500">
-                Visual relationship hierarchy showing normative references, test methods, safety, and superseded editions.
+              <h2 className="text-sm font-mono font-bold uppercase tracking-wider text-white">
+                Standards Relationship DAG & Knowledge Network
+              </h2>
+              <p className="text-[11px] text-[#E7D9BC]/70 font-medium">
+                Interactive citation dependencies, normative references, and test methodologies
               </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200 transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-lg border border-[#E7D9BC]/20 bg-white/5 text-[#E7D9BC] hover:text-white hover:bg-white/10 transition cursor-pointer"
+              aria-label="Close modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Graph Body + Interactive Node Inspector */}
-        <div className="flex-1 relative flex flex-col md:flex-row overflow-hidden">
-          {/* React Flow Canvas */}
-          <div className="flex-1 h-full w-full relative bg-slate-50/50">
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              nodeTypes={nodeTypes}
-              onNodeClick={onNodeClick}
-              fitView
-              fitViewOptions={{ padding: 0.2 }}
-            >
-              <MiniMap
-                nodeColor={(n: any) =>
-                  n.data?.is_primary
-                    ? "#1d4ed8"
-                    : n.data?.category === "Safety Standard"
-                    ? "#ef4444"
-                    : n.data?.category === "Testing Standard"
-                    ? "#10b981"
-                    : "#64748b"
-                }
-                className="!bottom-4 !right-4 !bg-white/90 !border !border-slate-200 !rounded-lg"
-              />
-              <Controls className="!bottom-4 !left-4 !bg-white !border !border-slate-200 !shadow-sm !rounded-lg" />
-              <Background gap={18} size={1} color="#cbd5e1" />
-            </ReactFlow>
+        {/* Workspace Canvas + Slide-out Inspector Drawer */}
+        <div className="relative flex-1 w-full h-full overflow-hidden">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onNodeClick={onNodeClick}
+            nodeTypes={nodeTypes}
+            fitView
+            minZoom={0.2}
+            maxZoom={2}
+          >
+            <Background
+              variant={BackgroundVariant.Dots}
+              gap={24}
+              size={1}
+              color="rgba(252, 108, 38, 0.15)"
+            />
+            <Controls className="!bg-[#2A211A] !border-[#E7D9BC]/20 !fill-white" />
+          </ReactFlow>
 
-            {/* Instruction pill */}
-            <div className="absolute top-3 left-3 z-10 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-md border border-slate-200 shadow-2xs text-[11px] text-slate-600 font-medium">
-              💡 Click any standard node to inspect full metadata & scope
+          {/* Node Category Legend Overlay */}
+          <div className="absolute top-4 left-4 p-3 rounded-xl bg-[#2A211A]/90 backdrop-blur-md border border-[#E7D9BC]/20 text-[11px] font-mono space-y-1.5 pointer-events-none">
+            <div className="text-[10px] uppercase font-bold text-[#E7D9BC]/60">Legend:</div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FC6C26]" />
+              <span className="text-white">Primary Standard</span>
             </div>
-
-            {/* Permanent Relationship Legend */}
-            <div className="absolute top-3 right-3 z-10 bg-white/95 backdrop-blur-xs p-2.5 rounded-lg border border-slate-200 shadow-sm text-[10px] space-y-1 hidden sm:block max-w-xs">
-              <div className="font-bold text-slate-800 uppercase tracking-wider text-[9px] mb-1">
-                Relationship Legend
-              </div>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-                  <span className="text-slate-700">Normative (Mandatory)</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-                  <span className="text-slate-700">Testing Standard</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
-                  <span className="text-slate-700">Safety Standard</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-                  <span className="text-slate-700">Installation Code</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
-                  <span className="text-slate-700">Related Product</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
-                  <span className="text-slate-700">Superseded</span>
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FFF8E9]" />
+              <span className="text-[#E7D9BC]">Normative Reference</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+              <span className="text-emerald-300">Test Method</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+              <span className="text-rose-300">Safety Code</span>
             </div>
           </div>
 
-          {/* Right Inspector Drawer (if node clicked) */}
-          {selectedNodeData && (
-            <div className="w-full md:w-80 bg-white border-t md:border-t-0 md:border-l border-slate-200 p-5 overflow-y-auto shrink-0 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">
-                    {selectedNodeData.category}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedNodeData(null)}
-                    className="text-slate-400 hover:text-slate-700 text-xs font-semibold"
-                  >
-                    Close
-                  </button>
-                </div>
+          {/* Slide-out Inspector Drawer */}
+          {selectedNode && (
+            <div className="absolute top-4 right-4 w-80 max-h-[80%] rounded-2xl bg-[#2A211A]/95 backdrop-blur-xl border border-[#E7D9BC]/30 p-4 shadow-2xl space-y-3 overflow-y-auto">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E7D9BC]/20">
+                <span className="font-mono text-xs font-bold text-[#FC6C26]">
+                  {selectedNode.label}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedNode(null)}
+                  className="text-[#E7D9BC]/60 hover:text-white transition p-0.5 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
-                <div className="font-mono text-base font-black text-slate-900">
-                  {selectedNodeData.is_number}
+              <div className="space-y-1">
+                <div className="text-xs font-bold text-white">
+                  {selectedNode.title || "Indian Standard Specification"}
                 </div>
-
-                <div className="text-xs font-semibold text-slate-700 mt-1 leading-snug">
-                  {selectedNodeData.title}
-                </div>
-
-                {/* Corpus Status Badge */}
-                <div className="mt-2.5">
-                  {selectedNodeData.is_in_corpus === false ? (
-                    <div className="p-2 rounded bg-amber-50 border border-amber-200 text-[10px] text-amber-900">
-                      <strong>Referenced standard not included in prototype corpus</strong>
-                      <p className="mt-0.5 text-amber-800">
-                        This standard is cited in the technical specifications. The full 20,000+ BIS catalog is not fully loaded in this MVP prototype.
-                      </p>
-                    </div>
-                  ) : (
-                    <span className="inline-block text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      ✓ In Prototype Catalog (113 Standards)
-                    </span>
-                  )}
-                </div>
-
-                {/* Scope */}
-                <div className="mt-3">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Standard Scope
+                {selectedNode.domain && (
+                  <div className="text-[10px] text-[#E7D9BC]/70 font-mono">
+                    Domain: {selectedNode.domain}
                   </div>
-                  <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 leading-relaxed font-mono">
-                    {selectedNodeData.scope}
+                )}
+                {selectedNode.scope && (
+                  <p className="text-[11px] text-[#E7D9BC]/80 leading-relaxed pt-1">
+                    {selectedNode.scope}
                   </p>
-                </div>
-
-                {selectedNodeData.certification && selectedNodeData.certification.length > 0 && (
-                  <div className="mt-3">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase block mb-1">
-                      Quality Certification:
-                    </span>
-                    <div className="text-xs text-indigo-900 bg-indigo-50 p-2 rounded border border-indigo-200 font-medium">
-                      {selectedNodeData.certification[0]}
-                    </div>
-                  </div>
                 )}
               </div>
 
-              <div className="mt-5 pt-3 border-t border-slate-100">
+              {onSelectStandardMetadata && (
                 <button
                   type="button"
                   onClick={() => {
-                    onSelectStandardMetadata(selectedNodeData);
-                    onClose();
+                    onSelectStandardMetadata({
+                      id: selectedNode.label,
+                      is_number: selectedNode.label,
+                      title: selectedNode.title || "",
+                      domain: selectedNode.domain || "General",
+                      year: 2018,
+                      status: "current",
+                      scope: selectedNode.scope || "",
+                    } as unknown as StandardMetadata);
                   }}
-                  className="w-full text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 py-2 rounded-lg transition"
+                  className="w-full tactile-btn-primary py-1.5 text-xs font-bold rounded-lg"
                 >
-                  View Full Standard Profile
+                  <span>Open Full Specifications</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
                 </button>
-              </div>
+              )}
             </div>
           )}
         </div>

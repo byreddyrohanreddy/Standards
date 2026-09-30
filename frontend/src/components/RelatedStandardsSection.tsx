@@ -2,192 +2,178 @@
 
 import React, { useState } from "react";
 import {
+  Layers,
   BookOpen,
   FlaskConical,
-  ShieldCheck,
+  Shield,
   Wrench,
-  Layers,
-  History,
-  Info,
-  ExternalLink,
+  Link as LinkIcon,
+  ChevronRight,
+  ExternalLink
 } from "lucide-react";
 import { RelatedStandardsCategorized, StandardMetadata } from "@/types";
 
-interface Props {
+interface RelatedStandardsSectionProps {
   related: RelatedStandardsCategorized;
-  onSelectStandard: (std: StandardMetadata) => void;
+  onSelectStandard?: (std: StandardMetadata) => void;
 }
 
-export const RelatedStandardsSection: React.FC<Props> = ({ related, onSelectStandard }) => {
-  const tabs = [
+type TabKey =
+  | "normative"
+  | "testing"
+  | "safety"
+  | "installation"
+  | "products"
+  | "superseded";
+
+export const RelatedStandardsSection: React.FC<RelatedStandardsSectionProps> = ({
+  related,
+  onSelectStandard,
+}) => {
+  const [activeTab, setActiveTab] = useState<TabKey>("normative");
+
+  const categories = [
     {
-      id: "normative",
+      key: "normative" as TabKey,
       label: "Normative References",
       count: related.normative_references?.length || 0,
       icon: BookOpen,
-      color: "text-blue-600 bg-blue-50 border-blue-200",
       items: related.normative_references || [],
-      description: "Mandatory referenced standards required for product specification and compliance verification.",
     },
     {
-      id: "testing",
-      label: "Testing Standards",
+      key: "testing" as TabKey,
+      label: "Test Standards",
       count: related.testing_standards?.length || 0,
       icon: FlaskConical,
-      color: "text-emerald-600 bg-emerald-50 border-emerald-200",
       items: related.testing_standards || [],
-      description: "Accredited laboratory testing methods for loss determination, mechanical strength, and endurance.",
     },
     {
-      id: "safety",
-      label: "Safety Standards",
+      key: "safety" as TabKey,
+      label: "Safety Codes",
       count: related.safety_standards?.length || 0,
-      icon: ShieldCheck,
-      color: "text-red-600 bg-red-50 border-red-200",
+      icon: Shield,
       items: related.safety_standards || [],
-      description: "Personnel protection, electric shock mitigation, fire containment, and ingress protection codes.",
     },
     {
-      id: "installation",
-      label: "Installation & Maintenance",
+      key: "installation" as TabKey,
+      label: "Installation Guides",
       count: related.installation_standards?.length || 0,
       icon: Wrench,
-      color: "text-amber-600 bg-amber-50 border-amber-200",
       items: related.installation_standards || [],
-      description: "Codes of practice for civil foundation, alignment, cabling, earthing, and commissioning.",
     },
     {
-      id: "related",
-      label: "Related Product Standards",
+      key: "products" as TabKey,
+      label: "Related Equipment",
       count: related.related_products?.length || 0,
       icon: Layers,
-      color: "text-indigo-600 bg-indigo-50 border-indigo-200",
       items: related.related_products || [],
-      description: "Interfacing components, starters, cables, and complementary equipment standards.",
     },
     {
-      id: "superseded",
-      label: "Superseded Standards",
+      key: "superseded" as TabKey,
+      label: "Superseded History",
       count: related.superseded_standards?.length || 0,
-      icon: History,
-      color: "text-rose-600 bg-rose-50 border-rose-200",
+      icon: LinkIcon,
       items: related.superseded_standards || [],
-      description: "Preceding editions and obsolete standards replaced by modern specifications.",
     },
   ];
 
-  // Default active tab to first non-empty tab
-  const [activeTabId, setActiveTabId] = useState<string>("normative");
-  const activeTab = tabs.find((t) => t.id === activeTabId) || tabs[0];
+  const currentCategory = categories.find((c) => c.key === activeTab);
+  const items = currentCategory?.items || [];
 
   return (
-    <div className="bg-white rounded-xl shadow-xs border border-slate-200 p-5 md:p-6 transition-all">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-100">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Layers className="w-5 h-5 text-blue-700" />
-            Related-Standard Intelligence & Hierarchy
-          </h3>
-          <p className="text-sm text-slate-500 mt-0.5">
-            Automated relationship graph traversal categorizing normative, testing, safety, and superseded standards.
-          </p>
+    <div className="warm-glass rounded-2xl p-5 sm:p-6 border border-[#E7D9BC] space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-[#E7D9BC]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-[#FC6C26]/12 border border-[#FC6C26]/30 flex items-center justify-center text-[#D95218]">
+            <Layers className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#D95218]">
+              Related Standards Knowledge Network
+            </h3>
+            <p className="text-[11px] text-[#6E5C4E] font-medium">
+              Normative references, verification test methods, and installation codes
+            </p>
+          </div>
         </div>
+
+        <span className="text-[10px] font-mono text-[#9B8977] hidden sm:inline">
+          Knowledge Graph Traversal
+        </span>
       </div>
 
-      {/* Tabs Navigation Header */}
-      <div className="mt-4 flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = tab.id === activeTabId;
+      {/* Category Tabs Strip */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        {categories.map((cat) => {
+          const isActive = activeTab === cat.key;
+          const Icon = cat.icon;
           return (
             <button
-              key={tab.id}
+              key={cat.key}
               type="button"
-              onClick={() => setActiveTabId(tab.id)}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition whitespace-nowrap border ${
+              onClick={() => setActiveTab(cat.key)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 isActive
-                  ? "bg-blue-700 text-white border-blue-700 shadow-xs"
-                  : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                  ? "bg-[#FC6C26] text-white shadow-xs"
+                  : "bg-[#FFF8E9] hover:bg-white text-[#6E5C4E] border border-[#E7D9BC]/60"
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? "text-white" : ""}`} />
-              <span>{tab.label}</span>
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                  isActive ? "bg-blue-900/60 text-blue-100" : "bg-slate-200 text-slate-700"
-                }`}
-              >
-                {tab.count}
+              <Icon className="w-3.5 h-3.5" />
+              <span>{cat.label}</span>
+              <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
+                isActive ? "bg-white/25 text-white" : "bg-black/5 text-[#9B8977]"
+              }`}>
+                {cat.count}
               </span>
             </button>
           );
         })}
       </div>
 
-      {/* Tab Context Banner */}
-      <div className="mt-3.5 p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-700 flex items-center gap-2.5">
-        <Info className="w-4 h-4 text-blue-600 shrink-0" />
-        <span>{activeTab.description}</span>
-      </div>
-
-      {/* Standards List in Active Tab */}
-      <div className="mt-4">
-        {activeTab.items.length === 0 ? (
-          <div className="py-8 text-center bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
-            <p className="text-sm text-slate-400 font-medium">
-              No standards mapped under this category for the primary specification.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {activeTab.items.map((std, idx) => (
-              <div
-                key={idx}
-                onClick={() => onSelectStandard(std)}
-                className="bg-white hover:bg-blue-50/40 p-4 rounded-xl border border-slate-200 hover:border-blue-300 shadow-2xs transition cursor-pointer group"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="font-mono text-base font-extrabold text-blue-900 group-hover:text-blue-700">
-                      {std.is_number}
-                    </span>
-                    <span className="ml-2 text-sm text-slate-500 font-medium">
-                      ({std.year})
-                    </span>
-                  </div>
-
-                  <span
-                    className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
-                      std.status === "current"
-                        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                        : "bg-red-50 text-red-800 border-red-200"
-                    }`}
-                  >
-                    {std.status === "current" ? "Active" : "Superseded"}
+      {/* Items Grid */}
+      {items.length === 0 ? (
+        <div className="p-8 rounded-xl bg-[#FFF8E9]/60 border border-[#E7D9BC]/60 text-center text-xs text-[#9B8977]">
+          No standards linked under {currentCategory?.label.toLowerCase()} for this equipment.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {items.map((std: StandardMetadata, idx: number) => (
+            <div
+              key={idx}
+              className="p-3.5 rounded-xl bg-white border border-[#E7D9BC] hover:border-[#FC6C26]/50 transition flex flex-col justify-between space-y-2.5 shadow-xs"
+            >
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold text-[#D95218] bg-[#FC6C26]/10 px-2 py-0.5 rounded-md">
+                    {std.is_number}
+                  </span>
+                  <span className="text-[10px] font-mono font-medium text-[#9B8977]">
+                    {std.year || "IS Standard"}
                   </span>
                 </div>
-
-                <div className="text-sm font-semibold text-slate-900 mt-1.5 line-clamp-2 leading-snug">
+                <div className="text-xs font-bold text-[#231A14] line-clamp-2 leading-snug">
                   {std.title}
                 </div>
-
-                <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
-                  {std.scope}
-                </p>
-
-                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-medium text-slate-700">
-                    Domain: {std.domain}
-                  </span>
-                  <span className="text-blue-600 group-hover:underline flex items-center gap-1 font-semibold">
-                    View Metadata <ExternalLink className="w-3.5 h-3.5" />
-                  </span>
+                <div className="text-[10px] text-[#6E5C4E] truncate">
+                  Domain: {std.domain || "Engineering"}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+
+              {onSelectStandard && (
+                <button
+                  type="button"
+                  onClick={() => onSelectStandard(std)}
+                  className="w-full pt-2 border-t border-[#E7D9BC]/60 text-[11px] font-semibold text-[#D95218] hover:text-[#FC6C26] flex items-center justify-between transition cursor-pointer"
+                >
+                  <span>Inspect Specifications</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
