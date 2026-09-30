@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import time
 from typing import List, Dict, Any, Optional
@@ -13,7 +14,11 @@ from backend.models.schemas import (
     VersionAlert,
     RelatedStandardsCategorized,
     LatencyBreakdown,
-    QCOResult
+    QCOResult,
+    StandardVerificationRequest,
+    StandardVerificationResult,
+    DiscoverStandardsRequest,
+    DiscoverStandardsResponse
 )
 from backend.services.nlp_extractor import extract_requirements
 from backend.services.retrieval_engine import HybridRetrievalEngine
@@ -23,6 +28,7 @@ from backend.services.pdf_service import PDFParserService
 from backend.services.qco_engine import QCOEngine
 from backend.services.multilingual_engine import MultilingualRetrievalEngine, detect_language
 from backend.services.tender_audit_service import TenderAuditService
+from backend.services.bis_kys_agent import BISKnowYourStandardsAgent
 
 app = FastAPI(
     title="BIS-SpecAI API",
@@ -46,6 +52,7 @@ version_auditor = VersionAuditor(standards_path="data/standards.json")
 pdf_service = PDFParserService()
 qco_engine = QCOEngine(qco_path="data/qco_database.json")
 tender_audit_service = TenderAuditService(standards_path="data/standards.json", qco_path="data/qco_database.json")
+kys_agent = BISKnowYourStandardsAgent(standards_path="data/standards.json")
 
 # Multilingual engine: lazy-initialized on first non-English query
 _multilingual_engine: Optional[MultilingualRetrievalEngine] = None
@@ -436,6 +443,53 @@ def list_all_qcos():
             "status_label": status.status_label,
         })
     return all_results
+
+# =========================================================================
+# Live BIS Know Your Standards Agent Endpoints
+# =========================================================================
+
+@app.post("/api/agent/verify-standard", response_model=StandardVerificationResult)
+async def verify_standard_on_portal(req: StandardVerificationRequest):
+    """
+    Live BIS Know Your Standards Agent:
+    Reverifies an Indian Standard against the official BIS portal (services.bis.gov.in).
+    Checks active legal status, latest revisions, supersessions, and normative links.
+    """
+    if not req.is_number or len(req.is_number.strip()) < 2:
+        raise HTTPException(status_code=400, detail="Invalid Indian Standard number.")
+    return await kys_agent.verify_standard(req.is_number, req.year, req.title)
+
+
+@app.post("/api/agent/discover-standards", response_model=DiscoverStandardsResponse)
+async def discover_standards_on_web(req: DiscoverStandardsRequest):
+    """
+    Live BIS Know Your Standards Agent:
+    Discovers newly published or related Indian Standards on the official BIS portal.
+    """
+    if not req.query or len(req.query.strip()) < 2:
+        raise HTTPException(status_code=400, detail="Query text is too short.")
+    return await kys_agent.discover_new_standards(req.query, limit=req.limit)
+
+
+from fastapi.responses import Response
+from backend.services.pdf_export_service import generate_standard_pdf_bytes
+
+@app.post("/api/export-standard-pdf")
+def export_standard_pdf(req: Dict[str, Any]):
+    """
+    Exports a publication-grade PDF technical specification sheet for the recommended Indian Standard.
+    """
+    std_data = req.get("standard", {})
+    clause_text = req.get("tender_clause")
+    pdf_bytes = generate_standard_pdf_bytes(std_data, clause_text)
+    clean_num = re.sub(r'[^a-zA-Z0-9_\-]', '_', std_data.get('is_number', 'standard'))
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="BIS_Specification_{clean_num}.pdf"'
+        }
+    )
 
 
 if __name__ == "__main__":
