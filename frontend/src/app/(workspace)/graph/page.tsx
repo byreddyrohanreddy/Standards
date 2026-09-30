@@ -153,15 +153,15 @@ function GraphCanvasInner() {
     setSelectedStandardId(stdId);
     try {
       const data = await fetchStandardDetail(stdId);
-      if (data && data.graph_data) {
-        const flowNodes: Node[] = (data.graph_data.nodes || []).map((n: any) => ({
+      if (data && data.graph) {
+        const flowNodes: Node[] = (data.graph.nodes || []).map((n: any) => ({
           id: n.id,
           type: "custom",
           position: n.position || { x: 400, y: 100 },
           data: n.data,
         }));
 
-        const flowEdges: Edge[] = (data.graph_data.edges || []).map((e: any) => ({
+        const flowEdges: Edge[] = (data.graph.edges || []).map((e: any) => ({
           id: e.id,
           source: e.source,
           target: e.target,

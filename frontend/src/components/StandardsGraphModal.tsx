@@ -13,7 +13,8 @@ import {
   Handle,
   Position,
   NodeProps,
-  BackgroundVariant
+  BackgroundVariant,
+  ReactFlowProvider
 } from "@xyflow/react";
 import {
   X,
@@ -99,27 +100,14 @@ export const StandardsGraphModal: React.FC<StandardsGraphModalProps> = ({
   // Layout nodes and edges
   const initialNodes: Node[] = useMemo(() => {
     if (!graphData || !graphData.nodes) return [];
-    const count = graphData.nodes.length;
-    const centerX = 400;
-    const centerY = 250;
-    const radius = Math.min(280, Math.max(160, count * 28));
 
-    return graphData.nodes.map((n, idx) => {
+    return graphData.nodes.map((n) => {
       const isPrimary = Boolean(n.data?.is_primary ?? (n as any).is_primary);
-      let posX = centerX;
-      let posY = centerY;
-
-      if (!isPrimary) {
-        const nonPrimaryIndex = idx;
-        const angle = (2 * Math.PI * nonPrimaryIndex) / (count - 1 || 1);
-        posX = centerX + radius * Math.cos(angle);
-        posY = centerY + radius * Math.sin(angle);
-      }
 
       return {
         id: n.id,
         type: "standardNode",
-        position: { x: posX - 70, y: posY - 25 },
+        position: n.position || { x: 400, y: 250 },
         data: {
           label: n.data?.is_number || (n as any).label || n.id,
           title: n.data?.title || (n as any).title,
@@ -210,26 +198,28 @@ export const StandardsGraphModal: React.FC<StandardsGraphModalProps> = ({
         </div>
 
         {/* Workspace Canvas + Slide-out Inspector Drawer */}
-        <div className="relative flex-1 w-full h-full overflow-hidden">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onNodeClick={onNodeClick}
-            nodeTypes={nodeTypes}
-            fitView
-            minZoom={0.2}
-            maxZoom={2}
-          >
-            <Background
-              variant={BackgroundVariant.Dots}
-              gap={24}
-              size={1}
-              color="rgba(252, 108, 38, 0.15)"
-            />
-            <Controls className="!bg-[#2A211A] !border-[#E7D9BC]/20 !fill-white" />
-          </ReactFlow>
+        <div className="relative flex-1 w-full h-full overflow-hidden" style={{ minHeight: "500px" }}>
+          <ReactFlowProvider>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onNodeClick={onNodeClick}
+              nodeTypes={nodeTypes}
+              fitView
+              minZoom={0.2}
+              maxZoom={2}
+            >
+              <Background
+                variant={BackgroundVariant.Dots}
+                gap={24}
+                size={1}
+                color="rgba(252, 108, 38, 0.15)"
+              />
+              <Controls className="!bg-[#2A211A] !border-[#E7D9BC]/20 !fill-white" />
+            </ReactFlow>
+          </ReactFlowProvider>
 
           {/* Node Category Legend Overlay */}
           <div className="absolute top-4 left-4 p-3 rounded-xl bg-[#2A211A]/90 backdrop-blur-md border border-[#E7D9BC]/20 text-[11px] font-mono space-y-1.5 pointer-events-none">
