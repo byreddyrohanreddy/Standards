@@ -1,19 +1,46 @@
-# Python virtual environment
+# ==============================================================================
+# BIS-SpecAI: Root .gitignore
+# Smart India Hackathon (SIH) 2026 - Problem Statement #26108
+# ==============================================================================
+
+# Python Virtual Environments
 .venv/
 env/
 venv/
 ENV/
-build/
-dist/
-*.egg-info/
+env.bak/
+venv.bak/
 
-# Python cache
+# Python Bytecode & Cache
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
+*.so
+.Python
 
-# Node & Next.js
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Distribution / Packaging
+build/
+dist/
+*.egg-info/
+*.egg
+eggs/
+.eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+
+# Node.js & Next.js
 node_modules/
 frontend/node_modules/
 .next/
@@ -21,22 +48,45 @@ frontend/.next/
 out/
 frontend/out/
 .vercel
+*.tsbuildinfo
 
-# Environment variables
+# Environment & Secrets (Preserve .env.example)
 .env
+.env.*
+!.env.example
 backend/.env
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
-
-# OS files
-.DS_Store
-Thumbs.db
-Desktop.ini
+frontend/.env
+frontend/.env*.local
 
 # Logs
 *.log
+logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+[Dd]esktop.ini
+*.tmp
+
+# IDE & Editor Configurations
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Agent, Tooling & Scanner Caches
+.agents/
+.vibemole/
+SKILL*.md

@@ -1,0 +1,27 @@
+{
+  "name": "bis-specai-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BIS-SpecAI: AI-Powered Recommendation Engine for Indian Standards (SIH 2026)",
+  "scripts": {
+    "start": "start.bat",
+    "dev": "start.bat",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "frontend:build": "npm --prefix frontend run build",
+    "frontend:start": "npm --prefix frontend run start",
+    "frontend:lint": "npm --prefix frontend run lint",
+    "test": "python -m pytest tests/ -v",
+    "eval": "python evaluation/evaluate.py"
+  },
+  "keywords": [
+    "sih2026",
+    "bis",
+    "indian-standards",
+    "ai-recommendations",
+    "procurement",
+    "fastapi",
+    "nextjs"
+  ],
+  "author": "",
+  "license": "MIT"
+}

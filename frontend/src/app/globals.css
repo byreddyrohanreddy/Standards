@@ -1,45 +1,517 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
-@import "@xyflow/react/dist/style.css";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* =========================================================================
+     BIS-SpecAI CENTRALIZED DESIGN TOKENS: WARM ORANGE & CREAM SYSTEM
+     Primary: #FC6C26 | Base: #FFF4D6
+     ========================================================================= */
+  
+  /* Brand Core */
+  --color-primary: #FC6C26;
+  --color-primary-hover: #E05A17;
+  --color-primary-dark: #D95218;
+  --color-primary-subtle: rgba(252, 108, 38, 0.12);
+  --color-primary-glow: rgba(252, 108, 38, 0.28);
+  
+  /* Environment & Surfaces */
+  --color-background: #FFF4D6;
+  --color-surface: #FFFAEF;
+  --color-surface-soft: #FFF8E9;
+  --color-surface-card: #FFFFFF;
+  --color-border: #E7D9BC;
+  --color-border-subtle: rgba(231, 217, 188, 0.55);
+  --color-border-hover: rgba(252, 108, 38, 0.45);
+  
+  /* Typography Contrast Palette (WCAG AA Compliant on #FFF4D6 and #FFFAEF) */
+  --color-text: #1E1510;
+  --color-text-secondary: #4D3E33;
+  --color-text-muted: #5F4F42;
+  --color-text-on-primary: #FFFFFF;
+  
+  /* Dark Technical Surface (for Graph & Engine Inspector) */
+  --color-dark-surface: #2A211A;
+  --color-dark-surface-elevated: #362B22;
+  --color-dark-border: rgba(255, 244, 214, 0.14);
+  --color-dark-text: #FFF8E9;
+  
+  /* Semantic Tokens */
+  --color-verified: #15803D;
+  --color-verified-bg: rgba(21, 128, 61, 0.12);
+  --color-warning: #B45309;
+  --color-warning-bg: rgba(180, 83, 9, 0.12);
+  --color-danger: #B91C1C;
+  --color-danger-bg: rgba(185, 28, 28, 0.12);
+  
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  /* Geometry & Radii - Varied for Visual Rhythm */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  
+  /* Tactile & Atmospheric Shadows */
+  --shadow-subtle: 0 1px 3px rgba(35, 26, 20, 0.05), 0 1px 2px rgba(35, 26, 20, 0.03);
+  --shadow-soft: 0 4px 16px -2px rgba(35, 26, 20, 0.06), 0 2px 6px -1px rgba(35, 26, 20, 0.04);
+  --shadow-elevated: 0 12px 28px -6px rgba(35, 26, 20, 0.08), 0 4px 10px rgba(35, 26, 20, 0.03);
+  --shadow-orange-glow: 0 0 24px rgba(252, 108, 38, 0.22);
+  --shadow-clay: 0 3px 8px rgba(35, 26, 20, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9), inset 0 -1px 2px rgba(231, 217, 188, 0.4);
+  
+  /* Interaction Speeds */
+  --transition-fast: 130ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Marquee Continuous Animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--color-background) !important;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* React Flow Custom Node & Canvas styling */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+code, kbd, samp, pre {
+  font-family: var(--font-mono);
+}
+
+/* =========================================================================
+   WARM REFINED CARD AND GLASS SURFACES
+   ========================================================================= */
+
+.liquid-glass,
+.warm-glass {
+  background: rgba(255, 252, 245, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
+  box-shadow: 
+    var(--shadow-subtle),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.card-solid {
+  background: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-subtle);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.card-solid:hover {
+  border-color: #D4C3A3;
+  box-shadow: var(--shadow-soft);
+}
+
+.card-technical {
+  background: #FFFCF5;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 2px rgba(35, 26, 20, 0.04);
+  transition: all var(--transition-fast);
+}
+
+.card-technical:hover {
+  border-color: #CBB998;
+}
+
+.liquid-glass:hover,
+.warm-glass:hover {
+  border-color: #D4C3A3;
+  box-shadow: 
+    var(--shadow-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.liquid-glass-glow,
+.warm-glass-glow {
+  background: rgba(255, 252, 245, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(252, 108, 38, 0.35);
+  box-shadow: 
+    var(--shadow-elevated),
+    0 0 20px rgba(252, 108, 38, 0.1);
+  border-radius: var(--radius-lg);
+}
+
+.glass-panel {
+  background: rgba(255, 252, 245, 0.90);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-subtle);
+}
+
+.glass-panel-elevated {
+  background: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+}
+
+/* =========================================================================
+   WARM CLAYMORPHISM (PARAMETER CHIPS, METRICS, TOKENS)
+   ========================================================================= */
+
+.clay-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #FFF8E9;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-clay);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+}
+
+.clay-chip:hover {
+  background: #FFFFFF;
+  border-color: rgba(252, 108, 38, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(217, 82, 24, 0.12), inset 0 1px 1px #FFFFFF;
+}
+
+.clay-chip-active {
+  background: rgba(252, 108, 38, 0.12);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(252, 108, 38, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+/* =========================================================================
+   SKEUOMORPHIC TACTILE DETAIL (PRIMARY ORANGE & SECONDARY CREAM BUTTONS)
+   ========================================================================= */
+
+.tactile-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #FC6C26 0%, #D95218 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 
+    0 4px 18px rgba(217, 82, 24, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-fast);
+}
+
+.tactile-btn-primary:hover {
+  transform: translateY(-1.5px);
+  background: linear-gradient(135deg, #FF7B38 0%, #E05A17 100%);
+  box-shadow: 
+    0 8px 24px rgba(217, 82, 24, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.tactile-btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: 
+    0 2px 6px rgba(217, 82, 24, 0.25),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tactile-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.tactile-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: var(--radius-md);
+  background: #FFF8E9;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: 
+    0 2px 8px rgba(35, 26, 20, 0.04),
+    inset 0 1px 0 #FFFFFF;
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-fast);
+}
+
+.tactile-btn-secondary:hover {
+  background: #FFFFFF;
+  border-color: rgba(252, 108, 38, 0.45);
+  color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(217, 82, 24, 0.1);
+}
+
+.tactile-btn-secondary:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 3px rgba(35, 26, 20, 0.1);
+}
+
+/* =========================================================================
+   WARM COMMAND CONSOLE INPUT
+   ========================================================================= */
+
+.glass-input {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  box-shadow: inset 0 1px 3px rgba(35, 26, 20, 0.05);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.glass-input:not([class*="pl-"]):not([class*="px-"]):not([class*="p-"]) {
+  padding: 10px 14px;
+}
+
+.glass-input:focus {
+  border-color: var(--color-primary);
+  background: #FFFFFF;
+  box-shadow: 
+    0 0 0 3px rgba(252, 108, 38, 0.18),
+    inset 0 1px 2px rgba(35, 26, 20, 0.05);
+}
+
+.glass-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* =========================================================================
+   WARM AMBIENT GRADIENT MESH BACKGROUND (#FFF4D6 + #FC6C26)
+   ========================================================================= */
+
+.ambient-mesh {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: var(--color-background);
+}
+
+.ambient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.28;
+}
+
+.ambient-blob-1 {
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(252, 108, 38, 0.28) 0%, transparent 70%);
+  top: -220px;
+  right: -160px;
+  animation-delay: 0s;
+}
+
+.ambient-blob-2 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.24) 0%, transparent 70%);
+  bottom: -160px;
+  left: -130px;
+  animation-delay: -9s;
+}
+
+.ambient-blob-3 {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(252, 108, 38, 0.18) 0%, transparent 70%);
+  top: 35%;
+  left: 20%;
+  animation-delay: -17s;
+}
+
+.ambient-blob-4 {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(255, 220, 160, 0.3) 0%, transparent 70%);
+  bottom: 25%;
+  right: 15%;
+  animation-delay: -22s;
+}
+
+@keyframes floatAmbient {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(40px, -50px) scale(1.06);
+  }
+  66% {
+    transform: translate(-35px, 40px) scale(0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-blob {
+    animation: none !important;
+  }
+}
+
+.ambient-grid {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(217, 82, 24, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.7;
+}
+
+/* =========================================================================
+   WARM DARK GRAPH WORKSPACE CANVAS
+   ========================================================================= */
+
 .react-flow__renderer {
-  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 244, 214, 0.15) !important;
+  border-radius: var(--radius-lg);
+  background: #241C15 !important;
 }
 
 .react-flow__handle {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #3b82f6;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  border: 1px solid #FFFFFF !important;
+  background: #FC6C26 !important;
+  box-shadow: 0 0 10px #FC6C26 !important;
 }
 
-/* Smooth custom scrollbars */
+/* Polished warm scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: rgba(255, 244, 214, 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: #E7D9BC;
+  border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #FC6C26;
 }
+
+/* =========================================================================
+   GLOW CARD — SPECULAR HIGHLIGHT
+   ========================================================================= */
+
+.glow-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    400px circle at var(--glow-x, 50%) var(--glow-y, 50%),
+    var(--glow-color, rgba(252, 108, 38, 0.08)),
+    transparent 60%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.glow-card:hover::before {
+  opacity: 1;
+}
+
+.glow-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* =========================================================================
+   LANDING PAGE UTILITIES
+   ========================================================================= */
+
+.landing-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@media (min-width: 768px) {
+  .landing-section {
+    padding: 0 48px;
+  }
+}
+
+.feature-grid-item {
+  background: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-subtle);
+}
+
+.feature-grid-item:hover {
+  border-color: #D4C3A3;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
