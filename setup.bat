@@ -55,7 +55,7 @@ echo       Detected: Node !NODE_VER!, npm !NPM_VER!
 echo.
 echo [3/5] Configuring Python environment and installing backend dependencies...
 if not exist "%ROOT_DIR%\.venv" (
-    echo       Creating Python virtual environment (.venv)...
+    echo       Creating Python virtual environment ^(.venv^)...
     %PY_CMD% -m venv "%ROOT_DIR%\.venv"
     if !ERRORLEVEL! NEQ 0 (
         echo [WARNING] Could not create .venv. Falling back to global/current Python environment.
@@ -63,7 +63,7 @@ if not exist "%ROOT_DIR%\.venv" (
 )
 
 if exist "%ROOT_DIR%\.venv\Scripts\python.exe" (
-    echo       Configuring virtual environment (.venv)...
+    echo       Configuring virtual environment ^(.venv^)...
     "%ROOT_DIR%\.venv\Scripts\python.exe" -m pip install --upgrade pip --quiet
     "%ROOT_DIR%\.venv\Scripts\python.exe" -m pip install -r "%ROOT_DIR%\requirements.txt"
 ) else (
