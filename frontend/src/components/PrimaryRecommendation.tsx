@@ -17,7 +17,9 @@ import {
   BookOpen,
   Check,
   HelpCircle,
-  FileText
+  FileText,
+  Download,
+  Loader2
 } from "lucide-react";
 import { StandardMetadata, QCOResult } from "@/types";
 import { ScoreRing } from "./ui/ScoreRing";
@@ -25,12 +27,14 @@ import { StatusPill, VersionBadge, QCOBadge } from "./ui/StatusBadge";
 import { ParameterGroup } from "./ui/ParameterChip";
 import { PrimaryButton, SecondaryButton, Button } from "./ui/Button";
 import { useToast } from "./ui/Toast";
+import { exportStandardPdf } from "@/lib/api";
 
 export interface PrimaryRecommendationProps {
   standard: StandardMetadata;
   semanticNote?: string;
   qcoResults?: QCOResult[];
   isMultilingual?: boolean;
+  tenderClause?: string;
   onOpenGraph?: () => void;
   onViewStandard?: (std: StandardMetadata) => void;
   onOpenClause?: () => void;
@@ -42,6 +46,7 @@ export const PrimaryRecommendation: React.FC<PrimaryRecommendationProps> = ({
   semanticNote,
   qcoResults = [],
   isMultilingual = false,
+  tenderClause,
   onOpenGraph,
   onViewStandard,
   onOpenClause,
@@ -50,6 +55,7 @@ export const PrimaryRecommendation: React.FC<PrimaryRecommendationProps> = ({
   const { toast } = useToast();
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [pdfExporting, setPdfExporting] = useState(false);
 
   const isCurrent = standard.status === "current" || standard.status === "active";
   const hasQco = qcoResults.length > 0;
@@ -214,7 +220,7 @@ export const PrimaryRecommendation: React.FC<PrimaryRecommendationProps> = ({
 
       {/* Recommendation Action Bar */}
       <div className="flex items-center justify-between gap-3 pt-3 border-t border-[#E7D9BC] flex-wrap">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {onViewStandard && (
             <PrimaryButton
               size="sm"
@@ -231,9 +237,43 @@ export const PrimaryRecommendation: React.FC<PrimaryRecommendationProps> = ({
               onClick={onOpenClause}
               leftIcon={<FileText className="w-3.5 h-3.5" />}
             >
-              Generate Tender Clause
+              Tender Clause
             </SecondaryButton>
           )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={pdfExporting}
+            onClick={async () => {
+              if (pdfExporting) return;
+              setPdfExporting(true);
+              try {
+                const blob = await exportStandardPdf(standard as any, tenderClause);
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                const cleanNum = (standard.is_number || "standard").replace(/[^a-zA-Z0-9_\-]/g, "_");
+                a.href = url;
+                a.download = `BIS_Specification_${cleanNum}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                toast({ title: "PDF Downloaded", description: `${standard.is_number} specification exported`, type: "success" });
+              } catch (err: any) {
+                toast({ title: "PDF Export Failed", description: err.message || "Please try again.", type: "error" });
+              } finally {
+                setPdfExporting(false);
+              }
+            }}
+            leftIcon={
+              pdfExporting
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                : <Download className="w-3.5 h-3.5" />
+            }
+          >
+            {pdfExporting ? "Preparing..." : "Export PDF"}
+          </Button>
         </div>
 
         {onOpenGraph && (

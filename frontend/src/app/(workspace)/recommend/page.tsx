@@ -20,6 +20,11 @@ import { ParameterCluster } from "@/components/recommend/ParameterCluster";
 import { EvidenceBreakdown } from "@/components/recommend/EvidenceBreakdown";
 import { VersionTimeline } from "@/components/recommend/VersionTimeline";
 import { TenderItemRail } from "@/components/recommend/TenderItemRail";
+import { QCOCompliancePanel } from "@/components/QCOCompliancePanel";
+import { MultilingualInsight } from "@/components/MultilingualInsight";
+import { LiveVerificationBadge } from "@/components/LiveVerificationBadge";
+import { DiscoveredStandardsSection } from "@/components/DiscoveredStandardsSection";
+import { ChatSidebar } from "@/components/ChatSidebar";
 import {
   analyzeRequirement,
   uploadTenderPdf,
@@ -60,6 +65,7 @@ function RecommendContent() {
   const [selectedStandard, setSelectedStandard] = useState<StandardMetadata | null>(null);
   const [isClauseModalOpen, setIsClauseModalOpen] = useState<boolean>(false);
   const [activeRequirementIndex, setActiveRequirementIndex] = useState<number>(0);
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
 
   // Load initial examples
   useEffect(() => {
@@ -147,6 +153,12 @@ function RecommendContent() {
   const threshMsg = activeGroup
     ? activeGroup.threshold_message
     : result?.threshold_message;
+  const currentQco = activeGroup
+    ? activeGroup.qco_results
+    : result?.qco_results;
+  const currentTenderClause = activeGroup
+    ? activeGroup.tender_clause
+    : result?.tender_clause;
 
   return (
     <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 space-y-5">
@@ -240,13 +252,34 @@ function RecommendContent() {
                 <PrimaryRecommendation
                   standard={currentPrimary}
                   semanticNote={currentSemanticNote}
-                  qcoResults={activeGroup ? activeGroup.qco_results : result.qco_results}
+                  qcoResults={currentQco}
                   isMultilingual={result.is_multilingual}
+                  tenderClause={currentTenderClause}
                   onOpenGraph={() => setIsGraphOpen(true)}
                   onViewStandard={(std) => setSelectedStandard(std)}
                   onOpenClause={() => setIsClauseModalOpen(true)}
                 />
               )}
+
+              {/* Live BIS Verification */}
+              {currentPrimary && (
+                <LiveVerificationBadge
+                  isNumber={currentPrimary.is_number}
+                  year={currentPrimary.year}
+                  title={currentPrimary.title}
+                />
+              )}
+
+              {/* QCO Compliance Panel */}
+              {currentPrimary && (
+                <QCOCompliancePanel qcoResults={currentQco} />
+              )}
+
+              {/* Multilingual Insight */}
+              <MultilingualInsight
+                isMultilingual={result.is_multilingual}
+                semanticNote={currentSemanticNote}
+              />
 
               {/* Requirement Parameter Cluster (Interactive Chips) */}
               {currentRequirements && (
@@ -278,6 +311,11 @@ function RecommendContent() {
                   candidates={currentCandidates}
                   onSelectStandard={(std) => setSelectedStandard(std)}
                 />
+              )}
+
+              {/* Live BIS Discovery */}
+              {result.query && (
+                <DiscoveredStandardsSection query={result.query} />
               )}
             </div>
           )}
@@ -364,6 +402,26 @@ function RecommendContent() {
             result.primary_standard?.is_number
           }
         />
+      )}
+
+      {/* AI Intelligence Assistant Chat Sidebar */}
+      <ChatSidebar
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        analysisResult={result}
+      />
+
+      {/* Floating Assistant Button */}
+      {!isChatOpen && (
+        <button
+          type="button"
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-20 right-6 z-30 w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FC6C26] to-[#D95218] text-white shadow-lg shadow-[#D95218]/30 hover:shadow-xl hover:shadow-[#D95218]/40 flex items-center justify-center transition-all hover:scale-105 cursor-pointer print:hidden"
+          aria-label="Open BIS-SpecAI Intelligence Assistant"
+          title="Ask AI Assistant"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        </button>
       )}
     </main>
   );

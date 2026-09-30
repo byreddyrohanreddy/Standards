@@ -150,7 +150,9 @@ export interface CertificationScheme {
 export interface QCOStatus {
   enforcement_date: string;
   enforcement_status: "mandatory" | "upcoming" | "superseded" | string;
+  gazette_notification?: string;
   status_label: string;
+  status_detail?: string;
 }
 
 export interface QCOResult {
@@ -160,8 +162,13 @@ export interface QCOResult {
   applicable_is_numbers: string[];
   certification_scheme: string;
   issuing_ministry: string;
+  gazette_notification?: string;
+  gazette_date?: string;
+  scope_note?: string;
+  source_url?: string;
   status: QCOStatus;
   verified: boolean;
+  notes?: string;
 }
 
 export interface RequirementGroupResult {
@@ -299,5 +306,70 @@ export interface AuditHistoryItem {
   document_name: string;
   summary: TenderAuditSummary;
   report: TenderAuditReport;
+}
+
+// ─── BIS Know Your Standards Live Agent Types ────────────────────────────────
+
+export interface StandardVerificationRequest {
+  is_number: string;
+  year?: number;
+  title?: string;
+}
+
+export interface StandardVerificationResult {
+  is_number: string;
+  status: "ACTIVE_CURRENT" | "SUPERSEDED" | "WITHDRAWN" | "UNDER_REVISION" | string;
+  status_label: string;
+  latest_edition: string;
+  published_year?: string;
+  reaffirmed_year?: string;
+  superseded_by?: string;
+  verified_via: string;
+  portal_url: string;
+  is_valid_for_procurement: boolean;
+  revisions_history: Record<string, any>[];
+  amendments_count: number;
+  verification_timestamp: string;
+  agent_summary: string;
+  linked_normative_standards: string[];
+}
+
+export interface DiscoverStandardsRequest {
+  query: string;
+  limit?: number;
+}
+
+export interface DiscoveredStandard {
+  is_number: string;
+  title: string;
+  year?: string;
+  status: string;
+  portal_url: string;
+  is_in_local_catalog: boolean;
+  relevance_note?: string;
+}
+
+export interface DiscoverStandardsResponse {
+  query: string;
+  discovered_standards: DiscoveredStandard[];
+  total_found_on_portal: number;
+  agent_analysis: string;
+  portal_source: string;
+  execution_time_ms: number;
+}
+
+export interface ExportStandardPdfRequest {
+  standard: Record<string, any>;
+  tender_clause?: string;
+}
+
+// ─── Chat Types ──────────────────────────────────────────────────────────────
+
+export interface ChatMessage {
+  id: string;
+  sender: "user" | "assistant";
+  text: string;
+  timestamp: string;
+  isError?: boolean;
 }
 

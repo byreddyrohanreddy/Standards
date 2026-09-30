@@ -5,7 +5,9 @@ import {
   TenderAuditReport,
   QCOListItem,
   RecommendationHistoryItem,
-  AuditHistoryItem
+  AuditHistoryItem,
+  StandardVerificationResult,
+  DiscoverStandardsResponse
 } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
@@ -164,6 +166,72 @@ export async function fetchQcoForStandard(isNumber: string): Promise<any> {
     throw new Error(`Failed to fetch QCO for ${isNumber}`);
   }
   return res.json();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BIS Live Agent API Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function verifyStandardOnBis(
+  isNumber: string,
+  year?: number,
+  title?: string
+): Promise<StandardVerificationResult> {
+  const res = await fetch(`${API_BASE}/agent/verify-standard`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      is_number: isNumber,
+      ...(year != null ? { year } : {}),
+      ...(title ? { title } : {})
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Verification request failed" }));
+    throw new Error(err.detail || `Verification failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function discoverStandards(
+  query: string,
+  limit: number = 10
+): Promise<DiscoverStandardsResponse> {
+  const res = await fetch(`${API_BASE}/agent/discover-standards`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, limit })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Discovery request failed" }));
+    throw new Error(err.detail || `Discovery failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function exportStandardPdf(
+  standard: Record<string, any>,
+  tenderClause?: string
+): Promise<Blob> {
+  const res = await fetch(`${API_BASE}/export-standard-pdf`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      standard,
+      ...(tenderClause ? { tender_clause: tenderClause } : {})
+    })
+  });
+  if (!res.ok) {
+    // Attempt to read error detail from JSON response
+    const text = await res.text().catch(() => "");
+    let detail = `PDF export failed: ${res.status}`;
+    try {
+      const errJson = JSON.parse(text);
+      if (errJson.detail) detail = errJson.detail;
+    } catch (_) {}
+    throw new Error(detail);
+  }
+  return res.blob();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
