@@ -36,7 +36,7 @@ export const InsightRail: React.FC<InsightRailProps> = ({
   onViewStandard,
 }) => {
   return (
-    <aside className="space-y-4">
+    <aside className="space-y-4 lg:grid lg:grid-cols-3 lg:gap-4 lg:space-y-0 xl:block xl:space-y-4">
       {/* 1. Contextual Intelligence Status */}
       <div className="warm-glass p-4 rounded-2xl border border-[#E7D9BC] space-y-3">
         <div className="flex items-center justify-between pb-2 border-b border-[#E7D9BC]/60">

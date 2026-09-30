@@ -445,7 +445,7 @@ export const RequirementComposer: React.FC<RequirementComposerProps> = ({
 
         {/* Section 15: Preset Scenario Cards */}
         <div className="pt-2 border-t border-[#E7D9BC]/60">
-          <div className="flex items-center justify-between mb-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2.5">
             <span className="text-xs font-bold uppercase tracking-wider text-[#6E5C4E] font-mono">
               Pre-Engineered Benchmark Scenarios
             </span>
@@ -454,7 +454,7 @@ export const RequirementComposer: React.FC<RequirementComposerProps> = ({
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {PRESET_SCENARIOS.map((scenario, idx) => {
               const isSelected = selectedScenarioIdx === idx;
               return (
@@ -468,15 +468,15 @@ export const RequirementComposer: React.FC<RequirementComposerProps> = ({
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <div className="w-6 h-6 rounded-md bg-[#FFFAEF] border border-[#E7D9BC] flex items-center justify-center shrink-0">
                         {scenario.icon}
                       </div>
-                      <span className="text-xs font-bold text-[#231A14] leading-tight">
+                      <span className="text-xs font-bold text-[#231A14] leading-tight truncate">
                         {scenario.title}
                       </span>
                     </div>
-                    <span className="text-[10px] font-mono font-bold text-[#8D7B68] bg-[#E7D9BC]/40 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-mono font-bold text-[#8D7B68] bg-[#E7D9BC]/40 px-1.5 py-0.5 rounded shrink-0">
                       #{scenario.number}
                     </span>
                   </div>
@@ -485,11 +485,17 @@ export const RequirementComposer: React.FC<RequirementComposerProps> = ({
                     {scenario.description}
                   </p>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-[#E7D9BC]/50 text-[10px] font-mono">
-                    <span className="text-[#FC6C26] font-semibold">
+                  <div className="flex items-center justify-between pt-2 border-t border-[#E7D9BC]/50 text-[10px] font-mono gap-2">
+                    <span className="text-[#FC6C26] font-semibold truncate">
                       {scenario.standards}
                     </span>
-                    <span className="text-[#8D7B68]">
+                    <span
+                      className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-semibold ${
+                        isSelected
+                          ? "bg-[#FC6C26] text-white"
+                          : "bg-[#E7D9BC]/40 text-[#6E5C4E] hover:bg-[#FC6C26]/10 hover:text-[#FC6C26]"
+                      }`}
+                    >
                       {isSelected ? "Active" : "Load"}
                     </span>
                   </div>
